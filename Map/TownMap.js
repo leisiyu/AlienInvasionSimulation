@@ -5,8 +5,15 @@ class TownMap{
 		this.height = height; 
 	}
 
-	generatePos(){
-		return [Math.floor(Math.random() * 20), Math.floor(Math.random() * 20)]
+	static getInstance(width, height) {
+		if (!this.instance) {
+			this.instance = new TownMap(width, height);
+		}
+		return this.instance;
+	}
+
+	generateRandomPos(){
+		return [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
 	}
 
 	getSize(){
