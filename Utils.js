@@ -18,6 +18,15 @@ const TOWNFOLK_NAMES = [
 	'Elena',
 	'Harry',
 	'George',
+	'Henry',
+	'Ali',
+]
+
+const DIRECTION = [
+	'UP',
+	'DOWN',
+	'LEFT',
+	'RIGHT',
 ]
 
 module.exports = {
@@ -27,4 +36,5 @@ module.exports = {
 	ALIENS_NUM,
 	SOLIDERS_NUM,
 	TOWNFOLK_NAMES,
+	DIRECTION,
 }

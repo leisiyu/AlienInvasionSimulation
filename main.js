@@ -11,7 +11,8 @@ function main(){
 
 
 	while (steps < utils.TOTAL_STEPS) {
-		console.log("the steps is")
+		console.log("the steps number is " + steps);
+		CharactersManager.townfolksWander();
 		steps++;
 	}
 }

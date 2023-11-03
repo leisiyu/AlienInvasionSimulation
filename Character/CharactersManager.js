@@ -11,12 +11,20 @@ function generateTownfolks() {
 		var pos = TownMap.getInstance(utils.MAP_SIZE).generateRandomPos();
 		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
 		console.log('random name ' + randomName);
-		townfolks[i] = new Townfolk('Bob', pos);
+		townfolks[i] = new Townfolk(randomName, pos);
 		console.log("pos is " + townfolks[i].position);
 	}
 }
 
+function townfolksWander() {
+	for (let i = 0; i < townfolks.length; i++) {
+		townfolks[i].walkWithRandomDirection();
+	}
+}
+
+
 module.exports = {
 	generateTownfolks,
 	townfolks,
+	townfolksWander,
 }
