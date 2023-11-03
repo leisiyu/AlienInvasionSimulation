@@ -1,12 +1,13 @@
 
-utils = require('./Utils.js') 
-TownMap = require('./Map/TownMap.js').TownMap
+const utils = require('./Utils.js') 
+const TownMap = require('./Map/TownMap.js').TownMap
+const CharactersManager = require('./Character/CharactersManager.js');
 
 function main(){
 	var steps = 0;
-	var map = new TownMap(utils.MAP_SIZE[0], utils.MAP_SIZE[1])
-
-	console.log("the pos is " + map.generateRandomPos())
+	var map = TownMap.getInstance(utils.MAP_SIZE);
+	// console.log("the pos is " + map.generateRandomPos())
+	CharactersManager.generateTownfolks();
 
 
 	while (steps < utils.TOTAL_STEPS) {

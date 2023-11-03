@@ -1,13 +1,13 @@
 
 class TownMap{
-	constructor(width, height){
-		this.width = width;
-		this.height = height; 
+	constructor(mapSize){
+		this.width = mapSize[0];
+		this.height = mapSize[1]; 
 	}
 
-	static getInstance(width, height) {
+	static getInstance(mapSize) {
 		if (!this.instance) {
-			this.instance = new TownMap(width, height);
+			this.instance = new TownMap(mapSize);
 		}
 		return this.instance;
 	}
