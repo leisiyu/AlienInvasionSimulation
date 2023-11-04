@@ -15,6 +15,8 @@ function main(){
 		CharactersManager.townfolksWander();
 		steps++;
 	}
+
+	console.log("map !!!" + TownMap.getInstance().map);
 }
 
 
