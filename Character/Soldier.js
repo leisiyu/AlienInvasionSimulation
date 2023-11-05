@@ -2,7 +2,7 @@
 Character = require('./Character.js').Character
 const utils = require('../Utils.js') 
 
-class Townfolk extends Character{
+class Soldier extends Character{
 	constructor(name, position) {
 		super(name, position);
 	}
@@ -12,10 +12,10 @@ class Townfolk extends Character{
 	// }
 
 	// walkWithRandomDirection(){
-	// 	super.walkWithRandomDirection();
+	// 	super.walkWithRandomDirection()
 	// }
 }
 
 module.exports = {
-	Townfolk,
+	Soldier,
 }

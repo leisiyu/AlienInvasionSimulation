@@ -11,12 +11,19 @@ function main(){
 
 
 	while (steps < utils.TOTAL_STEPS) {
-		console.log("the steps number is " + steps);
+		// console.log("the steps number is " + steps);
 		CharactersManager.townfolksWander();
 		steps++;
 	}
 
-	console.log("map !!!" + TownMap.getInstance().map);
+	// console.log("map !!!" + TownMap.getInstance().map);
+	// for (let i = 0; i < 5; i++){
+	// 	for (let j = 0; j < 5; j++){
+	// 		var objjj = TownMap.getInstance().map[i][j];
+	// 		console.log('object ', objjj);
+			
+	// 	}
+	// }
 }
 
 
