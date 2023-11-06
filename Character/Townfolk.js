@@ -7,13 +7,13 @@ class Townfolk extends Character{
 		super(name, position);
 	}
 
-	// walk(direction){
-	// 	super.walk(direction);
-	// }
+	walk(direction){
+		super.walk(direction);
+	}
 
-	// walkWithRandomDirection(){
-	// 	super.walkWithRandomDirection();
-	// }
+	walkWithRandomDirection(){
+		super.walkWithRandomDirection();
+	}
 }
 
 module.exports = {

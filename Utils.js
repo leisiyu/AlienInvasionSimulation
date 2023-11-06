@@ -5,6 +5,12 @@ const TOWNFOLKS_NUM = 10
 const ALIENS_NUM = 3
 const SOLIDERS_NUM = 5
 
+const CHARACTER_TYPE = [
+	'TOWNFOLK',
+	'ALIEN',
+	'SOLDIER',
+]
+
 const TOWNFOLK_NAMES = [
 	'Bob',
 	'John',
@@ -36,5 +42,6 @@ module.exports = {
 	ALIENS_NUM,
 	SOLIDERS_NUM,
 	TOWNFOLK_NAMES,
+	CHARACTER_TYPE,
 	DIRECTION,
 }

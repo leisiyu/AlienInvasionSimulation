@@ -7,7 +7,7 @@ function main(){
 	var steps = 0;
 	var map = TownMap.getInstance(utils.MAP_SIZE);
 	// console.log("the pos is " + map.generateRandomPos())
-	CharactersManager.generateTownfolks();
+	CharactersManager.generateAllCharacters();
 
 
 	while (steps < utils.TOTAL_STEPS) {
