@@ -15,6 +15,14 @@ class Townfolk extends Character{
 	walkWithRandomDirection(){
 		super.walkWithRandomDirection();
 	}
+
+	speak(character){
+		super.speak(character);
+	}
+
+	attack(character){
+		super.attack(character);
+	}
 }
 
 module.exports = {

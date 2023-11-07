@@ -46,24 +46,16 @@ function generateAllCharacters(){
 	generateCharacters(utils.CHARACTER_TYPE[2]);
 }
 
-// function townfolksWander() {
-// 	for (let i = 0; i < townfolks.length; i++) {
-// 		const oldPosition = JSON.parse(JSON.stringify(townfolks[i].position));
-// 		// console.log("old " + oldPosition);
-// 		townfolks[i].walkWithRandomDirection();
-// 		TownMap.getInstance().updateObjectOnTheMap(townfolks[i], oldPosition, townfolks[i].position);
-// 		// console.log("position!!! " + oldPosition + townfolks[i].position);
-// 	}
-// }
-
 function wander(characterArray){
 	for (let i = 0; i < characterArray.length; i++) {
 		const oldPosition = JSON.parse(JSON.stringify(characterArray[i].position));
-		console.log("type " + characterArray[i].charType);
+		// console.log("type " + characterArray[i].charType);
 		characterArray[i].walkWithRandomDirection();
-		TownMap.getInstance().updateObjectOnTheMap(characterArray[i], oldPosition, townfolks[i].position);
-		console.log("position!!! " + oldPosition + townfolks[i].position);
+		TownMap.getInstance().updateObjectOnTheMap(characterArray[i], oldPosition, characterArray[i].position);
+		// console.log("position!!! " + oldPosition + townfolks[i].position);
+		console.log(characterArray[i].name + " (" + characterArray[i].charType + ") " + " move from " + oldPosition + " to " + characterArray[i].position);
 	}
+	checkEvents()
 }
 
 function charactersWander(){
@@ -75,7 +67,29 @@ function charactersWander(){
 function checkEvents() {
 	for (let i = 0; i < utils.MAP_SIZE[0]; i++) {
 		for (let j = 0; j < utils.MAP_SIZE[1]; j++){
+			if (TownMap.getInstance().map[i][j].length > 1) {
+				handleEvents(TownMap.getInstance().map[i][j])
+			}
+		}
+	}
+}
 
+function handleEvents(charArray){
+	for (let i = 0; i < charArray.length; i++){
+		for (let j = 0; j < charArray.length; j++){
+			if (charArray[i] !== charArray[j]) {
+				charArray[i].speak(charArray[j]);
+				if (charArray[i].charType == utils.CHARACTER_TYPE[1] & charArray[j].charType != utils.CHARACTER_TYPE[1]){
+					// console.log("test   " + charArray[i].charType);
+					// console.log("test   " + charArray[j].charType);
+					// console.log(charArray[i].speak)
+					// console.log(charArray[i].attack)
+					charArray[i].attack(charArray[j]);
+				}
+				if (charArray[i].charType == utils.CHARACTER_TYPE[2] & charArray[j].charType == utils.CHARACTER_TYPE[1]){
+					charArray[i].attack(charArray[j]);
+				}
+			}
 		}
 	}
 }

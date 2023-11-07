@@ -8,13 +8,21 @@ class Soldier extends Character{
 		this.charType = utils.CHARACTER_TYPE[2];
 	}
 
-	// walk(direction){
-	// 	super.walk(direction);
-	// }
+	walk(direction){
+		super.walk(direction);
+	}
 
-	// walkWithRandomDirection(){
-	// 	super.walkWithRandomDirection()
-	// }
+	walkWithRandomDirection(){
+		super.walkWithRandomDirection()
+	}
+
+	speak(character){
+		super.speak(character);
+	}
+
+	attack(character){
+		super.attack(character);
+	}
 }
 
 module.exports = {

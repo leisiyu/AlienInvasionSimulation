@@ -7,7 +7,7 @@ class Character{
 		// this.inventorySize = inventorySize;
 		this.inventory = [];
 		this.hp = Math.floor(Math.random() * 100);
-		this.attack = Math.floor(Math.random() * 10);
+		// this.attack = Math.floor(Math.random() * 10);?????????????
 	}
 
 	walk(direction){
@@ -39,8 +39,8 @@ class Character{
 
 	}
 
-	speak(){
-
+	speak(character){
+		console.log(this.name + " say hello to " + character.name);
 	}
 
 	attack(character){

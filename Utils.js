@@ -26,6 +26,9 @@ const TOWNFOLK_NAMES = [
 	'George',
 	'Henry',
 	'Ali',
+	'Edward',
+	'Roy',
+	'Jamie',
 ]
 
 const DIRECTION = [

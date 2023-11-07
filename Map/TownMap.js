@@ -29,16 +29,18 @@ class TownMap{
 		return [this.width, this.height];
 	}
 
-	updateObjectsOnTheMap(){
+	// updateObjectsOnTheMap(){
 
-	}
+	// }
 
 	updateObjectOnTheMap(object, oldPosition, newPosition){
 		if (oldPosition.length > 0){
-			var objectArray = self.map[oldPosition[0]][oldPosition[1]];
+			var objectArray = this.map[oldPosition[0]][oldPosition[1]];
+			// console.log("old index" + objectArray.indexOf(object));
 			if (objectArray.indexOf(object) != -1) {
 				objectArray.slice(objectArray.indexOf(object), objectArray.indexOf(object));
 			}
+			// console.log("new " + objectArray.indexOf(object) + " " + objectArray.length);
 		}
 		
 		this.map[newPosition[0]][newPosition[1]].push(object);
