@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "js-simulator": "^1.0.17",
+    "toad-scheduler": "^3.0.0"
+  }
+}
