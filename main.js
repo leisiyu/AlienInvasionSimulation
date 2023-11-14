@@ -10,7 +10,13 @@ function main(){
 	
 	var steps = 0;
 	var map = TownMap.getInstance(utils.MAP_SIZE);
-	CharactersManager.generateAllCharacters();
+	map.createRandomMap()
+	for (var i = 0; i < utils.MAP_SIZE[0]; i++){
+		console.log('map ' + map.map[i])
+	}
+
+	console.log('all rooms ' + map.allRooms.length)
+	// CharactersManager.generateAllCharacters();
 
 	// var evt = new jssim.SimEvent(1);
 	// evt.id = 1
@@ -25,7 +31,7 @@ function main(){
 
 	const scheduler = new ToadScheduler()
 	const task = new Task('simple task', () => {
-		CharactersManager.charactersWander()
+		// CharactersManager.charactersWander()
 		steps++
 		if (steps >= utils.TOTAL_STEPS) {
 			scheduler.stop()
