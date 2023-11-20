@@ -2,43 +2,34 @@
 const utils = require('./Utils.js') 
 const TownMap = require('./Map/TownMap.js').TownMap
 const CharactersManager = require('./Character/CharactersManager.js');
-// const jssim = require('js-simulator')
-const {ToadScheduler, SimpleIntervalJob, Task} = require('toad-scheduler')
+const jssim = require('js-simulator')
+const Scheduler = require('./Scheduler.js')
+const TempMap = require('./Map/TempMap.js').TempMap
+
 
 function main(){
-	// var scheduler = new jssim.Scheduler();
 	
 	var steps = 0;
-	var map = TownMap.getInstance(utils.MAP_SIZE);
-	map.createRandomMap()
-	for (var i = 0; i < utils.MAP_SIZE[0]; i++){
-		console.log('map ' + map.map[i])
-	}
+	// var map = TownMap.getInstance(utils.MAP_SIZE);
+	// map.createRandomMap()
 
-	console.log('all rooms ' + map.allRooms.length)
 	// CharactersManager.generateAllCharacters();
 
-	// var evt = new jssim.SimEvent(1);
-	// evt.id = 1
-	// evt.update = function(deltaTime){
-	// 	console.log("test")
-	// 	CharactersManager.charactersWander();
-	// }
-	// var startTime = 1
-	// var interval = 1
-	// console.log("haha", evt)
-	// scheduler.scheduleRepeatingIn(evt, interval)
+	var map = TempMap.getInstance()
+	var charArray = CharactersManager.generateTempChar()
 
-	const scheduler = new ToadScheduler()
-	const task = new Task('simple task', () => {
-		// CharactersManager.charactersWander()
-		steps++
-		if (steps >= utils.TOTAL_STEPS) {
-			scheduler.stop()
-		}
-	})
-	const job = new SimpleIntervalJob({seconds: 2}, task)
-	scheduler.addSimpleIntervalJob(job)
+	// js-simulator
+	var evt = new jssim.SimEvent(1);
+	evt.id = 100
+	evt.update = function(deltaTime){
+		CharactersManager.charTempWander(charArray);
+	}
+	var startTime = 5
+	var interval = 1
+	// scheduler.scheduleRepeatingIn(evt, interval)
+	Scheduler.scheduler.scheduleRepeatingIn(evt, interval)
+
+	Scheduler.updateEvents()
 
 	// console.log("map !!!" + TownMap.getInstance().map);
 	// for (let i = 0; i < 5; i++){

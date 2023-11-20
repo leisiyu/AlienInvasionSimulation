@@ -1,4 +1,5 @@
 const TownMap = require("../Map/TownMap").TownMap;
+const TempMap = require('../Map/TempMap.js').TempMap
 const Townfolk = require('./Townfolk').Townfolk;
 const utils = require('../Utils.js'); 
 const Soldier = require("./Soldier.js").Soldier;
@@ -80,10 +81,6 @@ function handleEvents(charArray){
 			if (charArray[i] !== charArray[j]) {
 				charArray[i].speak(charArray[j]);
 				if (charArray[i].charType == utils.CHARACTER_TYPE[1] & charArray[j].charType != utils.CHARACTER_TYPE[1]){
-					// console.log("test   " + charArray[i].charType);
-					// console.log("test   " + charArray[j].charType);
-					// console.log(charArray[i].speak)
-					// console.log(charArray[i].attack)
 					charArray[i].attack(charArray[j]);
 				}
 				if (charArray[i].charType == utils.CHARACTER_TYPE[2] & charArray[j].charType == utils.CHARACTER_TYPE[1]){
@@ -94,8 +91,39 @@ function handleEvents(charArray){
 	}
 }
 
+////////////////////
+// temp test
+function generateTempChar(){
+	var charArray = []
+	for (let i = 0; i < 2; i++) {
+		var pos = TempMap.getInstance().generateRandomPos();
+		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+		charArray[i] = new Townfolk(randomName, pos);
+	}
+	return charArray
+}
+
+function charTempWander(charArray){
+	var directions = ['left', 'right']
+	for (let i = 0; i < charArray.length; i++) {
+		var tempDirection = directions[Math.floor(Math.random() * directions.length)]
+		charArray[i].tempWalk(tempDirection)
+		console.log(charArray[i].name + ' goes to ' + charArray[i].position)
+	}
+
+	for (let i = 0; i < charArray.length; i++) {
+		for (let j = 0; j < charArray.length; j++) {
+
+		}
+	}
+}
+
+/////////////////////
+
 module.exports = {
 	generateAllCharacters,
 	townfolks,
 	charactersWander,
+	generateTempChar,
+	charTempWander,
 }
