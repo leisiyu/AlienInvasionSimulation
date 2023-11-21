@@ -19,15 +19,15 @@ function main(){
 	var charArray = CharactersManager.generateTempChar()
 
 	// js-simulator
-	var evt = new jssim.SimEvent(1);
-	evt.id = 100
-	evt.update = function(deltaTime){
-		CharactersManager.charTempWander(charArray);
-	}
-	var startTime = 5
-	var interval = 1
-	// scheduler.scheduleRepeatingIn(evt, interval)
-	Scheduler.scheduler.scheduleRepeatingIn(evt, interval)
+	// var evt = new jssim.SimEvent(1);
+	// evt.id = 100
+	// evt.update = function(deltaTime){
+	// 	CharactersManager.charTempWander(charArray);
+	// }
+	// var startTime = 5
+	// var interval = 1
+	// // scheduler.scheduleRepeatingIn(evt, interval)
+	// Scheduler.scheduler.scheduleRepeatingIn(evt, interval)
 
 	Scheduler.updateEvents()
 

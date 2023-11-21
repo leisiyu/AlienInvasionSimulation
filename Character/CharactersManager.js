@@ -4,6 +4,8 @@ const Townfolk = require('./Townfolk').Townfolk;
 const utils = require('../Utils.js'); 
 const Soldier = require("./Soldier.js").Soldier;
 const Alien = require("./Alien.js").Alien
+const Scheduler = require('../Scheduler.js')
+const CharactersData = require('./CharactersData.js')
 
 
 const townfolks = [];
@@ -94,28 +96,28 @@ function handleEvents(charArray){
 ////////////////////
 // temp test
 function generateTempChar(){
-	var charArray = []
 	for (let i = 0; i < 2; i++) {
 		var pos = TempMap.getInstance().generateRandomPos();
 		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		charArray[i] = new Townfolk(randomName, pos);
-	}
-	return charArray
-}
-
-function charTempWander(charArray){
-	var directions = ['left', 'right']
-	for (let i = 0; i < charArray.length; i++) {
-		var tempDirection = directions[Math.floor(Math.random() * directions.length)]
-		charArray[i].tempWalk(tempDirection)
-		console.log(charArray[i].name + ' goes to ' + charArray[i].position)
+		var tempCharacter = new Townfolk(randomName, pos);
+		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+		CharactersData.charactersArray.push(tempCharacter)
 	}
 
-	for (let i = 0; i < charArray.length; i++) {
-		for (let j = 0; j < charArray.length; j++) {
-
-		}
+	for (let i = 0; i < 2; i++) {
+		var pos = TempMap.getInstance().generateRandomPos();
+		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+		var tempCharacter = new Soldier(randomName, pos);
+		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+		CharactersData.charactersArray.push(tempCharacter)
 	}
+
+	var pos = TempMap.getInstance().generateRandomPos();
+	var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+	var tempCharacter = new Alien(randomName, pos);
+	Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+	CharactersData.charactersArray.push(tempCharacter)
+	
 }
 
 /////////////////////
@@ -125,5 +127,4 @@ module.exports = {
 	townfolks,
 	charactersWander,
 	generateTempChar,
-	charTempWander,
 }
