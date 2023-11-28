@@ -7,6 +7,8 @@ const Scheduler = require('./Scheduler.js')
 const TempMap = require('./Map/TempMap.js').TempMap
 
 
+// var scheduler = new jssim.Scheduler();
+
 function main(){
 	
 	var steps = 0;
@@ -28,8 +30,9 @@ function main(){
 	// var interval = 1
 	// // scheduler.scheduleRepeatingIn(evt, interval)
 	// Scheduler.scheduler.scheduleRepeatingIn(evt, interval)
-
+	// utils.logger.debug("test")
 	Scheduler.updateEvents()
+	
 
 	// console.log("map !!!" + TownMap.getInstance().map);
 	// for (let i = 0; i < 5; i++){

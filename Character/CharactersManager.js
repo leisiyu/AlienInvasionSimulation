@@ -7,6 +7,8 @@ const Alien = require("./Alien.js").Alien
 const Scheduler = require('../Scheduler.js')
 const CharactersData = require('./CharactersData.js')
 
+const Test = require('./Test.js')
+
 
 const townfolks = [];
 const aliens = [];
@@ -51,9 +53,8 @@ function generateAllCharacters(){
 
 function wander(characterArray){
 	for (let i = 0; i < characterArray.length; i++) {
-		const oldPosition = JSON.parse(JSON.stringify(characterArray[i].position));
-		// console.log("type " + characterArray[i].charType);
-		characterArray[i].walkWithRandomDirection();
+		const oldPosition = JSON.parse(JSON.stringify(characterArray[i].position))
+		characterArray[i].walkWithRandomDirection()
 		TownMap.getInstance().updateObjectOnTheMap(characterArray[i], oldPosition, characterArray[i].position);
 		// console.log("position!!! " + oldPosition + townfolks[i].position);
 		console.log(characterArray[i].name + " (" + characterArray[i].charType + ") " + " move from " + oldPosition + " to " + characterArray[i].position);
@@ -100,7 +101,7 @@ function generateTempChar(){
 		var pos = TempMap.getInstance().generateRandomPos();
 		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
 		var tempCharacter = new Townfolk(randomName, pos);
-		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter.simEvent, 5)
 		CharactersData.charactersArray.push(tempCharacter)
 	}
 
@@ -108,16 +109,18 @@ function generateTempChar(){
 		var pos = TempMap.getInstance().generateRandomPos();
 		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
 		var tempCharacter = new Soldier(randomName, pos);
-		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+		Scheduler.scheduler.scheduleRepeatingIn(tempCharacter.simEvent, 5)
 		CharactersData.charactersArray.push(tempCharacter)
 	}
 
 	var pos = TempMap.getInstance().generateRandomPos();
 	var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
 	var tempCharacter = new Alien(randomName, pos);
-	Scheduler.scheduler.scheduleRepeatingIn(tempCharacter, 5)
+	Scheduler.scheduler.scheduleRepeatingIn(tempCharacter.simEvent, 5)
 	CharactersData.charactersArray.push(tempCharacter)
 	
+	// Scheduler.scheduler.scheduleRepeatingIn(Test.evt1, 10)
+	// Scheduler.scheduler.scheduleRepeatingIn(Test.evt2, 10)
 }
 
 /////////////////////
