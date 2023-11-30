@@ -34,6 +34,7 @@ var Townfolk = function(name, position){
 								"log": "{0} said hello to {1}",
 								"character2_name": character.charName,
 								"character2_type": character.charType,
+								"time":this.time,
 							}
 							break
 						case utils.CHARACTER_TYPE[1]:
@@ -45,6 +46,7 @@ var Townfolk = function(name, position){
 								"log": "{0} meet {1}, and then tried to run away",
 								"character2_name": character.charName,
 								"character2_type": character.charType,
+								"time":this.time,
 							}
 							break
 						case utils.CHARACTER_TYPE[2]:
@@ -56,6 +58,7 @@ var Townfolk = function(name, position){
 								"log": "{0} said hello to {1}",
 								"character2_name": character.charName,
 								"character2_type": character.charType,
+								"time":this.time,
 							}
 							break
 						}

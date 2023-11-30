@@ -35,6 +35,7 @@ var Soldier = function(name, position){
 									"log": "{0} said hello to {1}",
 									"character2_name": character.charName,
 									"character2_type": character.charType,
+									"time":this.time,
 								}
 								break
 							case utils.CHARACTER_TYPE[1]:
@@ -46,6 +47,7 @@ var Soldier = function(name, position){
 									"log": "{0} attacked {1}",
 									"character2_name": character.charName,
 									"character2_type": character.charType,
+									"time":this.time,
 								}
 								break
 							case utils.CHARACTER_TYPE[2]:
@@ -57,6 +59,7 @@ var Soldier = function(name, position){
 									"log": "{0} said hello to {1}",
 									"character2_name": character.charName,
 									"character2_type": character.charType,
+									"time":this.time,
 								}
 								break
 						}
