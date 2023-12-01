@@ -3,7 +3,8 @@ Character = require('./Character.js').Character
 const utils = require('../Utils.js') 
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
-const fs = require('fs')
+// const fs = require('fs')
+const Logger = require('../Logger.js').Logger
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -66,14 +67,15 @@ var Alien = function(name, position){
 			var content = msg.content; // for example the "Hello" text from the sendMsg code above
 			if (recipient_id == this.guid()){
 				// console.log("content: " + content)
-				fs.appendFile('../Log.txt', content, (err) => { 
+				// fs.appendFile('../Log.txt', content, (err) => { 
 					// In case of a error throw err. 
 					// if (err) throw err;
 					// else {
 					// 	console.log('successful')
 					// }
-					utils.logger.debug(content)
-				}) 
+				// }) 
+					// utils.logger.debug(content)
+				Logger.info(content)
 			}
 		}
 

@@ -44,13 +44,13 @@ const formatString = (template, ...args) => {
 	});
 }
 
-const log4js = require('log4js')
-const logger = log4js.getLogger("Log")
-// logger.level = "debug"
-log4js.configure({
-	appenders: { output: { type: "file", filename: "output.log" } },
-	categories: { default: { appenders: ["output"], level: "debug" } },
-});
+// const log4js = require('log4js')
+// const logger = log4js.getLogger("Log")
+// // logger.level = "debug"
+// log4js.configure({
+// 	appenders: { output: { type: "file", filename: "output.log" } },
+// 	categories: { default: { appenders: ["output"], level: "debug" } },
+// });
 
 module.exports = {
 	TOTAL_STEPS,
@@ -62,5 +62,5 @@ module.exports = {
 	CHARACTER_TYPE,
 	DIRECTION,
 	formatString,
-	logger,
+	// logger,
 }

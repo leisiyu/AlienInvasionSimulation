@@ -3,7 +3,8 @@ Character = require('./Character.js').Character
 const utils = require('../Utils.js') 
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
-const fs = require('node:fs')
+// const fs = require('node:fs')
+const Logger = require('../Logger.js').Logger
 
 var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
@@ -87,7 +88,8 @@ var Soldier = function(name, position){
 				// 	// In case of a error throw err. 
 				// 	if (err) throw err; 
 				// }) 
-				utils.logger.debug(content)
+				// utils.logger.debug(content)
+				Logger.info(content)
 			}
 		}
 	}

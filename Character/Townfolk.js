@@ -4,6 +4,7 @@ const utils = require('../Utils.js')
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('node:fs')
+const Logger = require('../Logger.js').Logger
 
 
 var Townfolk = function(name, position){
@@ -89,8 +90,9 @@ var Townfolk = function(name, position){
 				// 	console.log('success!')
 				// }) 
 				// fs.writeFileSync('../Log.txt', "content")
-				utils.logger.debug(content)
-				
+
+				// utils.logger.debug(content)
+				Logger.info(content)
 			}
 		}
 	}
