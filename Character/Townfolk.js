@@ -15,16 +15,14 @@ var Townfolk = function(name, position){
 	this.charType = utils.CHARACTER_TYPE[0]
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
-		var directions = ['left', 'right']
-		var tempDirection = directions[Math.floor(Math.random() * directions.length)]
-		townfolkThis.tempWalk(tempDirection)
+		
+		townfolkThis.wander()
 		if (CharactersData.charactersArray.length > 1){
 			for(let i = 0; i < CharactersData.charactersArray.length; i++){
 				var character = CharactersData.charactersArray[i]
-				// console.log(townfolkThis.position + ' ' + character.position)
-				if (townfolkThis != character && townfolkThis.position == character.position){
+				// Logger.info("name " + townfolkThis.charName + " " + townfolkThis.position + ' '+ character.charName + " " + character.position)
+				if (townfolkThis != character && townfolkThis.position[0] == character.position[0] && townfolkThis.position[1] == character.position[1]){
 					var msgContent 
-					
 					switch (character.charType){
 						case utils.CHARACTER_TYPE[0]:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
@@ -106,6 +104,27 @@ Townfolk.prototype.tempWalk = function(direction){
 			break;
 		case 'right':
 			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
+			break
+	}
+}
+
+// step length == 1
+Townfolk.prototype.wander = function(){
+	var directions = ['left', 'right', 'up', 'down']
+	var direction = directions[Math.floor(Math.random() * directions.length)]
+
+	switch(direction){
+		case 'left':
+			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
+			break;
+		case 'right':
+			this.position[0] = this.position[0] + 1 >= utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			break
+		case 'up':
+			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
+			break
+		case 'down':
+			this.position[1] = this.position[1] + 1 >= utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
 			break
 	}
 }

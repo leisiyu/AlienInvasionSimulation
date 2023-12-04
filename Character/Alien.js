@@ -14,15 +14,13 @@ var Alien = function(name, position){
 	var alienThis = this
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
-		var directions = ['left', 'right']
-		var tempDirection = directions[Math.floor(Math.random() * directions.length)]
-		alienThis.tempWalk(tempDirection)
+		alienThis.wander()
 		// console.log(this.charName + ' goes to ' + this.position)
 
 		if (CharactersData.charactersArray.length > 0) {
 			for (let i = 0; i< CharactersData.charactersArray.length; i++){
 				var character = CharactersData.charactersArray[i]
-				if (alienThis != character && alienThis.position == character.position){
+				if (alienThis != character && alienThis.position[0] == character.position[0] && alienThis.position[1] == character.position[1]){
 						
 						var msgContent
 						if (alienThis.charType != character.charType){
@@ -90,6 +88,27 @@ Alien.prototype.tempWalk = function(direction){
 			break;
 		case 'right':
 			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
+			break
+	}
+}
+
+// step length == 1
+Alien.prototype.wander = function(){
+	var directions = ['left', 'right', 'up', 'down']
+	var direction = directions[Math.floor(Math.random() * directions.length)]
+
+	switch(direction){
+		case 'left':
+			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
+			break;
+		case 'right':
+			this.position[0] = this.position[0] + 1 >= utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			break
+		case 'up':
+			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
+			break
+		case 'down':
+			this.position[1] = this.position[1] + 1 >= utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
 			break
 	}
 }

@@ -15,15 +15,13 @@ var Soldier = function(name, position){
 
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = function(deltaTime){
-		var directions = ['left', 'right']
-		var tempDirection = directions[Math.floor(Math.random() * directions.length)]
-		soldierThis.tempWalk(tempDirection)
+		soldierThis.wander()
 		// console.log(this.charName + ' goes to ' + this.position)
 
 		if (CharactersData.charactersArray.length > 0) {
 			for (let i = 0; i< CharactersData.charactersArray.length; i++){
 				var character = CharactersData.charactersArray[i]
-				if (soldierThis != character && soldierThis.position == character.position){
+				if (soldierThis != character && soldierThis.position[0] == character.position[0] && soldierThis.position[1] == character.position[1]){
 						
 						var msgContent 
 						switch (character.charType){
@@ -102,6 +100,27 @@ Soldier.prototype.tempWalk = function(direction){
 			break;
 		case 'right':
 			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
+			break
+	}
+}
+
+// step length == 1
+Soldier.prototype.wander = function(){
+	var directions = ['left', 'right', 'up', 'down']
+	var direction = directions[Math.floor(Math.random() * directions.length)]
+
+	switch(direction){
+		case 'left':
+			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
+			break;
+		case 'right':
+			this.position[0] = this.position[0] + 1 >= utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			break
+		case 'up':
+			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
+			break
+		case 'down':
+			this.position[1] = this.position[1] + 1 >= utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
 			break
 	}
 }

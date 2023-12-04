@@ -7,13 +7,15 @@ class TempMap{
     }
     static getInstance() {
 		if (!this.instance) {
-			this.instance = new TempMap(utils.MAP_SIZE[0]);
+			this.instance = new TempMap(utils.MAP_SIZE);
 		}
 		return this.instance;
 	}
 
+    
+
     generateRandomPos(){
-        return Math.floor(Math.random() * this.size)
+        return [Math.floor(Math.random() * this.size[0]), Math.floor(Math.random() * this.size[1])]
     }
 }
 

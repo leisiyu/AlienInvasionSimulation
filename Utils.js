@@ -1,7 +1,7 @@
 
 const TOTAL_STEPS = 10
-const MAP_SIZE = [20, 20]
-const TOWNFOLKS_NUM = 10
+const MAP_SIZE = [30, 30]
+const TOWNFOLKS_NUM = 4
 const ALIENS_NUM = 3
 const SOLIDERS_NUM = 5
 
