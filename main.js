@@ -1,5 +1,5 @@
 
-const utils = require('./Utils.js') 
+const Utils = require('./Utils.js') 
 const TownMap = require('./Map/TownMap.js').TownMap
 const CharactersManager = require('./Character/CharactersManager.js');
 const jssim = require('js-simulator')
@@ -11,12 +11,13 @@ const TempMap = require('./Map/TempMap.js').TempMap
 
 function main(){
 	
-	// var map = TownMap.getInstance(utils.MAP_SIZE);
+	// var map = TownMap.getInstance(Utils.MAP_SIZE);
 	// map.createRandomMap()
 
 	// CharactersManager.generateAllCharacters();
 
 	var map = TempMap.getInstance()
+	map.createRandomMap()
 	// CharactersManager.generateTempChar()
 	CharactersManager.generateAllCharacters()
 

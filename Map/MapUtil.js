@@ -7,7 +7,7 @@ const BUILDING_TYPE = [
 ]
 
 const MAX_BUILDING_SIZE = 5
-const MIN_BUILDING_SIZE = 1
+const MIN_BUILDING_SIZE = 2
 
 module.exports = {
     BUILDING_TYPE,

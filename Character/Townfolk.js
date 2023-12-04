@@ -1,6 +1,6 @@
 
 Character = require('./Character.js').Character
-const utils = require('../Utils.js') 
+const Utils = require('../Utils.js') 
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('node:fs')
@@ -12,7 +12,7 @@ var Townfolk = function(name, position){
 	// jssim.SimEvent.call(this, 10)
 	this.charName = name
 	this.position = position
-	this.charType = utils.CHARACTER_TYPE[0]
+	this.charType = Utils.CHARACTER_TYPE[0]
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
@@ -24,7 +24,7 @@ var Townfolk = function(name, position){
 				if (townfolkThis != character && townfolkThis.position[0] == character.position[0] && townfolkThis.position[1] == character.position[1]){
 					var msgContent 
 					switch (character.charType){
-						case utils.CHARACTER_TYPE[0]:
+						case Utils.CHARACTER_TYPE[0]:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								"character_name": townfolkThis.charName,
@@ -36,7 +36,7 @@ var Townfolk = function(name, position){
 								"time":this.time,
 							}
 							break
-						case utils.CHARACTER_TYPE[1]:
+						case Utils.CHARACTER_TYPE[1]:
 							// console.log(this.charName + '(' + this.charType + ') meet ' + character.charName + '(' + character.charType +')' + ' and then tried to run away')
 							msgContent = {
 								"character_name": townfolkThis.charName,
@@ -48,7 +48,7 @@ var Townfolk = function(name, position){
 								"time":this.time,
 							}
 							break
-						case utils.CHARACTER_TYPE[2]:
+						case Utils.CHARACTER_TYPE[2]:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								"character_name": townfolkThis.charName,
@@ -89,7 +89,7 @@ var Townfolk = function(name, position){
 				// }) 
 				// fs.writeFileSync('../Log.txt', "content")
 
-				// utils.logger.debug(content)
+				// Utils.logger.debug(content)
 				Logger.info(content)
 			}
 		}
@@ -118,13 +118,13 @@ Townfolk.prototype.wander = function(){
 			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
 			break;
 		case 'right':
-			this.position[0] = this.position[0] + 1 >= utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
 			break
 		case 'up':
 			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
 			break
 		case 'down':
-			this.position[1] = this.position[1] + 1 >= utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
+			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
 			break
 	}
 }
