@@ -24,14 +24,14 @@ class TempMap{
 		return this.instance;
 	}
 
-    createRandomRoom(){
+    createRandomBuilding(){
 		var x = Math.floor(Math.random() * (this.size[0] - MapUtil.MAX_BUILDING_SIZE))
 		var y = Math.floor(Math.random() *(this.size[1] - MapUtil.MAX_BUILDING_SIZE))
 		var w = Math.ceil(Math.random() * (MapUtil.MAX_BUILDING_SIZE - MapUtil.MIN_BUILDING_SIZE)) + MapUtil.MIN_BUILDING_SIZE
 		var h = Math.ceil(Math.random() * (MapUtil.MAX_BUILDING_SIZE - MapUtil.MIN_BUILDING_SIZE)) + MapUtil.MIN_BUILDING_SIZE
 		var buildingType = MapUtil.BUILDING_TYPE[Math.floor(Math.random() * MapUtil.BUILDING_TYPE.length)]
 
-		var building = new Building([w,h], [x,y], buildingType)
+		var building = new Building([w,h], [x,y], buildingType, [])
         if (this.isValid(building)){
             this.buildings.push(building)
             this.fillMap(building)
@@ -68,7 +68,7 @@ class TempMap{
 
     createRandomMap(){
         for (let i = 0; i < 4; i++){
-            this.createRandomRoom()
+            this.createRandomBuilding()
         }
 		
 
@@ -85,11 +85,15 @@ class TempMap{
 
 	checkIsInABuilding(position){
 		for (let i = 0; i < this.buildings.length; i++){
-			if (this.buildings[i].checkIfInThisBuilding(position)){
-				return true, i
+			if (this.buildings[i].checkIsInThisBuilding(position)){
+				return [true, i]
 			}
 		}
-		return false
+		return [false]
+	}
+
+	getBuilding(idx){
+		return this.buildings[idx]
 	}
 }
 

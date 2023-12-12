@@ -5,6 +5,7 @@ const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('node:fs')
 const Logger = require('../Logger.js').Logger
+const Map = require('../Map/TempMap.js').TempMap
 
 
 var Townfolk = function(name, position){
@@ -113,20 +114,63 @@ Townfolk.prototype.wander = function(){
 	var directions = ['left', 'right', 'up', 'down']
 	var direction = directions[Math.floor(Math.random() * directions.length)]
 
+	var newPosition = [Number(JSON.stringify(this.position[0])), Number(JSON.stringify(this.position[1]))]
 	switch(direction){
 		case 'left':
-			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
+			newPosition[0] = newPosition[0] - 1 < 0 ? newPosition[0] : newPosition[0] - 1
 			break;
 		case 'right':
-			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			newPosition[0] = newPosition[0] + 1 >= Utils.MAP_SIZE[0] ? newPosition[0] : newPosition[0] + 1
 			break
 		case 'up':
-			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
+			newPosition[1] = newPosition[1] - 1 < 0 ? newPosition[1] : newPosition[1] - 1
 			break
 		case 'down':
-			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
+			newPosition[1] = newPosition[1] + 1 >= Utils.MAP_SIZE[1] ? newPosition[1] : newPosition[1] + 1
 			break
 	}
+
+	// check the new position
+	var isOldPositionInBuilding = Map.getInstance().checkIsInABuilding(this.position)
+	var isNewPositionInBuilding = Map.getInstance().checkIsInABuilding(newPosition)
+
+	// old and new positions are in different buildings
+	if (isOldPositionInBuilding[0] && isNewPositionInBuilding[0] && isOldPositionInBuilding[1] != isNewPositionInBuilding[1]){
+		var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
+		// check if accessible
+		if (!oldBuilding.checkPosAccessible(newPosition)) {
+			return 
+		}
+	}
+	// old is in a building; new is not in a building
+	if (isOldPositionInBuilding[0] && !isNewPositionInBuilding[0]) {
+		var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
+		// check if accessible
+		if (!oldBuilding.checkPosAccessible(newPosition)) {
+			return 
+		}
+	}
+	// old is not in a building; new is in a building
+	if (!isOldPositionInBuilding[0] && isNewPositionInBuilding[0]) {
+		var newBuilding = Map.getInstance().getBuilding(isNewPositionInBuilding[1])
+		// check if accessible
+		if (!newBuilding.checkPosAccessible(this.position)) {
+			return 
+		}
+	}
+
+	//////////////
+	//////log
+	if (isOldPositionInBuilding[0]) {
+		console.log(this.charName + " was in building " + isOldPositionInBuilding[1])
+	}
+	console.log(this.charName + "(" + isOldPositionInBuilding + ")" + " moved to " + newPosition)
+	if (isNewPositionInBuilding[0]) {
+		console.log(this.charName + "is in building " + isNewPositionInBuilding[1] + " now")
+	}
+	/////////////
+	
+	this.position = newPosition
 }
 
 module.exports = {
