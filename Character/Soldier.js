@@ -29,11 +29,11 @@ var Soldier = function(name, position){
 								// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
 								msgContent = {
 									"character_name": soldierThis.charName,
-									"character_type": soldierThis.charType,
-									"act": "greet",
-									"log": "{0} said hello to {1}",
+									// "character_type": soldierThis.charType,
+									// "act": "greet",
+									"log": "said hello to",
 									"character2_name": character.charName,
-									"character2_type": character.charType,
+									// "character2_type": character.charType,
 									"time":this.time,
 								}
 								break
@@ -41,11 +41,11 @@ var Soldier = function(name, position){
 								// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' + character.charType +')')
 								msgContent = {
 									"character_name": soldierThis.charName,
-									"character_type": soldierThis.charType,
-									"action": "attack",
-									"log": "{0} attacked {1}",
+									// "character_type": soldierThis.charType,
+									// "action": "attack",
+									"log": "attacked",
 									"character2_name": character.charName,
-									"character2_type": character.charType,
+									// "character2_type": character.charType,
 									"time":this.time,
 								}
 								break
@@ -53,11 +53,11 @@ var Soldier = function(name, position){
 								// console.log(this.charName  + '(' + this.charType + ') said hello to ' + character.charName+ '(' + character.charType +')')
 								msgContent = {
 									"character_name": soldierThis.charName,
-									"character_type": soldierThis.charType,
-									"act": "greet",
-									"log": "{0} said hello to {1}",
+									// "character_type": soldierThis.charType,
+									// "act": "greet",
+									"log": "said hello to",
 									"character2_name": character.charName,
-									"character2_type": character.charType,
+									// "character2_type": character.charType,
 									"time":this.time,
 								}
 								break

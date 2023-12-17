@@ -29,11 +29,11 @@ var Townfolk = function(name, position){
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								"character_name": townfolkThis.charName,
-								"character_type": townfolkThis.charType,
-								"act": "greeting",
-								"log": "{0} said hello to {1}",
+								// "character_type": townfolkThis.charType,
+								// "act": "greeting",
+								"log": "said hello to",
 								"character2_name": character.charName,
-								"character2_type": character.charType,
+								// "character2_type": character.charType,
 								"time":this.time,
 							}
 							break
@@ -41,11 +41,11 @@ var Townfolk = function(name, position){
 							// console.log(this.charName + '(' + this.charType + ') meet ' + character.charName + '(' + character.charType +')' + ' and then tried to run away')
 							msgContent = {
 								"character_name": townfolkThis.charName,
-								"character_type": townfolkThis.charType,
-								"act": "run away",
-								"log": "{0} meet {1}, and then tried to run away",
+								// "character_type": townfolkThis.charType,
+								// "act": "run away",
+								"log": "met and then tried to run away from",
 								"character2_name": character.charName,
-								"character2_type": character.charType,
+								// "character2_type": character.charType,
 								"time":this.time,
 							}
 							break
@@ -53,11 +53,11 @@ var Townfolk = function(name, position){
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								"character_name": townfolkThis.charName,
-								"character_type": townfolkThis.charType,
-								"act": "greeting",
-								"log": "{0} said hello to {1}",
+								// "character_type": townfolkThis.charType,
+								// "act": "greeting",
+								"log": "said hello to",
 								"character2_name": character.charName,
-								"character2_type": character.charType,
+								// "character2_type": character.charType,
 								"time":this.time,
 							}
 							break
@@ -161,13 +161,13 @@ Townfolk.prototype.wander = function(){
 
 	//////////////
 	//////log
-	if (isOldPositionInBuilding[0]) {
-		console.log(this.charName + " was in building " + isOldPositionInBuilding[1])
-	}
-	console.log(this.charName + "(" + isOldPositionInBuilding + ")" + " moved to " + newPosition)
-	if (isNewPositionInBuilding[0]) {
-		console.log(this.charName + "is in building " + isNewPositionInBuilding[1] + " now")
-	}
+	// if (isOldPositionInBuilding[0]) {
+	// 	console.log(this.charName + " was in building " + isOldPositionInBuilding[1])
+	// }
+	// console.log(this.charName + "(" + isOldPositionInBuilding + ")" + " moved to " + newPosition)
+	// if (isNewPositionInBuilding[0]) {
+	// 	console.log(this.charName + "is in building " + isNewPositionInBuilding[1] + " now")
+	// }
 	/////////////
 	
 	this.position = newPosition
