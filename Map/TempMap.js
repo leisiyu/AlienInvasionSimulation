@@ -1,12 +1,14 @@
 const Utils = require('../Utils.js')
 const MapUtil = require("./MapUtil.js")
 const Building = require('./Building.js').Building
+const RoadManager = require('./RoadManager')
 
 class TempMap{
     constructor(size){
         // linear map
         this.size = size
         this.buildings = []
+		this.roads = []
 
         // for checking overlap
         this.map = [];
@@ -59,17 +61,28 @@ class TempMap{
 		return true
 	}
 
-    fillMap(building){
-		for (var i = building.position[0]; i <= building.position[0] + building.size[0]; i++){
-			for (var j = building.position[1]; j <= building.position[1] + building.size[1]; j++)
-				this.map[i][j] = 1
+    fillMap(building, idx){
+		for (var j = building.position[1]; j < building.position[1] + building.size[1]; j++){
+			for (var i = building.position[0]; i < building.position[0] + building.size[0]; i++){
+				// this.map[i][j] = 1
+				this.map[i][j] = idx
+			}
 		}
 	}
 
     createRandomMap(){
-        for (let i = 0; i < 4; i++){
-            this.createRandomBuilding()
-        }
+		/////random buildings
+        // for (let i = 0; i < 4; i++){
+        //     this.createRandomBuilding()
+        // }
+
+		//////random roads
+		this.roads = RoadManager.generateRoads([Utils.MAP_SIZE[0] / 2, Utils.MAP_SIZE[1] / 2])
+		// console.log('road num ' + this.roads.length)
+		for (let i = 0; i < this.roads.length; i++){
+			// console.log(this.roads[i].position + '  '+ this.roads[i].size)
+			this.fillMap(this.roads[i], i+1)
+		}
 		
 
         ////draw a map
