@@ -14,11 +14,12 @@ var EncodingLetters = {
 
 var allRoads = []
 var junctions = []
+var drawIdx = 0
 
 function generateRoads(startPos){
-    var LSystem = new LSystemGenerator(['[+F][-F]', '[+F]F[-F]', '[-F]F[+F]'], '[F]--F', 2)
+    var LSystem = new LSystemGenerator(['[+F][-F]', '[+F]F[-F]', '[-F]F[+F]'], '[F]--F', 2, 0.35)
 	var sentence = LSystem.generateSentence()
-    // console.log(sentence)
+    console.log(sentence)
     var roadLength = MapUtil.MAIN_ROAD_LENGTH
     var roadWidth = MapUtil.MAIN_ROAD_WIDTH
     var savePoints = []
@@ -49,7 +50,9 @@ function generateRoads(startPos){
             case EncodingLetters.draw:
                 drawRoad(currentPosition, direction, roadLength)
                 currentPosition = JSON.stringify(calculateNewPosition(currentPosition, direction, roadLength))
-                // roadLength = roadLength - 2 > 0 ? roadLength - 2 : 1
+                if (drawIdx % 3 == 0){
+                    roadLength = roadLength - 2 > 0 ? roadLength - 2 : 1
+                }
                 junctions.push(currentPosition)
                 break
             case EncodingLetters.turnLeft:
@@ -107,6 +110,22 @@ function drawRoad(startPos, direction, roadLength){
     var endPosition = calculateNewPosition(startPos, direction, roadLength)
     var roadPosition = startPosition
     var roadSize = [0,0]
+
+    if (startPosition[0] < 0 || startPosition[0] >= Utils.MAP_SIZE[0] 
+        || startPosition[1] < 0 || startPosition[1] >= Utils.MAP_SIZE[1]){
+            return
+    }
+
+    endPosition[0] = endPosition[0] < 0 ? 0 : endPosition[0]
+    endPosition[0] = endPosition[0] > Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] : endPosition[0]
+    endPosition[1] = endPosition[1] < 0 ? 0 : endPosition[1]
+    endPosition[1] = endPosition[1] > Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] : endPosition[1]
+
+    if (startPosition[0] == endPosition[0] && startPosition[1] == endPosition[1]){
+        return
+    }
+    drawIdx++
+
     switch(direction){
         case Utils.DIRECTION[0]:
             roadPosition = endPosition
@@ -136,8 +155,15 @@ function checkRoadAvailable(position, size){
     return true
 }
 
+function clearData(){
+    allRoads = []
+    junctions = []
+    drawIdx = 0
+}
+
 module.exports = {
     generateRoads,
     allRoads,
     junctions,
+    clearData,
 }

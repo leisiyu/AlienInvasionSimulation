@@ -9,7 +9,7 @@ const BUILDING_TYPE = [
 const MAX_BUILDING_SIZE = 5
 const MIN_BUILDING_SIZE = 2
 const MAIN_ROAD_WIDTH = 4
-const MAIN_ROAD_LENGTH = 5
+const MAIN_ROAD_LENGTH = 8
 
 module.exports = {
     BUILDING_TYPE,

@@ -1,11 +1,12 @@
 const Rule = require("./Rule").Rule
 class LSystemGenerator{
 
-    constructor(rule, axiom, iterationLimit){
+    constructor(rule, axiom, iterationLimit, ignoreRulePossiblity){
         this.rule = new Rule('F', rule)
         this.axiom = axiom
         this.iterationLimit = iterationLimit
         this.iterationIdx = 0
+        this.ignoreRulePossiblity = ignoreRulePossiblity
     }
     
     generateSentence(word){
@@ -24,8 +25,10 @@ class LSystemGenerator{
         for(let i = 0; i < word.length; i++){
             var character = word.charAt(i)
             newWord = newWord + character
-            if (this.rule.checkLetter(character)){
-                newWord = newWord + this.rule.getRandomResult()
+            if (Math.random() > this.ignoreRulePossiblity) {
+                if (this.rule.checkLetter(character)){
+                    newWord = newWord + this.rule.getRandomResult()
+                }
             }
         }
         this.iterationIdx++
