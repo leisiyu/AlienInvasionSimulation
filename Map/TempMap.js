@@ -2,6 +2,7 @@ const Utils = require('../Utils.js')
 const MapUtil = require("./MapUtil.js")
 const Building = require('./Building.js').Building
 const RoadManager = require('./RoadManager')
+const fs = require('node:fs')
 
 class TempMap{
     constructor(size){
@@ -81,15 +82,25 @@ class TempMap{
 		// console.log('road num ' + this.roads.length)
 		for (let i = 0; i < this.roads.length; i++){
 			// console.log(this.roads[i].position + '  '+ this.roads[i].size)
-			this.fillMap(this.roads[i], i+1)
+			this.fillMap(this.roads[i], 'r')
 		}
 		
 
         ////draw a map
         for (var i = 0; i < this.size[0]; i++){
 			console.log(JSON.stringify(this.map[i]))
-			debugger
+			// debugger
 		}
+
+		////output map data
+		fs.writeFileSync('./CityMap.txt', JSON.stringify(this.map), (err) => { 
+			// In case of a error throw err. 
+			if (err) throw err;
+			else {
+				console.log('successful')
+				Logger.clearQueue()
+			}
+		}) 
 	}
 
     generateRandomPos(){
