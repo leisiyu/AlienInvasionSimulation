@@ -43,22 +43,25 @@ function generateTempChar(){
 function generateAllCharacters(){
 	for (let i = 0; i < utils.TOWNFOLKS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
-		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var townfolk = new Townfolk(randomName, pos);
-		Scheduler.scheduler.scheduleRepeatingIn(townfolk.simEvent, 5)
+		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+		var townfolkName = "townfolk" + i
+		var townfolk = new Townfolk(townfolkName, pos);
+		Scheduler.scheduler.scheduleRepeatingIn(townfolk.simEvent, 50)
 		CharactersData.charactersArray.push(townfolk)
 	}
 	for (let i = 0; i < utils.SOLIDERS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
-		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var soldier = new Soldier(randomName, pos);
+		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+		var soldierName = "Soldier" + i
+		var soldier = new Soldier(soldierName, pos);
 		Scheduler.scheduler.scheduleRepeatingIn(soldier.simEvent, 5)
 		CharactersData.charactersArray.push(soldier)
 	}
 	for (let i = 0; i < utils.ALIENS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
-		var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var alien = new Alien(randomName, pos);
+		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
+		var alienName = "Alien" + i
+		var alien = new Alien(alienName, pos);
 		Scheduler.scheduler.scheduleRepeatingIn(alien.simEvent, 5)
 		CharactersData.charactersArray.push(alien)
 	}
