@@ -14,6 +14,7 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE[0]
+	this.speed = 1
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
@@ -117,47 +118,49 @@ Townfolk.prototype.wander = function(){
 	var newPosition = [Number(JSON.stringify(this.position[0])), Number(JSON.stringify(this.position[1]))]
 	switch(direction){
 		case 'left':
-			newPosition[0] = newPosition[0] - 1 < 0 ? newPosition[0] : newPosition[0] - 1
+			newPosition[0] = newPosition[0] - this.speed < 0 ? 0 : newPosition[0] - this.speed
 			break;
 		case 'right':
-			newPosition[0] = newPosition[0] + 1 >= Utils.MAP_SIZE[0] ? newPosition[0] : newPosition[0] + 1
+			newPosition[0] = newPosition[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : newPosition[0] + this.speed
 			break
 		case 'up':
-			newPosition[1] = newPosition[1] - 1 < 0 ? newPosition[1] : newPosition[1] - 1
+			newPosition[1] = newPosition[1] - this.speed < 0 ? 0 : newPosition[1] - this.speed
 			break
 		case 'down':
-			newPosition[1] = newPosition[1] + 1 >= Utils.MAP_SIZE[1] ? newPosition[1] : newPosition[1] + 1
+			newPosition[1] = newPosition[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : newPosition[1] + this.speed
 			break
 	}
 
-	// check the new position
-	var isOldPositionInBuilding = Map.getInstance().checkIsInABuilding(this.position)
-	var isNewPositionInBuilding = Map.getInstance().checkIsInABuilding(newPosition)
 
-	// old and new positions are in different buildings
-	if (isOldPositionInBuilding[0] && isNewPositionInBuilding[0] && isOldPositionInBuilding[1] != isNewPositionInBuilding[1]){
-		var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
-		// check if accessible
-		if (!oldBuilding.checkPosAccessible(newPosition)) {
-			return 
-		}
-	}
-	// old is in a building; new is not in a building
-	if (isOldPositionInBuilding[0] && !isNewPositionInBuilding[0]) {
-		var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
-		// check if accessible
-		if (!oldBuilding.checkPosAccessible(newPosition)) {
-			return 
-		}
-	}
-	// old is not in a building; new is in a building
-	if (!isOldPositionInBuilding[0] && isNewPositionInBuilding[0]) {
-		var newBuilding = Map.getInstance().getBuilding(isNewPositionInBuilding[1])
-		// check if accessible
-		if (!newBuilding.checkPosAccessible(this.position)) {
-			return 
-		}
-	}
+	/////check buildings
+	// // check the new position
+	// var isOldPositionInBuilding = Map.getInstance().checkIsInABuilding(this.position)
+	// var isNewPositionInBuilding = Map.getInstance().checkIsInABuilding(newPosition)
+
+	// // old and new positions are in different buildings
+	// if (isOldPositionInBuilding[0] && isNewPositionInBuilding[0] && isOldPositionInBuilding[1] != isNewPositionInBuilding[1]){
+	// 	var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
+	// 	// check if accessible
+	// 	if (!oldBuilding.checkPosAccessible(newPosition)) {
+	// 		return 
+	// 	}
+	// }
+	// // old is in a building; new is not in a building
+	// if (isOldPositionInBuilding[0] && !isNewPositionInBuilding[0]) {
+	// 	var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
+	// 	// check if accessible
+	// 	if (!oldBuilding.checkPosAccessible(newPosition)) {
+	// 		return 
+	// 	}
+	// }
+	// // old is not in a building; new is in a building
+	// if (!isOldPositionInBuilding[0] && isNewPositionInBuilding[0]) {
+	// 	var newBuilding = Map.getInstance().getBuilding(isNewPositionInBuilding[1])
+	// 	// check if accessible
+	// 	if (!newBuilding.checkPosAccessible(this.position)) {
+	// 		return 
+	// 	}
+	// }
 
 	//////////////
 	//////log
@@ -171,6 +174,12 @@ Townfolk.prototype.wander = function(){
 	/////////////
 	
 	this.position = newPosition
+
+	Logger.statesInfo(JSON.stringify({
+		'name': this.charName,
+		"action": "moved to",
+		"position": this.position,
+	}))
 }
 
 module.exports = {

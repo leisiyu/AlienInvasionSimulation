@@ -11,6 +11,7 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = utils.CHARACTER_TYPE[2]
+	this.speed = 1
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -111,18 +112,24 @@ Soldier.prototype.wander = function(){
 
 	switch(direction){
 		case 'left':
-			this.position[0] = this.position[0] - 1 < 0 ? this.position[0] : this.position[0] - 1
+			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
 			break;
 		case 'right':
-			this.position[0] = this.position[0] + 1 >= utils.MAP_SIZE[0] ? this.position[0] : this.position[0] + 1
+			this.position[0] = this.position[0] + this.speed >= utils.MAP_SIZE[0] ? utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
 			break
 		case 'up':
-			this.position[1] = this.position[1] - 1 < 0 ? this.position[1] : this.position[1] - 1
+			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
 			break
 		case 'down':
-			this.position[1] = this.position[1] + 1 >= utils.MAP_SIZE[1] ? this.position[1] : this.position[1] + 1
+			this.position[1] = this.position[1] + this.speed >= utils.MAP_SIZE[1] ? utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
 			break
 	}
+
+	Logger.statesInfo(JSON.stringify({
+		'name': this.charName,
+		"action": "moved to",
+		"position": this.position,
+	}))
 }
 module.exports = {
 	Soldier,
