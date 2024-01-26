@@ -38,6 +38,23 @@ const DIRECTION = [
 	'RIGHT',
 ]
 
+const CHARACTER_MISSION = {
+	NONE: 'NONE',
+	CHASE: 'CHASE',
+	REVENGE: 'REVENGE',
+	BUY: 'BUY',
+	DESTROY: 'DESTROY',
+	RUN_AWAY: 'RUN_AWAY',
+	FIGHT_BACK: 'FIGHT_BACK',
+	TREAT: 'TREAT',
+}
+
+const CHARACTER_STATUS = {
+	NORMAL: "normal",
+	HURT: "hurt",
+	DIED: "died",
+}
+
 const formatString = (template, ...args) => {
 	return template.replace(/{([0-9]+)}/g, function (match, index) {
 	  return typeof args[index] === 'undefined' ? match : args[index];
@@ -63,4 +80,6 @@ module.exports = {
 	DIRECTION,
 	formatString,
 	// logger,
+	CHARACTER_MISSION,
+	CHARACTER_STATUS,
 }

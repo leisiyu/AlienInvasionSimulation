@@ -3,9 +3,11 @@ Character = require('./Character.js').Character
 const Utils = require('../Utils.js') 
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
+const { Alien } = require('./Alien.js')
 // const fs = require('node:fs')
 const Logger = require('../Logger.js').Logger
 const Map = require('../Map/TempMap.js').TempMap
+const Mission = require('./Mission.js').Mission
 
 
 var Townfolk = function(name, position){
@@ -15,9 +17,33 @@ var Townfolk = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE[0]
 	this.speed = 1
+	this.visualRange = 3
+	this.attackRange = 1
+	this.status = Utils.CHARACTER_STATUS.NORMAL
+	this.mission = new Mission()
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
+		// if character died
+		if (townfolkThis.status == Utils.CHARACTER_STATUS.DIED) { return }
+
+		// check if the character has a mission
+		switch(townfolkThis.mission.missionType){
+			case Utils.CHARACTER_MISSION.NONE:
+				townfolkThis.wander()
+				break
+			case Utils.CHARACTER_MISSION.CHASE:
+				break
+			case Utils.CHARACTER_MISSION.REVENGE:
+				break
+			case Utils.CHARACTER_MISSION.BUY:
+				break
+			case Utils.CHARACTER_MISSION.DESTROY:
+				break
+			case Utils.CHARACTER_MISSION.RUN_AWAY:
+				break
+		}
+
 		townfolkThis.wander()
 		if (CharactersData.charactersArray.length > 1){
 			for(let i = 0; i < CharactersData.charactersArray.length; i++){
@@ -83,34 +109,39 @@ var Townfolk = function(name, position){
 			var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
 			var content = msg.content; // for example the "Hello" text from the sendMsg code above
 			if (recipient_id == this.guid()){
-				// console.log("content: " + content)
-				// await fs.appendFile('../Log.txt', "content", (err) => { 
-				// 	// In case of a error throw err. 
-				// 	if (err) throw err; 
-				// 	console.log('success!')
-				// }) 
-				// fs.writeFileSync('../Log.txt', "content")
-
-				// Utils.logger.debug(content)
-				Logger.info(content)
+				// Logger.info(content)
+				var messageContent = JSON.parse(content)
+				switch (messageContent.action) {
+					case Utils.CHARACTER_MISSION.CHASE:
+						townfolkThis.runAway(messageContent)
+						break
+					//// TO DO: finish all the other cases
+				}
 			}
 		}
 	}
 }
 
-
-Townfolk.prototype.tempWalk = function(direction){
-	switch(direction){
-		case 'left':
-			this.position = this.position - 1 < 0 ? this.position : this.position - 1
-			break;
-		case 'right':
-			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
-			break
-	}
+Townfolk.prototype.runAway = function(content){
+	Logger.info(JSON.stringify({
+		CharacterName: this.charName,
+		Log: " run away from ",
+		Character2Name: content.CharacterName,
+		Time: this.time,
+	}))
 }
 
-// step length == 1
+// Townfolk.prototype.tempWalk = function(direction){
+// 	switch(direction){
+// 		case 'left':
+// 			this.position = this.position - 1 < 0 ? this.position : this.position - 1
+// 			break;
+// 		case 'right':
+// 			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
+// 			break
+// 	}
+// }
+
 Townfolk.prototype.wander = function(){
 	var directions = ['left', 'right', 'up', 'down']
 	var direction = directions[Math.floor(Math.random() * directions.length)]
@@ -176,9 +207,9 @@ Townfolk.prototype.wander = function(){
 	this.position = newPosition
 
 	Logger.statesInfo(JSON.stringify({
-		'name': this.charName,
-		"action": "moved to",
-		"position": this.position,
+		Name: this.charName,
+		Action: "moved to",
+		Position: this.position,
 	}))
 }
 

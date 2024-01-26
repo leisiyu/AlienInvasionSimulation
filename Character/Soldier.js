@@ -1,21 +1,30 @@
 
 Character = require('./Character.js').Character
-const utils = require('../Utils.js') 
+const Utils = require('../Utils.js') 
 const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('node:fs')
 const Logger = require('../Logger.js').Logger
+const Mission = require('./Mission.js').Mission
 
 var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
 	this.charName = name
 	this.position = position
-	this.charType = utils.CHARACTER_TYPE[2]
+	this.charType = Utils.CHARACTER_TYPE[2]
 	this.speed = 1
+	this.visualRange = 5
+	this.attackRange = 1
+	this.status = Utils.CHARACTER_STATUS.NORMAL
+	this.mission = new Mission()
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = function(deltaTime){
+
+		// if character died
+		if (soldierThis.status == Utils.CHARACTER_STATUS.DIED) { return }
+
 		soldierThis.wander()
 		// console.log(this.charName + ' goes to ' + this.position)
 
@@ -26,7 +35,7 @@ var Soldier = function(name, position){
 						
 						var msgContent 
 						switch (character.charType){
-							case utils.CHARACTER_TYPE[0]:
+							case Utils.CHARACTER_TYPE[0]:
 								// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
 								msgContent = {
 									"character_name": soldierThis.charName,
@@ -38,7 +47,7 @@ var Soldier = function(name, position){
 									"time":this.time,
 								}
 								break
-							case utils.CHARACTER_TYPE[1]:
+							case Utils.CHARACTER_TYPE[1]:
 								// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' + character.charType +')')
 								msgContent = {
 									"character_name": soldierThis.charName,
@@ -50,7 +59,7 @@ var Soldier = function(name, position){
 									"time":this.time,
 								}
 								break
-							case utils.CHARACTER_TYPE[2]:
+							case Utils.CHARACTER_TYPE[2]:
 								// console.log(this.charName  + '(' + this.charType + ') said hello to ' + character.charName+ '(' + character.charType +')')
 								msgContent = {
 									"character_name": soldierThis.charName,
@@ -87,7 +96,7 @@ var Soldier = function(name, position){
 				// 	// In case of a error throw err. 
 				// 	if (err) throw err; 
 				// }) 
-				// utils.logger.debug(content)
+				// Utils.logger.debug(content)
 				Logger.info(content)
 			}
 		}
@@ -115,20 +124,20 @@ Soldier.prototype.wander = function(){
 			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
 			break;
 		case 'right':
-			this.position[0] = this.position[0] + this.speed >= utils.MAP_SIZE[0] ? utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
+			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
 			break
 		case 'up':
 			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
 			break
 		case 'down':
-			this.position[1] = this.position[1] + this.speed >= utils.MAP_SIZE[1] ? utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
+			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
 			break
 	}
 
 	Logger.statesInfo(JSON.stringify({
-		'name': this.charName,
-		"action": "moved to",
-		"position": this.position,
+		Name: this.charName,
+		Action: "moved to",
+		Position: this.position,
 	}))
 }
 module.exports = {
