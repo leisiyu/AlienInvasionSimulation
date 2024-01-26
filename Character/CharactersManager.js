@@ -44,7 +44,7 @@ function generateAllCharacters(){
 	for (let i = 0; i < utils.TOWNFOLKS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
 		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var townfolkName = "townfolk" + i + 1
+		var townfolkName = "townfolk" + (i + 1)
 		var townfolk = new Townfolk(townfolkName, pos);
 		Scheduler.scheduler.scheduleRepeatingIn(townfolk.simEvent, 50)
 		CharactersData.charactersArray.push(townfolk)
@@ -52,7 +52,7 @@ function generateAllCharacters(){
 	for (let i = 0; i < utils.SOLIDERS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
 		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var soldierName = "Soldier" + i + 1
+		var soldierName = "Soldier" + (i + 1)
 		var soldier = new Soldier(soldierName, pos);
 		Scheduler.scheduler.scheduleRepeatingIn(soldier.simEvent, 5)
 		CharactersData.charactersArray.push(soldier)
@@ -60,7 +60,7 @@ function generateAllCharacters(){
 	for (let i = 0; i < utils.ALIENS_NUM; i++) {
 		var pos = TownMap.getInstance().generateRandomPos();
 		// var randomName = utils.TOWNFOLK_NAMES[Math.floor(Math.random() * utils.TOWNFOLK_NAMES.length)];
-		var alienName = "Alien" + i + 1
+		var alienName = "Alien" + (i + 1)
 		var alien = new Alien(alienName, pos);
 		Scheduler.scheduler.scheduleRepeatingIn(alien.simEvent, 5)
 		CharactersData.charactersArray.push(alien)
