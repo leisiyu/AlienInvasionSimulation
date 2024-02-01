@@ -1,6 +1,6 @@
 
 const TOTAL_STEPS = 10
-const MAP_SIZE = [30, 30]
+const MAP_SIZE = [50, 50]
 const TOWNFOLKS_NUM = 4
 const ALIENS_NUM = 3
 const SOLIDERS_NUM = 5
@@ -38,21 +38,27 @@ const DIRECTION = [
 	'RIGHT',
 ]
 
-const CHARACTER_MISSION = {
-	NONE: 'NONE',
+// const CHARACTER_MISSION = {
+// 	PATROL: 'PATROL',
+// 	CHASE: 'CHASE',
+// 	// REVENGE: 'REVENGE',
+// 	// BUY: 'BUY',
+// 	DESTROY: 'DESTROY',
+// 	RUN_AWAY: 'RUN_AWAY',
+// 	FIGHT_BACK: 'ATTACK',
+// 	// TREAT: 'TREAT',
+// }
+
+const CHARACTER_STATES = {
+	// NORMAL: "normal",
+	// HURT: "hurt",
+	DIED: "DIED",
+	PATROL: 'PATROL',
 	CHASE: 'CHASE',
-	REVENGE: 'REVENGE',
-	BUY: 'BUY',
 	DESTROY: 'DESTROY',
 	RUN_AWAY: 'RUN_AWAY',
-	FIGHT_BACK: 'FIGHT_BACK',
-	TREAT: 'TREAT',
-}
-
-const CHARACTER_STATUS = {
-	NORMAL: "normal",
-	HURT: "hurt",
-	DIED: "died",
+	ATTACK: 'ATTACK',
+	HIDE: 'HIDE',
 }
 
 const formatString = (template, ...args) => {
@@ -80,6 +86,6 @@ module.exports = {
 	DIRECTION,
 	formatString,
 	// logger,
-	CHARACTER_MISSION,
-	CHARACTER_STATUS,
+	// CHARACTER_MISSION,
+	CHARACTER_STATES,
 }

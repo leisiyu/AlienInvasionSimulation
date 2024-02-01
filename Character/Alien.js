@@ -5,7 +5,7 @@ const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('fs')
 const Logger = require('../Logger.js').Logger
-const Mission = require('./Mission.js').Mission
+const CharacterState = require('./CharacterState.js').CharacterState
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -15,41 +15,37 @@ var Alien = function(name, position){
 	var alienThis = this
 	this.speed = 1
 	this.visualRange = 6
-	this.attackRange = 3
-	this.status = Utils.CHARACTER_STATUS.NORMAL
-	this.mission = new Mission()
+	this.attackRange = 2
+	this.hp = 100
+	this.state = new CharacterState()
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
 
 		// if character died
-		if (alienThis.status == Utils.CHARACTER_STATUS.DIED) { return }
+		if (alienThis.status == Utils.CHARACTER_STATES.DIED) { return }
 
-		// check if the character has a mission
-		switch(alienThis.mission.missionType){
-			case Utils.CHARACTER_MISSION.NONE:
-				alienThis.wander()
+		// check the character's state
+		switch(alienThis.state.stateType){
+			case Utils.CHARACTER_STATES.PATROL:
+				alienThis.wander(this.time)
 				break
-			case Utils.CHARACTER_MISSION.CHASE:
+			case Utils.CHARACTER_STATES.CHASE:
 				var msgContent = {
 					CharacterName: alienThis.charName,
-					Action: Utils.CHARACTER_MISSION.CHASE,
-					Character2Name: alienThis.mission.target.character.charName,
+					Action: Utils.CHARACTER_STATES.CHASE,
+					Character2Name: alienThis.state.target.character.charName,
 					Time: this.time,
 				}
-				this.sendMsg(alienThis.mission.target.character.simEvent.guid(), {
+				this.sendMsg(alienThis.state.target.character.simEvent.guid(), {
 					content: JSON.stringify(msgContent)
 				})
 				alienThis.chasePeople(this.time)
 				break
-			case Utils.CHARACTER_MISSION.REVENGE:
+			case Utils.CHARACTER_STATES.DESTROY:
 				break
-			case Utils.CHARACTER_MISSION.BUY:
+			case Utils.CHARACTER_STATES.RUN_AWAY:
 				break
-			case Utils.CHARACTER_MISSION.DESTROY:
-				break
-			case Utils.CHARACTER_MISSION.RUN_AWAY:
-				break
-			case Utils.CHARACTER_MISSION.FIGHT_BACK:
+			case Utils.CHARACTER_STATES.ATTACK:
 				break
 		}
 		
@@ -119,7 +115,20 @@ var Alien = function(name, position){
 }
 
 
-Alien.prototype.wander = function(){
+Alien.prototype.wander = function(time){
+	//// check the visual range first
+	//// if there's an enemy around, chase him first
+	//// else wander around
+	if (this.state.stateType == Utils.CHARACTER_STATES.PATROL) {
+		var visibleCharacters = this.checkVisualRange()
+		if (visibleCharacters.length > 0){
+			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, {character: randomVisibleCharacter})
+			return
+		}
+	}
+
+
 	var directions = ['left', 'right', 'up', 'down']
 	var direction = directions[Math.floor(Math.random() * directions.length)]
 
@@ -142,21 +151,25 @@ Alien.prototype.wander = function(){
 		Name: this.charName,
 		Action: "moved to",
 		Position: this.position,
+		Time: time
 	}))
-
-	if (this.mission.missionType == Utils.CHARACTER_MISSION.NONE) {
-		var visibleCharacters = this.checkVisualRange()
-		if (visibleCharacters.length > 0){
-			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
-			this.mission.setMission(Utils.CHARACTER_MISSION.CHASE, {character: randomVisibleCharacter})
-		}
-	}
 }
 
 Alien.prototype.chasePeople = function(time){
+	//// check whether the character was in the visual range first
+	//// if the character is not in the visual range, then he ran away
+	//// set the state to Patrol
+	var visibleCharacters = this.checkVisualRange()
+	if (!visibleCharacters.includes(this.state.target.character)){
+		this.state.setState(Utils.CHARACTER_STATES.NONE, {})
+		this.wander(time)
+		return
+	}
+
+
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
-		if (character.charName == this.mission.target.character.charName) {
+		if (character.charName == this.state.target.character.charName) {
 			console.log(this.charName + " was chasing " + character.charName)
 			Logger.info(JSON.stringify({
 				CharacterName: this.charName,
@@ -182,6 +195,7 @@ Alien.prototype.chasePeople = function(time){
 				Name: this.charName,
 				Action: "moved to", 
 				Position: this.position,
+				Time: time,
 			}))
 
 			if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
@@ -194,16 +208,16 @@ Alien.prototype.chasePeople = function(time){
 
 // attack -> died
 Alien.prototype.attack = function(character, time){
-	character.status = Utils.CHARACTER_STATUS.DIED
+	character.status = Utils.CHARACTER_STATES.DIED
 	console.log(character.charName + " DIED! ")
-	console.log(this.charName + " mission updated to " + Utils.CHARACTER_MISSION.NONE)
+	console.log(this.charName + " state updated to " + Utils.CHARACTER_STATES.NONE)
 	Logger.info(JSON.stringify({
 		CharacterName: character.charName,
 		Log: "was killed by",
 		Character2Name: this.charName,
 		Time: time,
 	}))
-	this.mission.setMission(Utils.CHARACTER_MISSION.NORMAL, {})
+	this.state.setState(Utils.CHARACTER_STATES.NORMAL, {})
 }
 
 Alien.prototype.checkVisualRange = function(){
@@ -219,7 +233,7 @@ Alien.prototype.checkVisualRange = function(){
 		if (characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.charType != this.charType
-			&& character.status != Utils.CHARACTER_STATUS.DIED) {
+			&& character.status != Utils.CHARACTER_STATES.DIED) {
 				visibleCharacters.push(character)
 				// console.log(this.charName + " saw " + character.charName)
 			}

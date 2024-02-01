@@ -7,7 +7,7 @@ const { Alien } = require('./Alien.js')
 // const fs = require('node:fs')
 const Logger = require('../Logger.js').Logger
 const Map = require('../Map/TempMap.js').TempMap
-const Mission = require('./Mission.js').Mission
+const CharacterState = require('./CharacterState.js').CharacterState
 
 
 var Townfolk = function(name, position){
@@ -19,32 +19,34 @@ var Townfolk = function(name, position){
 	this.speed = 1
 	this.visualRange = 3
 	this.attackRange = 1
-	this.status = Utils.CHARACTER_STATUS.NORMAL
-	this.mission = new Mission()
+	this.state = new CharacterState()
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
 		// if character died
-		if (townfolkThis.status == Utils.CHARACTER_STATUS.DIED) { return }
+		if (townfolkThis.state == Utils.CHARACTER_STATES.DIED) { return }
 
-		// check if the character has a mission
-		switch(townfolkThis.mission.missionType){
-			case Utils.CHARACTER_MISSION.NONE:
-				townfolkThis.wander()
+		// check the character's state
+		switch(townfolkThis.state.stateType){
+			case Utils.CHARACTER_STATES.HIDE:
+				// townfolkThis.wander(this.time)
 				break
-			case Utils.CHARACTER_MISSION.CHASE:
+			case Utils.CHARACTER_STATES.PATROL:
 				break
-			case Utils.CHARACTER_MISSION.REVENGE:
+			case Utils.CHARACTER_STATES.CHASE:
 				break
-			case Utils.CHARACTER_MISSION.BUY:
+			case Utils.CHARACTER_STATES.REVENGE:
 				break
-			case Utils.CHARACTER_MISSION.DESTROY:
+			case Utils.CHARACTER_STATES.BUY:
 				break
-			case Utils.CHARACTER_MISSION.RUN_AWAY:
+			case Utils.CHARACTER_STATES.DESTROY:
+				break
+			case Utils.CHARACTER_STATES.RUN_AWAY:
+				townfolkThis.runAway(this.time)
 				break
 		}
 
-		townfolkThis.wander()
+		// townfolkThis.wander()
 		if (CharactersData.charactersArray.length > 1){
 			for(let i = 0; i < CharactersData.charactersArray.length; i++){
 				var character = CharactersData.charactersArray[i]
@@ -112,8 +114,12 @@ var Townfolk = function(name, position){
 				// Logger.info(content)
 				var messageContent = JSON.parse(content)
 				switch (messageContent.action) {
-					case Utils.CHARACTER_MISSION.CHASE:
-						townfolkThis.runAway(messageContent)
+					case Utils.CHARACTER_STATES.CHASE:
+						// townfolkThis.runAway(messageContent)
+						var character = CharactersData.getCharacterByName(messageContent.Character2Name)
+						if (character) {
+							townfolkThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, {Character: character})
+						}
 						break
 					//// TO DO: finish all the other cases
 				}
@@ -122,13 +128,107 @@ var Townfolk = function(name, position){
 	}
 }
 
-Townfolk.prototype.runAway = function(content){
+Townfolk.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		CharacterName: this.charName,
-		Log: " run away from ",
+		Log: " ran away from ",
 		Character2Name: content.CharacterName,
 		Time: this.time,
 	}))
+
+	console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
+	for(let i = 0; i < this.speed; i++){
+		this.runawaySingleMove(time)
+	}
+}
+
+
+// one unit per time
+// if at border.....
+Townfolk.prototype.runawaySingleMove = function(time){
+
+	randomDirection = Math.floor(Math.random() * 2)
+	var result = this.runAwayOneDirection(randomDirection, time)
+	if (!result) {
+		// if the first direction doesn't work
+		// try the other direction
+		// if can not move too, then randomly choose a direction and run
+		var result2 = this.runAwayOneDirection(randomDirection % 1, time)
+		if (!result2){
+			var randomDirection2 = Math.floor(Math.random() * 2)
+			if (this.position[randomDirection2] - 1 >= 0) {
+				this.position[randomDirection2] = this.position[randomDirection2] - 1
+				Logger.statesInfo(JSON.stringify({
+					Name: this.name,
+					Action: "moved to", 
+					Position: this.position,
+					Time: time,
+				}))
+			} else if (this.position[randomDirection2] + 1 < Utils.MAP_SIZE[randomDirection2]){
+				this.position[randomDirection2] = this.position[randomDirection2] + 1
+				Logger.statesInfo(JSON.stringify({
+					Name: this.name,
+					Action: "moved to", 
+					Position: this.position,
+					Time: time,
+				}))
+			}
+		}
+	}
+}
+
+Townfolk.prototype.runAwayOneDirection = function(direction, time){
+	var enemyPosition = this.state.target.character.position
+	
+	if (enemyPosition[direction] > this.position[direction]) {
+		if (this.position[direction] - 1 >= 0) {
+			this.position[direction] = this.position[direction] - 1
+			Logger.statesInfo(JSON.stringify({
+				Name: this.name,
+				Action: "moved to", 
+				Position: this.position,
+				Time: time,
+			}))
+			return true
+		} else {
+			return false
+		}
+	} else if (enemyPosition[direction] < this.position[randomDirection]) {
+		if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
+			this.position[direction] = this.position[direction] + 1
+			Logger.statesInfo(JSON.stringify({
+				Name: this.name,
+				Action: "moved to", 
+				Position: this.position,
+				Time: time,
+			}))
+			return true
+		} else {
+			return false
+		}
+	} else {
+		if (this.position[direction] - 1 >= 0) {
+			this.position[direction] = this.position[direction] - 1
+			Logger.statesInfo(JSON.stringify({
+				Name: this.name,
+				Action: "moved to", 
+				Position: this.position,
+				Time: time,
+			}))
+			return true
+		} else if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
+			this.position[direction] = this.position[direction] + 1
+			Logger.statesInfo(JSON.stringify({
+				Name: this.name,
+				Action: "moved to", 
+				Position: this.position,
+				Time: time,
+			}))
+			return true
+		} else {
+			return false
+		}
+	}
 }
 
 // Townfolk.prototype.tempWalk = function(direction){
@@ -142,7 +242,7 @@ Townfolk.prototype.runAway = function(content){
 // 	}
 // }
 
-Townfolk.prototype.wander = function(){
+Townfolk.prototype.wander = function(time){
 	var directions = ['left', 'right', 'up', 'down']
 	var direction = directions[Math.floor(Math.random() * directions.length)]
 
@@ -210,6 +310,7 @@ Townfolk.prototype.wander = function(){
 		Name: this.charName,
 		Action: "moved to",
 		Position: this.position,
+		Time: time,
 	}))
 }
 

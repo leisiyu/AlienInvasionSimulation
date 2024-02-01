@@ -5,7 +5,8 @@ const jssim = require('js-simulator')
 const CharactersData = require('./CharactersData.js')
 // const fs = require('node:fs')
 const Logger = require('../Logger.js').Logger
-const Mission = require('./Mission.js').Mission
+// const Mission = require('./CharacterState.js').Mission
+const CharacterState = require('./CharacterState.js').CharacterState
 
 var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
@@ -15,15 +16,14 @@ var Soldier = function(name, position){
 	this.speed = 1
 	this.visualRange = 5
 	this.attackRange = 1
-	this.status = Utils.CHARACTER_STATUS.NORMAL
-	this.mission = new Mission()
+	this.state = new CharacterState()
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = function(deltaTime){
 
 		// if character died
-		if (soldierThis.status == Utils.CHARACTER_STATUS.DIED) { return }
+		if (soldierThis.state == Utils.CHARACTER_STATES.DIED) { return }
 
 		soldierThis.wander()
 		// console.log(this.charName + ' goes to ' + this.position)
