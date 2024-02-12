@@ -25,7 +25,7 @@ var Soldier = function(name, position){
 		// if character died
 		if (soldierThis.state == Utils.CHARACTER_STATES.DIED) { return }
 
-		soldierThis.wander()
+		soldierThis.wander(this.time)
 		// console.log(this.charName + ' goes to ' + this.position)
 
 		if (CharactersData.charactersArray.length > 0) {
@@ -38,37 +38,37 @@ var Soldier = function(name, position){
 							case Utils.CHARACTER_TYPE[0]:
 								// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
 								msgContent = {
-									"character_name": soldierThis.charName,
+									N1: soldierThis.charName,
 									// "character_type": soldierThis.charType,
 									// "act": "greet",
-									"log": "said hello to",
-									"character2_name": character.charName,
+									L: "said hello to",
+									N2: character.charName,
 									// "character2_type": character.charType,
-									"time":this.time,
+									T:this.time,
 								}
 								break
 							case Utils.CHARACTER_TYPE[1]:
 								// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' + character.charType +')')
 								msgContent = {
-									"character_name": soldierThis.charName,
+									N1: soldierThis.charName,
 									// "character_type": soldierThis.charType,
 									// "action": "attack",
-									"log": "attacked",
-									"character2_name": character.charName,
+									L: "attacked",
+									N2: character.charName,
 									// "character2_type": character.charType,
-									"time":this.time,
+									T:this.time,
 								}
 								break
 							case Utils.CHARACTER_TYPE[2]:
 								// console.log(this.charName  + '(' + this.charType + ') said hello to ' + character.charName+ '(' + character.charType +')')
 								msgContent = {
-									"character_name": soldierThis.charName,
+									N1: soldierThis.charName,
 									// "character_type": soldierThis.charType,
 									// "act": "greet",
-									"log": "said hello to",
-									"character2_name": character.charName,
+									L: "said hello to",
+									N2: character.charName,
 									// "character2_type": character.charType,
-									"time":this.time,
+									T:this.time,
 								}
 								break
 						}
@@ -115,7 +115,7 @@ Soldier.prototype.tempWalk = function(direction){
 }
 
 // step length == 1
-Soldier.prototype.wander = function(){
+Soldier.prototype.wander = function(time){
 	var directions = ['left', 'right', 'up', 'down']
 	var direction = directions[Math.floor(Math.random() * directions.length)]
 
@@ -135,9 +135,10 @@ Soldier.prototype.wander = function(){
 	}
 
 	Logger.statesInfo(JSON.stringify({
-		Name: this.charName,
-		Action: "moved to",
-		Position: this.position,
+		N: this.charName,
+		A: "m",
+		P: this.position,
+		T: time
 	}))
 }
 module.exports = {

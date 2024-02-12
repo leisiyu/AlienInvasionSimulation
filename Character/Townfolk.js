@@ -69,25 +69,25 @@ var Townfolk = function(name, position){
 						case Utils.CHARACTER_TYPE[1]:
 							// console.log(this.charName + '(' + this.charType + ') meet ' + character.charName + '(' + character.charType +')' + ' and then tried to run away')
 							msgContent = {
-								"character_name": townfolkThis.charName,
+								N1: townfolkThis.charName,
 								// "character_type": townfolkThis.charType,
 								// "act": "run away",
-								"log": "met and then tried to run away from",
-								"character2_name": character.charName,
+								L: "met and then tried to run away from",
+								N2: character.charName,
 								// "character2_type": character.charType,
-								"time":this.time,
+								T:this.time,
 							}
 							break
 						case Utils.CHARACTER_TYPE[2]:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
-								"character_name": townfolkThis.charName,
+								N1: townfolkThis.charName,
 								// "character_type": townfolkThis.charType,
 								// "act": "greeting",
-								"log": "said hello to",
-								"character2_name": character.charName,
+								L: "said hello to",
+								N2: character.charName,
 								// "character2_type": character.charType,
-								"time":this.time,
+								T:this.time,
 							}
 							break
 						}
@@ -130,10 +130,10 @@ var Townfolk = function(name, position){
 
 Townfolk.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
-		CharacterName: this.charName,
-		Log: " ran away from ",
-		Character2Name: content.CharacterName,
-		Time: this.time,
+		N1: this.charName,
+		L: " ran away from ",
+		N2: content.CharacterName,
+		T: this.time,
 	}))
 
 	console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
@@ -159,18 +159,18 @@ Townfolk.prototype.runawaySingleMove = function(time){
 			if (this.position[randomDirection2] - 1 >= 0) {
 				this.position[randomDirection2] = this.position[randomDirection2] - 1
 				Logger.statesInfo(JSON.stringify({
-					Name: this.name,
-					Action: "moved to", 
-					Position: this.position,
-					Time: time,
+					N: this.name,
+					A: "moved to", 
+					P: this.position,
+					T: time,
 				}))
 			} else if (this.position[randomDirection2] + 1 < Utils.MAP_SIZE[randomDirection2]){
 				this.position[randomDirection2] = this.position[randomDirection2] + 1
 				Logger.statesInfo(JSON.stringify({
-					Name: this.name,
-					Action: "moved to", 
-					Position: this.position,
-					Time: time,
+					N: this.name,
+					A: "moved to", 
+					P: this.position,
+					T: time,
 				}))
 			}
 		}
@@ -184,10 +184,10 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 		if (this.position[direction] - 1 >= 0) {
 			this.position[direction] = this.position[direction] - 1
 			Logger.statesInfo(JSON.stringify({
-				Name: this.name,
-				Action: "moved to", 
-				Position: this.position,
-				Time: time,
+				N: this.name,
+				A: "moved to", 
+				P: this.position,
+				T: time,
 			}))
 			return true
 		} else {
@@ -197,10 +197,10 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 		if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
 			this.position[direction] = this.position[direction] + 1
 			Logger.statesInfo(JSON.stringify({
-				Name: this.name,
-				Action: "moved to", 
-				Position: this.position,
-				Time: time,
+				N: this.name,
+				A: "moved to", 
+				P: this.position,
+				T: time,
 			}))
 			return true
 		} else {
@@ -210,19 +210,19 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 		if (this.position[direction] - 1 >= 0) {
 			this.position[direction] = this.position[direction] - 1
 			Logger.statesInfo(JSON.stringify({
-				Name: this.name,
-				Action: "moved to", 
-				Position: this.position,
-				Time: time,
+				N: this.name,
+				A: "moved to", 
+				P: this.position,
+				T: time,
 			}))
 			return true
 		} else if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
 			this.position[direction] = this.position[direction] + 1
 			Logger.statesInfo(JSON.stringify({
-				Name: this.name,
-				Action: "moved to", 
-				Position: this.position,
-				Time: time,
+				N: this.name,
+				A: "moved to", 
+				P: this.position,
+				T: time,
 			}))
 			return true
 		} else {
@@ -231,16 +231,6 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 	}
 }
 
-// Townfolk.prototype.tempWalk = function(direction){
-// 	switch(direction){
-// 		case 'left':
-// 			this.position = this.position - 1 < 0 ? this.position : this.position - 1
-// 			break;
-// 		case 'right':
-// 			this.position = this.position + 1 >= 10 ? this.position : this.position + 1
-// 			break
-// 	}
-// }
 
 Townfolk.prototype.wander = function(time){
 	var directions = ['left', 'right', 'up', 'down']
@@ -307,10 +297,10 @@ Townfolk.prototype.wander = function(time){
 	this.position = newPosition
 
 	Logger.statesInfo(JSON.stringify({
-		Name: this.charName,
-		Action: "moved to",
-		Position: this.position,
-		Time: time,
+		N: this.charName,
+		A: "m",
+		P: this.position,
+		T: time,
 	}))
 }
 

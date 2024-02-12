@@ -60,24 +60,24 @@ var Alien = function(name, position){
 						if (alienThis.charType != character.charType){
 							// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' +character.charType + ')')
 							msgContent = {
-								"character_name": alienThis.charName,
+								N1: alienThis.charName,
 								// "character_type": alienThis.charType,
 								// "action": "attack",
-								"log": "attacked",
-								"character2_name": character.charName,
+								L: "attacked",
+								N2: character.charName,
 								// "character2_type": character.charType,
-								"time":this.time,
+								T:this.time,
 							}
 						} else {
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
 							msgContent = {
-								"character_name": alienThis.charName,
+								N1: alienThis.charName,
 								// "character_type": alienThis.charType,
 								// "act": "greet",
-								"log": "said hello to",
-								"character2_name": character.charName,
+								L: "said hello to",
+								N2: character.charName,
 								// "character2_type": character.charType,
-								"time":this.time,
+								T:this.time,
 							}
 						}
 
@@ -148,10 +148,10 @@ Alien.prototype.wander = function(time){
 	}
 
 	Logger.statesInfo(JSON.stringify({
-		Name: this.charName,
-		Action: "moved to",
-		Position: this.position,
-		Time: time
+		N: this.charName,
+		A: "m",
+		P: this.position,
+		T: time
 	}))
 }
 
@@ -172,10 +172,10 @@ Alien.prototype.chasePeople = function(time){
 		if (character.charName == this.state.target.character.charName) {
 			console.log(this.charName + " was chasing " + character.charName)
 			Logger.info(JSON.stringify({
-				CharacterName: this.charName,
-				log: "was chasing",
-				Character2Name: character.charName,
-				Time: time,
+				N1: this.charName,
+				L: "was chasing",
+				N2: character.charName,
+				T: time,
 			}))
 			var position = character.position
 			for (let j = 0; j < this.speed; j++){
@@ -192,10 +192,10 @@ Alien.prototype.chasePeople = function(time){
 			}
 
 			Logger.statesInfo(JSON.stringify({
-				Name: this.charName,
-				Action: "moved to", 
-				Position: this.position,
-				Time: time,
+				N: this.charName,
+				A: "m", 
+				P: this.position,
+				T: time,
 			}))
 
 			if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
@@ -212,10 +212,10 @@ Alien.prototype.attack = function(character, time){
 	console.log(character.charName + " DIED! ")
 	console.log(this.charName + " state updated to " + Utils.CHARACTER_STATES.NONE)
 	Logger.info(JSON.stringify({
-		CharacterName: character.charName,
-		Log: "was killed by",
-		Character2Name: this.charName,
-		Time: time,
+		N1: character.charName,
+		L: "was killed by",
+		N2: this.charName,
+		T: time,
 	}))
 	this.state.setState(Utils.CHARACTER_STATES.NORMAL, {})
 }
