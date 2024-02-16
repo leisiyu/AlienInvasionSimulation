@@ -6,6 +6,7 @@ const CharactersData = require('./CharactersData.js')
 // const fs = require('fs')
 const Logger = require('../Logger.js').Logger
 const CharacterState = require('./CharacterState.js').CharacterState
+const Probability = require('./Probability.js').Probability
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -17,6 +18,8 @@ var Alien = function(name, position){
 	this.visualRange = 6
 	this.attackRange = 2
 	this.hp = 100
+	this.lastDirection = ""
+	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.state = new CharacterState()
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
@@ -31,10 +34,10 @@ var Alien = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				var msgContent = {
-					CharacterName: alienThis.charName,
-					Action: Utils.CHARACTER_STATES.CHASE,
-					Character2Name: alienThis.state.target.character.charName,
-					Time: this.time,
+					N1: alienThis.charName,
+					A: Utils.CHARACTER_STATES.CHASE,
+					N2: alienThis.state.target.character.charName,
+					T: this.time,
 				}
 				this.sendMsg(alienThis.state.target.character.simEvent.guid(), {
 					content: JSON.stringify(msgContent)
@@ -129,8 +132,26 @@ Alien.prototype.wander = function(time){
 	}
 
 
-	var directions = ['left', 'right', 'up', 'down']
-	var direction = directions[Math.floor(Math.random() * directions.length)]
+	// var directions = ['left', 'right', 'up', 'down']
+	// var direction = directions[Math.floor(Math.random() * directions.length)]
+	var direction
+	if (this.lastDirection == "") {
+		direction = Utils.DIRECTION[Math.floor(Math.random() * Utils.DIRECTION.length)]
+	} else {
+		var idx = Utils.DIRECTION.indexOf(this.lastDirection)
+		var newWeights = []
+		for (let i = 0; i < Utils.DIRECTION.length; i++) {
+			if (i == idx) {
+				newWeights.push(30)
+			} else (
+				newWeights.push(10)
+			)
+		}
+		this.directionProbability.updateWeights(newWeights)
+		direction = this.directionProbability.randomlyPick()
+	}
+
+	this.lastDirection = direction
 
 	switch(direction){
 		case 'left':
@@ -206,11 +227,12 @@ Alien.prototype.chasePeople = function(time){
 	}
 }
 
-// attack -> died
+// attacked -> died
 Alien.prototype.attack = function(character, time){
+	
 	character.status = Utils.CHARACTER_STATES.DIED
 	console.log(character.charName + " DIED! ")
-	console.log(this.charName + " state updated to " + Utils.CHARACTER_STATES.NONE)
+	console.log(this.charName + " state updated to " + Utils.CHARACTER_STATES.DIED)
 	Logger.info(JSON.stringify({
 		N1: character.charName,
 		L: "was killed by",
