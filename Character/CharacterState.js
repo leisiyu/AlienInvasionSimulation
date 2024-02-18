@@ -11,7 +11,7 @@ class CharacterState{
         this.stateType = stateType
         this.target = target
 
-        console.log("state updated!")
+        // console.log("state updated!")
     }
 
     // stateFinished(){

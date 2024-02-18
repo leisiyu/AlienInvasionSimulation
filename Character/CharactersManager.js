@@ -67,11 +67,6 @@ function generateAllCharacters(){
 	}
 }
 
-function removeOneCharacter(character){
-	// remove registered event
-
-	// remove from characters array
-}
 
 module.exports = {
 	generateAllCharacters,

@@ -12,12 +12,13 @@ var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE[1]
+	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
 	this.speed = 1
 	this.visualRange = 6
 	this.attackRange = 2
 	this.hp = 100
+	this.attackValue = 50
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.state = new CharacterState()
@@ -25,7 +26,7 @@ var Alien = function(name, position){
 	this.simEvent.update = function(deltaTime){
 
 		// if character died
-		if (alienThis.status == Utils.CHARACTER_STATES.DIED) { return }
+		if (alienThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
 		// check the character's state
 		switch(alienThis.state.stateType){
@@ -33,63 +34,78 @@ var Alien = function(name, position){
 				alienThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
-				var msgContent = {
-					N1: alienThis.charName,
-					A: Utils.CHARACTER_STATES.CHASE,
-					N2: alienThis.state.target.character.charName,
-					T: this.time,
-				}
-				this.sendMsg(alienThis.state.target.character.simEvent.guid(), {
-					content: JSON.stringify(msgContent)
-				})
+				// var msgContent = {
+				// 	N1: alienThis.charName,
+				// 	A: Utils.CHARACTER_STATES.CHASE,
+				// 	N2: alienThis.state.target.character.charName,
+				// 	T: this.time,
+				// }
+				// this.sendMsg(alienThis.state.target.character.simEvent.guid(), {
+				// 	content: JSON.stringify(msgContent)
+				// })
 				alienThis.chasePeople(this.time)
 				break
 			case Utils.CHARACTER_STATES.DESTROY:
+				alienThis.destroy(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				break
 			case Utils.CHARACTER_STATES.ATTACK:
+				alienThis.attack(this.time)
+
+				// notify the attacked character
+				// state type maybe changed in the attack function
+				if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+					var msg = {
+						msgType: "attacked",
+						atkValue: alienThis.attackValue,
+						attacker: alienThis.charName,
+					}
+					this.sendMsg(alienThis.state.target.simEvent.guid(), {
+						content: JSON.stringify(msg)
+					})
+				}
 				break
 		}
 		
 
 		// encounter someone
-		if (CharactersData.charactersArray.length > 0) {
-			for (let i = 0; i< CharactersData.charactersArray.length; i++){
-				var character = CharactersData.charactersArray[i]
-				if (alienThis != character && alienThis.position[0] == character.position[0] && alienThis.position[1] == character.position[1]){
+		// if (CharactersData.charactersArray.length > 0) {
+		// 	for (let i = 0; i< CharactersData.charactersArray.length; i++){
+		// 		var character = CharactersData.charactersArray[i]
+		// 		if (alienThis != character && alienThis.position[0] == character.position[0] && alienThis.position[1] == character.position[1]){
 						
-						var msgContent
-						if (alienThis.charType != character.charType){
-							// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' +character.charType + ')')
-							msgContent = {
-								N1: alienThis.charName,
-								// "character_type": alienThis.charType,
-								// "action": "attack",
-								L: "attacked",
-								N2: character.charName,
-								// "character2_type": character.charType,
-								T:this.time,
-							}
-						} else {
-							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
-							msgContent = {
-								N1: alienThis.charName,
-								// "character_type": alienThis.charType,
-								// "act": "greet",
-								L: "said hello to",
-								N2: character.charName,
-								// "character2_type": character.charType,
-								T:this.time,
-							}
-						}
+		// 				var msgContent
+		// 				if (alienThis.charType != character.charType){
+		// 					// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' +character.charType + ')')
+		// 					msgContent = {
+		// 						N1: alienThis.charName,
+		// 						// "character_type": alienThis.charType,
+		// 						// "action": "attack",
+		// 						L: "attacked",
+		// 						N2: character.charName,
+		// 						// "character2_type": character.charType,
+		// 						T:this.time,
+		// 					}
+		// 				} else {
+		// 					// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
+		// 					msgContent = {
+		// 						N1: alienThis.charName,
+		// 						// "character_type": alienThis.charType,
+		// 						// "act": "greet",
+		// 						L: "said hello to",
+		// 						N2: character.charName,
+		// 						// "character2_type": character.charType,
+		// 						T:this.time,
+		// 					}
+		// 				}
 
-						this.sendMsg(character.simEvent.guid(), {
-							content: JSON.stringify(msgContent)
-						})
-					}
-			}
-		}
+						// this.sendMsg(character.simEvent.guid(), {
+						// 	content: JSON.stringify(msgContent)
+						// })
+					// }
+			// }
+		// }
 		var messages = this.readInBox();
 		for(var i = 0; i < messages.length; ++i){
 			var msg = messages[i];
@@ -101,16 +117,27 @@ var Alien = function(name, position){
 			var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
 			var content = msg.content; // for example the "Hello" text from the sendMsg code above
 			if (recipient_id == this.guid()){
-				// console.log("content: " + content)
-				// fs.appendFile('../Log.txt', content, (err) => { 
-					// In case of a error throw err. 
-					// if (err) throw err;
-					// else {
-					// 	console.log('successful')
-					// }
-				// }) 
-					// Utils.logger.debug(content)
-				Logger.info(content)
+				var msgContent = JSON.parse(content)
+
+				if (msgContent.msgType == "attacked") {
+					alienThis.hp = alienThis.hp - msgContent.atkValue
+					if (alienThis.hp <= 0){
+						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
+						Logger.info(JSON.stringify({
+							N1: alienThis.charName,
+							L: "was killed by",
+							N2: msgContent.attacker,
+							T: this.time,
+						}))
+						// var attacker = CharactersData.getCharacterByName(msgContent.attacker)
+						// this.sendMsg(attacker.simEvent.guid(), {
+						// 	content: JSON.stringify({
+
+						// 	})
+						// })
+					}
+				}
+
 			}
 		}
 
@@ -122,14 +149,16 @@ Alien.prototype.wander = function(time){
 	//// check the visual range first
 	//// if there's an enemy around, chase him first
 	//// else wander around
-	if (this.state.stateType == Utils.CHARACTER_STATES.PATROL) {
+	// if (this.state.stateType == Utils.CHARACTER_STATES.PATROL) {
 		var visibleCharacters = this.checkVisualRange()
 		if (visibleCharacters.length > 0){
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, {character: randomVisibleCharacter})
+			// this.state.setState(Utils.CHARACTER_STATES.CHASE, {character: randomVisibleCharacter})
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+			this.chasePeople(time)
 			return
 		}
-	}
+	// }
 
 
 	// var directions = ['left', 'right', 'up', 'down']
@@ -176,13 +205,15 @@ Alien.prototype.wander = function(time){
 	}))
 }
 
+Alien.prototype.destroy = function(time){}
+
 Alien.prototype.chasePeople = function(time){
 	//// check whether the character was in the visual range first
 	//// if the character is not in the visual range, then he ran away
 	//// set the state to Patrol
 	var visibleCharacters = this.checkVisualRange()
-	if (!visibleCharacters.includes(this.state.target.character)){
-		this.state.setState(Utils.CHARACTER_STATES.NONE, {})
+	if (!visibleCharacters.includes(this.state.target)){
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return
 	}
@@ -190,8 +221,8 @@ Alien.prototype.chasePeople = function(time){
 
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
-		if (character.charName == this.state.target.character.charName) {
-			console.log(this.charName + " was chasing " + character.charName)
+		if (character.charName == this.state.target.charName) {
+			// console.log(this.charName + " was chasing " + character.charName)
 			Logger.info(JSON.stringify({
 				N1: this.charName,
 				L: "was chasing",
@@ -220,7 +251,8 @@ Alien.prototype.chasePeople = function(time){
 			}))
 
 			if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
-				this.attack(character, time)
+				// this.attack(character, time)
+				this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
 			}
 			break
 		}
@@ -228,18 +260,37 @@ Alien.prototype.chasePeople = function(time){
 }
 
 // attacked -> died
-Alien.prototype.attack = function(character, time){
-	
-	character.status = Utils.CHARACTER_STATES.DIED
-	console.log(character.charName + " DIED! ")
-	console.log(this.charName + " state updated to " + Utils.CHARACTER_STATES.DIED)
+Alien.prototype.attack = function(time){
+
+	// check if the character died
+	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+		return
+	}
+
+	// check attack range
+	var character = this.state.target
+	var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
+	if (distance > this.attackRange) {
+		// this frame still need to move
+		if (distance > this.visualRange) {
+			this.setState(Utils.CHARACTER_STATES.PATROL, nil)
+			this.wander(time)
+		} else {
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
+			this.chasePeople(time)
+		}
+		return
+	}
+
 	Logger.info(JSON.stringify({
-		N1: character.charName,
-		L: "was killed by",
-		N2: this.charName,
-		T: time,
+			N1: this.charName,
+			L: "attacked",
+			N2: character.charName,
+			T: time,
 	}))
-	this.state.setState(Utils.CHARACTER_STATES.NORMAL, {})
+	// this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
+	
 }
 
 Alien.prototype.checkVisualRange = function(){

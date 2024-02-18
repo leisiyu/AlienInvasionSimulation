@@ -5,11 +5,11 @@ const TOWNFOLKS_NUM = 4
 const ALIENS_NUM = 3
 const SOLIDERS_NUM = 5
 
-const CHARACTER_TYPE = [
-	'TOWNFOLK',
-	'ALIEN',
-	'SOLDIER',
-]
+const CHARACTER_TYPE = {
+	TOWNFOLK: 'TOWNFOLK',
+	ALIEN: 'ALIEN',
+	SOLDIER: 'SOLDIER',
+}
 
 const TOWNFOLK_NAMES = [
 	'Bob',

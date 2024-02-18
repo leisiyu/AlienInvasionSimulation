@@ -12,10 +12,12 @@ var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE[2]
+	this.charType = Utils.CHARACTER_TYPE.SOLDIER
 	this.speed = 1
 	this.visualRange = 5
 	this.attackRange = 1
+	this.hp = 150
+	this.attackValue = 50
 	this.state = new CharacterState()
 	var soldierThis = this
 
@@ -23,7 +25,7 @@ var Soldier = function(name, position){
 	this.simEvent.update = function(deltaTime){
 
 		// if character died
-		if (soldierThis.state == Utils.CHARACTER_STATES.DIED) { return }
+		if (soldierThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
 		soldierThis.wander(this.time)
 		// console.log(this.charName + ' goes to ' + this.position)
@@ -35,7 +37,7 @@ var Soldier = function(name, position){
 						
 						var msgContent 
 						switch (character.charType){
-							case Utils.CHARACTER_TYPE[0]:
+							case Utils.CHARACTER_TYPE.TOWNFOLK:
 								// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
 								msgContent = {
 									N1: soldierThis.charName,
@@ -47,7 +49,7 @@ var Soldier = function(name, position){
 									T:this.time,
 								}
 								break
-							case Utils.CHARACTER_TYPE[1]:
+							case Utils.CHARACTER_TYPE.ALIEN:
 								// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' + character.charType +')')
 								msgContent = {
 									N1: soldierThis.charName,
@@ -59,7 +61,7 @@ var Soldier = function(name, position){
 									T:this.time,
 								}
 								break
-							case Utils.CHARACTER_TYPE[2]:
+							case Utils.CHARACTER_TYPE.SOLDIER:
 								// console.log(this.charName  + '(' + this.charType + ') said hello to ' + character.charName+ '(' + character.charType +')')
 								msgContent = {
 									N1: soldierThis.charName,
@@ -97,7 +99,21 @@ var Soldier = function(name, position){
 				// 	if (err) throw err; 
 				// }) 
 				// Utils.logger.debug(content)
-				Logger.info(content)
+				// Logger.info(content)
+				var messageContent = JSON.parse(content)
+				if (messageContent.msgType == "attacked") {
+					soldierThis.hp = soldierThis.hp - messageContent.atkValue
+					if (soldierThis.hp <= 0) {
+						soldierThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
+						Logger.info(JSON.stringify({
+							N1: soldierThis.charName,
+							L: "was killed by",
+							N2: messageContent.attacker,
+							T: this.time,
+						}))
+					}
+
+				}
 			}
 		}
 	}

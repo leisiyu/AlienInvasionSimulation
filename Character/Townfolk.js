@@ -8,6 +8,8 @@ const { Alien } = require('./Alien.js')
 const Logger = require('../Logger.js').Logger
 const Map = require('../Map/TempMap.js').TempMap
 const CharacterState = require('./CharacterState.js').CharacterState
+const Probability = require('./Probability.js').Probability
+
 
 
 var Townfolk = function(name, position){
@@ -15,21 +17,25 @@ var Townfolk = function(name, position){
 	// jssim.SimEvent.call(this, 10)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE[0]
+	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
 	this.speed = 1
 	this.visualRange = 3
 	this.attackRange = 1
+	this.attackValue = 30
+	this.hp = 100
+	this.hideProbability = new Probability(["run", "hide"], [10, 90])
 	this.state = new CharacterState()
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
 		// if character died
-		if (townfolkThis.state == Utils.CHARACTER_STATES.DIED) { return }
+		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
 		// check the character's state
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
 				// townfolkThis.wander(this.time)
+				townfolkThis.hide(this.time)
 				break
 			case Utils.CHARACTER_STATES.PATROL:
 				break
@@ -54,7 +60,7 @@ var Townfolk = function(name, position){
 				if (townfolkThis != character && townfolkThis.position[0] == character.position[0] && townfolkThis.position[1] == character.position[1]){
 					var msgContent 
 					switch (character.charType){
-						case Utils.CHARACTER_TYPE[0]:
+						case Utils.CHARACTER_TYPE.TOWNFOLK:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								"character_name": townfolkThis.charName,
@@ -66,7 +72,7 @@ var Townfolk = function(name, position){
 								"time":this.time,
 							}
 							break
-						case Utils.CHARACTER_TYPE[1]:
+						case Utils.CHARACTER_TYPE.ALIEN:
 							// console.log(this.charName + '(' + this.charType + ') meet ' + character.charName + '(' + character.charType +')' + ' and then tried to run away')
 							msgContent = {
 								N1: townfolkThis.charName,
@@ -78,7 +84,7 @@ var Townfolk = function(name, position){
 								T:this.time,
 							}
 							break
-						case Utils.CHARACTER_TYPE[2]:
+						case Utils.CHARACTER_TYPE.SOLDIER:
 							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
 							msgContent = {
 								N1: townfolkThis.charName,
@@ -113,19 +119,38 @@ var Townfolk = function(name, position){
 			if (recipient_id == this.guid()){
 				// Logger.info(content)
 				var messageContent = JSON.parse(content)
-				switch (messageContent.action) {
-					case Utils.CHARACTER_STATES.CHASE:
-						// townfolkThis.runAway(messageContent)
-						var character = CharactersData.getCharacterByName(messageContent.Character2Name)
-						if (character) {
-							townfolkThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, {Character: character})
-						}
-						break
-					//// TO DO: finish all the other cases
+				// switch (messageContent.action) {
+				// 	case Utils.CHARACTER_STATES.CHASE:
+				// 		// townfolkThis.runAway(messageContent)
+				// 		var character = CharactersData.getCharacterByName(messageContent.Character2Name)
+				// 		if (character) {
+				// 			townfolkThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, {Character: character})
+				// 		}
+				// 		break
+				// 	//// TO DO: finish all the other cases
+				// }
+				if (messageContent.msgType == "attacked") {
+					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
+					if (townfolkThis.hp <= 0) {
+						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
+						Logger.info(JSON.stringify({
+							N1: townfolkThis.charName,
+							L: "was killed by",
+							N2: msgContent.attacker,
+							T: this.time,
+						}))
+					}
+
 				}
 			}
 		}
 	}
+}
+
+Townfolk.prototype.hide = function(time){
+	// check visual range first
+	// if there's a enemy, then runAway
+
 }
 
 Townfolk.prototype.runAway = function(time){
@@ -136,7 +161,7 @@ Townfolk.prototype.runAway = function(time){
 		T: this.time,
 	}))
 
-	console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
+	// console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
 	for(let i = 0; i < this.speed; i++){
 		this.runawaySingleMove(time)
 	}
@@ -303,6 +328,8 @@ Townfolk.prototype.wander = function(time){
 		T: time,
 	}))
 }
+
+
 
 module.exports = {
 	Townfolk,
