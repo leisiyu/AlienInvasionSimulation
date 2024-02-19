@@ -2,9 +2,14 @@ const Utils = require('../Utils.js')
 
 class CharacterState{
     stateType = ""
-    target = {}
-    constructor(){
-        this.stateType = Utils.CHARACTER_STATES.PATROL
+    target = null
+    constructor(state){
+        if (!state){
+            this.stateType = Utils.CHARACTER_STATES.PATROL
+        } else {
+            this.stateType = state
+        }
+        
     }
 
     setState(stateType, target){

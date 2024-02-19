@@ -59,6 +59,7 @@ const CHARACTER_STATES = {
 	RUN_AWAY: 'RUN_AWAY',
 	ATTACK: 'ATTACK',
 	HIDE: 'HIDE',
+	WANDER: "WANDER",
 }
 
 const formatString = (template, ...args) => {

@@ -21,10 +21,12 @@ var Townfolk = function(name, position){
 	this.speed = 1
 	this.visualRange = 3
 	this.attackRange = 1
-	this.attackValue = 30
+	this.attackValue = 10
 	this.hp = 100
-	this.hideProbability = new Probability(["run", "hide"], [10, 90])
-	this.state = new CharacterState()
+	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [10, 90])
+	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
+	this.lastDirection = ""
+	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 		
@@ -34,20 +36,28 @@ var Townfolk = function(name, position){
 		// check the character's state
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
-				// townfolkThis.wander(this.time)
-				townfolkThis.hide(this.time)
+				// check visual range first
+				if (townfolkThis.checkEnemiesAround(time)) {
+					break
+				}
+
+				townfolkThis.hideOrWander(time)
 				break
-			case Utils.CHARACTER_STATES.PATROL:
+			case Utils.CHARACTER_STATES.WANDER:
+				// check visual range first
+				if (townfolkThis.checkEnemiesAround(time)) {
+					break
+				}
+				townfolkThis.hideOrWander(time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				break
-			case Utils.CHARACTER_STATES.REVENGE:
-				break
-			case Utils.CHARACTER_STATES.BUY:
-				break
-			case Utils.CHARACTER_STATES.DESTROY:
-				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
+				// check visual range first
+				if (!townfolkThis.checkEnemiesAround(time)) {
+					townfolkThis.hideOrWander(time)
+					break
+				}
 				townfolkThis.runAway(this.time)
 				break
 		}
@@ -147,18 +157,46 @@ var Townfolk = function(name, position){
 	}
 }
 
-Townfolk.prototype.hide = function(time){
-	// check visual range first
-	// if there's a enemy, then runAway
+Townfolk.prototype.hideOrWander = function(time){
+	// townfolk may wander/hide
+	var newState = this.hideProbability.randomlyPick()
+	this.state.setState(newState, null)
+	if (newState == Utils.CHARACTER_STATES.HIDE) {
+		this.hide(time)
+	} else {
+		this.wander(time)
+	}
+}
 
+
+// if there's a enemy, then runAway
+Townfolk.prototype.checkEnemiesAround = function(time){
+	var enemies = this.checkVisualRange()
+	if (enemies.length > 0) {
+		var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+		this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
+		this.runAway(time)
+		return true
+	}
+	return false
+}
+
+Townfolk.prototype.hide = function(time){
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: "was hiding in ",
+		N2: this.position,
+		T: time,
+	}))
+	this.lastDirection = ""
 }
 
 Townfolk.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
 		L: " ran away from ",
-		N2: content.CharacterName,
-		T: this.time,
+		N2: this.state.target.charName,
+		T: time,
 	}))
 
 	// console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
@@ -185,7 +223,7 @@ Townfolk.prototype.runawaySingleMove = function(time){
 				this.position[randomDirection2] = this.position[randomDirection2] - 1
 				Logger.statesInfo(JSON.stringify({
 					N: this.name,
-					A: "moved to", 
+					A: "m", 
 					P: this.position,
 					T: time,
 				}))
@@ -193,7 +231,7 @@ Townfolk.prototype.runawaySingleMove = function(time){
 				this.position[randomDirection2] = this.position[randomDirection2] + 1
 				Logger.statesInfo(JSON.stringify({
 					N: this.name,
-					A: "moved to", 
+					A: "m", 
 					P: this.position,
 					T: time,
 				}))
@@ -210,7 +248,7 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 			this.position[direction] = this.position[direction] - 1
 			Logger.statesInfo(JSON.stringify({
 				N: this.name,
-				A: "moved to", 
+				A: "m", 
 				P: this.position,
 				T: time,
 			}))
@@ -223,7 +261,7 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 			this.position[direction] = this.position[direction] + 1
 			Logger.statesInfo(JSON.stringify({
 				N: this.name,
-				A: "moved to", 
+				A: "m", 
 				P: this.position,
 				T: time,
 			}))
@@ -236,7 +274,7 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 			this.position[direction] = this.position[direction] - 1
 			Logger.statesInfo(JSON.stringify({
 				N: this.name,
-				A: "moved to", 
+				A: "m", 
 				P: this.position,
 				T: time,
 			}))
@@ -245,7 +283,7 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 			this.position[direction] = this.position[direction] + 1
 			Logger.statesInfo(JSON.stringify({
 				N: this.name,
-				A: "moved to", 
+				A: "m", 
 				P: this.position,
 				T: time,
 			}))
@@ -258,8 +296,24 @@ Townfolk.prototype.runAwayOneDirection = function(direction, time){
 
 
 Townfolk.prototype.wander = function(time){
-	var directions = ['left', 'right', 'up', 'down']
-	var direction = directions[Math.floor(Math.random() * directions.length)]
+	var direction 
+	if (this.lastDirection == "") {
+		direction = directions[Math.floor(Math.random() * directions.length)]
+	} else {
+		var idx = Utils.DIRECTION.indexOf(this.lastDirection)
+		var newWeights = []
+		for (let i = 0; i < Utils.DIRECTION.length; i++) {
+			if (i == idx) {
+				newWeights.push(30)
+			} else (
+				newWeights.push(10)
+			)
+		}
+		this.directionProbability.updateWeights(newWeights)
+		direction = this.directionProbability.randomlyPick()
+	}
+	this.lastDirection = direction
+	 
 
 	var newPosition = [Number(JSON.stringify(this.position[0])), Number(JSON.stringify(this.position[1]))]
 	switch(direction){
@@ -329,7 +383,27 @@ Townfolk.prototype.wander = function(time){
 	}))
 }
 
+Townfolk.prototype.checkVisualRange = function(){
+	var startX = this.position[0] - this.visualRange < 0 ? 0 : this.position[0] - this.visualRange
+	var endX = this.position[0] + this.visualRange >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.visualRange
+	var startY = this.position[1] - this.visualRange < 0 ? 0 : this.position[1] - this.visualRange
+	var endY = this.position[1] + this.visualRange >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.visualRange
 
+	var visibleEnemies = []
+	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
+		var character = CharactersData.charactersArray[i]
+		var characterPos = character.position
+		if (characterPos[0] >= startX && characterPos[0] <= endX 
+			&& characterPos[1] >= startY && characterPos[1] <= endY
+			&& character.charType == Utils.CHARACTER_TYPE.ALIEN
+			&& character.status != Utils.CHARACTER_STATES.DIED) {
+				visibleEnemies.push(character)
+				// console.log(this.charName + " saw " + character.charName)
+			}
+	}
+	
+	return visibleEnemies
+}
 
 module.exports = {
 	Townfolk,
