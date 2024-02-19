@@ -37,7 +37,8 @@ var Townfolk = function(name, position){
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
 				// check visual range first
-				if (townfolkThis.checkEnemiesAround(time)) {
+				if (townfolkThis.checkEnemiesAround(this.time)) {
+					townfolkThis.runAway(this.time)
 					break
 				}
 
@@ -45,75 +46,22 @@ var Townfolk = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.WANDER:
 				// check visual range first
-				if (townfolkThis.checkEnemiesAround(time)) {
+				if (townfolkThis.checkEnemiesAround(this.time)) {
+					townfolkThis.runAway(this.time)
 					break
 				}
-				townfolkThis.hideOrWander(time)
+				townfolkThis.hideOrWander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				// check visual range first
-				if (!townfolkThis.checkEnemiesAround(time)) {
-					townfolkThis.hideOrWander(time)
+				if (!townfolkThis.checkEnemiesAround(this.time)) {
+					townfolkThis.hideOrWander(this.time)
 					break
 				}
 				townfolkThis.runAway(this.time)
 				break
-		}
-
-		// townfolkThis.wander()
-		if (CharactersData.charactersArray.length > 1){
-			for(let i = 0; i < CharactersData.charactersArray.length; i++){
-				var character = CharactersData.charactersArray[i]
-				// Logger.info("name " + townfolkThis.charName + " " + townfolkThis.position + ' '+ character.charName + " " + character.position)
-				if (townfolkThis != character && townfolkThis.position[0] == character.position[0] && townfolkThis.position[1] == character.position[1]){
-					var msgContent 
-					switch (character.charType){
-						case Utils.CHARACTER_TYPE.TOWNFOLK:
-							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
-							msgContent = {
-								"character_name": townfolkThis.charName,
-								// "character_type": townfolkThis.charType,
-								// "act": "greeting",
-								"log": "said hello to",
-								"character2_name": character.charName,
-								// "character2_type": character.charType,
-								"time":this.time,
-							}
-							break
-						case Utils.CHARACTER_TYPE.ALIEN:
-							// console.log(this.charName + '(' + this.charType + ') meet ' + character.charName + '(' + character.charType +')' + ' and then tried to run away')
-							msgContent = {
-								N1: townfolkThis.charName,
-								// "character_type": townfolkThis.charType,
-								// "act": "run away",
-								L: "met and then tried to run away from",
-								N2: character.charName,
-								// "character2_type": character.charType,
-								T:this.time,
-							}
-							break
-						case Utils.CHARACTER_TYPE.SOLDIER:
-							// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' + character.charType +')')
-							msgContent = {
-								N1: townfolkThis.charName,
-								// "character_type": townfolkThis.charType,
-								// "act": "greeting",
-								L: "said hello to",
-								N2: character.charName,
-								// "character2_type": character.charType,
-								T:this.time,
-							}
-							break
-						}
-						
-					
-					this.sendMsg(character.simEvent.guid(), {
-						content: JSON.stringify(msgContent)
-					})
-				}
-			}
 		}
 
 		var messages = this.readInBox();
@@ -140,6 +88,7 @@ var Townfolk = function(name, position){
 				// 	//// TO DO: finish all the other cases
 				// }
 				if (messageContent.msgType == "attacked") {
+					console.log(townfolkThis.attackRange.charName + " " + msgContent.attacker)
 					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
 					if (townfolkThis.hp <= 0) {
 						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
@@ -149,8 +98,9 @@ var Townfolk = function(name, position){
 							N2: msgContent.attacker,
 							T: this.time,
 						}))
+						return
 					}
-
+					townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
 				}
 			}
 		}
@@ -173,9 +123,11 @@ Townfolk.prototype.hideOrWander = function(time){
 Townfolk.prototype.checkEnemiesAround = function(time){
 	var enemies = this.checkVisualRange()
 	if (enemies.length > 0) {
-		var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-		this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
-		this.runAway(time)
+		if (this.state.stateType != Utils.CHARACTER_STATES.RUN_AWAY) {
+			var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
+		}	
+		// this.runAway(time)
 		return true
 	}
 	return false
@@ -198,107 +150,120 @@ Townfolk.prototype.runAway = function(time){
 		N2: this.state.target.charName,
 		T: time,
 	}))
+	// console.log(this.charName + " tried to run away from " + this.state.target.charName)
 
-	// console.info(this.charName + " tried to run away from " + this.state.target.character.charName)
-	for(let i = 0; i < this.speed; i++){
-		this.runawaySingleMove(time)
-	}
+	// for(let i = 0; i < this.speed; i++){
+	// 	this.runawaySingleMove(time)
+	// }
+	var oppositDir = this.getRunAwayDirection()
+	var randomIdx = Math.floor(Math.random() * oppositDir.length)
+	var randomDirection = oppositDir[randomIdx]
+	switch(randomDirection){
+		case Utils.DIRECTION[0]:
+			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
+			break
+		case Utils.DIRECTION[1]:
+			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
+			break
+		case Utils.DIRECTION[2]:
+			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
+			break;
+		case Utils.DIRECTION[3]:
+			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
+			break
+		}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		A: "m", 
+		P: this.position,
+		T: time,
+	}))
+	
 }
 
+Townfolk.prototype.getRunAwayDirection = function(){
+	var oppositDir = []
+	if (this.position[0] - this.state.target.position[0] > 0) {
+		oppositDir.push(Utils.DIRECTION[3])
+	} else if (this.position[0] - this.state.target.position[0] < 0) {
+		oppositDir.push(Utils.DIRECTION[2])
+	} else {
+		oppositDir.push(Utils.DIRECTION[2])
+		oppositDir.push(Utils.DIRECTION[3])
+	}
+
+	if (this.position[1] - this.state.target.position[1] > 0) {
+		oppositDir.push(Utils.DIRECTION[1])
+	} else if (this.position[1] - this.state.target.position[0] < 1) {
+		oppositDir.push(Utils.DIRECTION[0])
+	} else {
+		oppositDir.push(Utils.DIRECTION[0])
+		oppositDir.push(Utils.DIRECTION[1])
+	}
+
+	return oppositDir
+}
 
 // one unit per time
 // if at border.....
-Townfolk.prototype.runawaySingleMove = function(time){
-
-	randomDirection = Math.floor(Math.random() * 2)
-	var result = this.runAwayOneDirection(randomDirection, time)
-	if (!result) {
-		// if the first direction doesn't work
-		// try the other direction
-		// if can not move too, then randomly choose a direction and run
-		var result2 = this.runAwayOneDirection(randomDirection % 1, time)
-		if (!result2){
-			var randomDirection2 = Math.floor(Math.random() * 2)
-			if (this.position[randomDirection2] - 1 >= 0) {
-				this.position[randomDirection2] = this.position[randomDirection2] - 1
-				Logger.statesInfo(JSON.stringify({
-					N: this.name,
-					A: "m", 
-					P: this.position,
-					T: time,
-				}))
-			} else if (this.position[randomDirection2] + 1 < Utils.MAP_SIZE[randomDirection2]){
-				this.position[randomDirection2] = this.position[randomDirection2] + 1
-				Logger.statesInfo(JSON.stringify({
-					N: this.name,
-					A: "m", 
-					P: this.position,
-					T: time,
-				}))
-			}
-		}
-	}
-}
-
-Townfolk.prototype.runAwayOneDirection = function(direction, time){
-	var enemyPosition = this.state.target.character.position
+// Townfolk.prototype.runawaySingleMove = function(time){
+// 	var oppositDir = this.getRunAwayDirection()
 	
-	if (enemyPosition[direction] > this.position[direction]) {
-		if (this.position[direction] - 1 >= 0) {
-			this.position[direction] = this.position[direction] - 1
-			Logger.statesInfo(JSON.stringify({
-				N: this.name,
-				A: "m", 
-				P: this.position,
-				T: time,
-			}))
-			return true
-		} else {
-			return false
-		}
-	} else if (enemyPosition[direction] < this.position[randomDirection]) {
-		if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
-			this.position[direction] = this.position[direction] + 1
-			Logger.statesInfo(JSON.stringify({
-				N: this.name,
-				A: "m", 
-				P: this.position,
-				T: time,
-			}))
-			return true
-		} else {
-			return false
-		}
-	} else {
-		if (this.position[direction] - 1 >= 0) {
-			this.position[direction] = this.position[direction] - 1
-			Logger.statesInfo(JSON.stringify({
-				N: this.name,
-				A: "m", 
-				P: this.position,
-				T: time,
-			}))
-			return true
-		} else if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
-			this.position[direction] = this.position[direction] + 1
-			Logger.statesInfo(JSON.stringify({
-				N: this.name,
-				A: "m", 
-				P: this.position,
-				T: time,
-			}))
-			return true
-		} else {
-			return false
-		}
-	}
-}
+// 	randomIdx = Math.floor(Math.random() * oppositDir.length)
+// 	randomDirection = oppositDir[randomIdx]
+// 	var result = this.runAwayOneDirection(randomDirection, time)
+// 	if (!result) {
+// 		// if the first direction doesn't work
+// 		// try the other direction
+// 		// if can not move too, then randomly choose a direction and run
+// 		var result2 = this.runAwayOneDirection(randomDirection % 1, time)
+// 		if (!result2){
+// 			var randomDirection2 = Math.floor(Math.random() * 2)
+// 			if (this.position[randomDirection2] - 1 >= 0) {
+// 				this.position[randomDirection2] = this.position[randomDirection2] - 1
+// 			} else if (this.position[randomDirection2] + 1 < Utils.MAP_SIZE[randomDirection2]){
+// 				this.position[randomDirection2] = this.position[randomDirection2] + 1
+// 			}
+// 		}
+// 	}
+// }
+
+// Townfolk.prototype.runAwayOneDirection = function(direction, time){
+// 	var enemyPosition = this.state.target.position
+	
+// 	if (enemyPosition[direction] > this.position[direction]) {
+// 		if (this.position[direction] - 1 >= 0) {
+// 			this.position[direction] = this.position[direction] - 1
+// 			return true
+// 		} else {
+// 			return false
+// 		}
+// 	} else if (enemyPosition[direction] < this.position[randomDirection]) {
+// 		if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
+// 			this.position[direction] = this.position[direction] + 1
+// 			return true
+// 		} else {
+// 			return false
+// 		}
+// 	} else {
+// 		if (this.position[direction] - 1 >= 0) {
+// 			this.position[direction] = this.position[direction] - 1
+// 			return true
+// 		} else if (this.position[direction] + 1 < Utils.MAP_SIZE[direction]) {
+// 			this.position[direction] = this.position[direction] + 1
+// 			return true
+// 		} else {
+// 			return false
+// 		}
+// 	}
+// }
 
 
 Townfolk.prototype.wander = function(time){
 	var direction 
 	if (this.lastDirection == "") {
-		direction = directions[Math.floor(Math.random() * directions.length)]
+		direction = Utils.DIRECTION[Math.floor(Math.random() * Utils.DIRECTION.length)]
 	} else {
 		var idx = Utils.DIRECTION.indexOf(this.lastDirection)
 		var newWeights = []
@@ -317,17 +282,17 @@ Townfolk.prototype.wander = function(time){
 
 	var newPosition = [Number(JSON.stringify(this.position[0])), Number(JSON.stringify(this.position[1]))]
 	switch(direction){
-		case 'left':
-			newPosition[0] = newPosition[0] - this.speed < 0 ? 0 : newPosition[0] - this.speed
-			break;
-		case 'right':
-			newPosition[0] = newPosition[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : newPosition[0] + this.speed
-			break
-		case 'up':
+		case Utils.DIRECTION[0]:
 			newPosition[1] = newPosition[1] - this.speed < 0 ? 0 : newPosition[1] - this.speed
 			break
-		case 'down':
+		case Utils.DIRECTION[1]:
 			newPosition[1] = newPosition[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : newPosition[1] + this.speed
+			break
+		case Utils.DIRECTION[2]:
+			newPosition[0] = newPosition[0] - this.speed < 0 ? 0 : newPosition[0] - this.speed
+			break;
+		case Utils.DIRECTION[3]:
+			newPosition[0] = newPosition[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : newPosition[0] + this.speed
 			break
 	}
 
