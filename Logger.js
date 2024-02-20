@@ -1,8 +1,10 @@
 const fs = require('node:fs')
+const CharactersData = require('./Character/CharactersData')
 
 var Logger = {
     logQueue: [],
     statesLogQueue: [],
+    index: 0,
 }
 
 
@@ -35,6 +37,24 @@ Logger.info = function(infoStr){
 // T for Time
 Logger.statesInfo = function(infoStr){
     this.statesLogQueue.push(infoStr)
+    this.index++
+
+    if(this.index % 1000 == 0) {
+        this.statesLogQueue.push(this.setKeyFrame())
+    }
+}
+
+Logger.setKeyFrame = function(){
+    var keyFrame = {}
+    keyFrame["frameType"] = "key"
+
+    //characters' states
+    var characters = CharactersData.charactersArray
+    for (let i = 0; i < characters.length; i++){
+        keyFrame[characters[i].charName] = characters[i].position
+    }
+
+    return JSON.stringify(keyFrame)
 }
 
 Logger.writeToFile = function(){
