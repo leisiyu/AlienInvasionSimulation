@@ -306,7 +306,7 @@ Alien.prototype.checkVisualRange = function(){
 		if (characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.charType != this.charType
-			&& character.status != Utils.CHARACTER_STATES.DIED) {
+			&& character.state.stateType != Utils.CHARACTER_STATES.DIED) {
 				visibleCharacters.push(character)
 				// console.log(this.charName + " saw " + character.charName)
 			}
