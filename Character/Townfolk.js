@@ -43,7 +43,7 @@ var Townfolk = function(name, position){
 					break
 				}
 
-				townfolkThis.hideOrWander(time)
+				townfolkThis.hideOrWander(this.time)
 				break
 			case Utils.CHARACTER_STATES.WANDER:
 				// check visual range first
