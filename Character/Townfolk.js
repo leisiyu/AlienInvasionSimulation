@@ -22,6 +22,7 @@ var Townfolk = function(name, position){
 	this.visualRange = 3
 	this.attackRange = 1
 	this.attackValue = 10
+	this.maxHp = 100
 	this.hp = 100
 	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [10, 90])
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
@@ -87,8 +88,8 @@ var Townfolk = function(name, position){
 				// 		break
 				// 	//// TO DO: finish all the other cases
 				// }
-				if (messageContent.msgType == "attacked") {
-					console.log(townfolkThis.attackRange.charName + " " + msgContent.attacker)
+
+				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
 					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
 					if (townfolkThis.hp <= 0) {
 						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
@@ -126,10 +127,17 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 		if (this.state.stateType != Utils.CHARACTER_STATES.RUN_AWAY) {
 			var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
-		}	
-		// this.runAway(time)
+		} else{
+			// state: run away
+			// check if the enemy is in visual range
+			if (!enemies.includes(this.state.target)){
+				var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+				this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
+			}
+		}
 		return true
 	}
+	// this.setState(Utils.CHARACTER_STATES.WANDER, null)
 	return false
 }
 

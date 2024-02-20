@@ -17,6 +17,7 @@ var Alien = function(name, position){
 	this.speed = 1
 	this.visualRange = 6
 	this.attackRange = 2
+	this.maxHp = 100
 	this.hp = 100
 	this.attackValue = 50
 	this.lastDirection = ""
@@ -31,81 +32,64 @@ var Alien = function(name, position){
 		// check the character's state
 		switch(alienThis.state.stateType){
 			case Utils.CHARACTER_STATES.PATROL:
+				if (alienThis.checkEnemiesAround(this.time)){
+					alienThis.chasePeople(this.time)
+					break
+				}
 				alienThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
-				// var msgContent = {
-				// 	N1: alienThis.charName,
-				// 	A: Utils.CHARACTER_STATES.CHASE,
-				// 	N2: alienThis.state.target.character.charName,
-				// 	T: this.time,
-				// }
-				// this.sendMsg(alienThis.state.target.character.simEvent.guid(), {
-				// 	content: JSON.stringify(msgContent)
-				// })
+				if (!alienThis.checkEnemiesAround(this.time)){
+					alienThis.wander(this.time)
+					break
+				}
 				alienThis.chasePeople(this.time)
+
+				// reached attack range after chasing
+				if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+					var isSuccessfulAttack = alienThis.attack(this.time)
+					if (isSuccessfulAttack) {
+						var msg = {
+							msgType: "attacked",
+							atkValue: alienThis.attackValue,
+							attacker: alienThis.charName,
+						}
+						
+						this.sendMsg(alienThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					}
+					
+				}
 				break
 			case Utils.CHARACTER_STATES.DESTROY:
 				alienThis.destroy(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				break
-			case Utils.CHARACTER_STATES.ATTACK:
-				alienThis.attack(this.time)
+			case Utils.CHARACTER_STATES.ATTACK:		
+				
+				var isSuccessfulAttack = alienThis.attack(this.time)
 
-				// notify the attacked character
-				// state type maybe changed in the attack function
-				if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					var msg = {
-						msgType: "attacked",
-						atkValue: alienThis.attackValue,
-						attacker: alienThis.charName,
-					}
-					this.sendMsg(alienThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
+				if (isSuccessfulAttack) {
+					// notify the attacked character
+					// state type maybe changed in the attack function
+					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+						
+						var msg = {
+							msgType: "attacked",
+							atkValue: alienThis.attackValue,
+							attacker: alienThis.charName,
+						}
+						this.sendMsg(alienThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+				// }
 				}
+				
 				break
 		}
 		
-
-		// encounter someone
-		// if (CharactersData.charactersArray.length > 0) {
-		// 	for (let i = 0; i< CharactersData.charactersArray.length; i++){
-		// 		var character = CharactersData.charactersArray[i]
-		// 		if (alienThis != character && alienThis.position[0] == character.position[0] && alienThis.position[1] == character.position[1]){
-						
-		// 				var msgContent
-		// 				if (alienThis.charType != character.charType){
-		// 					// console.log(this.charName + '(' + this.charType + ') attacked ' + character.charName + '(' +character.charType + ')')
-		// 					msgContent = {
-		// 						N1: alienThis.charName,
-		// 						// "character_type": alienThis.charType,
-		// 						// "action": "attack",
-		// 						L: "attacked",
-		// 						N2: character.charName,
-		// 						// "character2_type": character.charType,
-		// 						T:this.time,
-		// 					}
-		// 				} else {
-		// 					// console.log(this.charName + '(' + this.charType + ') said hello to ' + character.charName + '(' +character.charType + ')')
-		// 					msgContent = {
-		// 						N1: alienThis.charName,
-		// 						// "character_type": alienThis.charType,
-		// 						// "act": "greet",
-		// 						L: "said hello to",
-		// 						N2: character.charName,
-		// 						// "character2_type": character.charType,
-		// 						T:this.time,
-		// 					}
-		// 				}
-
-						// this.sendMsg(character.simEvent.guid(), {
-						// 	content: JSON.stringify(msgContent)
-						// })
-					// }
-			// }
-		// }
 		var messages = this.readInBox();
 		for(var i = 0; i < messages.length; ++i){
 			var msg = messages[i];
@@ -119,7 +103,7 @@ var Alien = function(name, position){
 			if (recipient_id == this.guid()){
 				var msgContent = JSON.parse(content)
 
-				if (msgContent.msgType == "attacked") {
+				if (msgContent.msgType.valueOf() == "attacked".valueOf()) {
 					alienThis.hp = alienThis.hp - msgContent.atkValue
 					if (alienThis.hp <= 0){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
@@ -129,12 +113,6 @@ var Alien = function(name, position){
 							N2: msgContent.attacker,
 							T: this.time,
 						}))
-						// var attacker = CharactersData.getCharacterByName(msgContent.attacker)
-						// this.sendMsg(attacker.simEvent.guid(), {
-						// 	content: JSON.stringify({
-
-						// 	})
-						// })
 					}
 				}
 
@@ -144,25 +122,31 @@ var Alien = function(name, position){
 	}
 }
 
+Alien.prototype.checkEnemiesAround = function(time){
+	//// check the visual range
+	//// if there's an enemy around, chase him first
+	//// if already chasing someone, check if he's in the visual range
+	//// else wander around
+	var visibleCharacters = this.checkVisualRange()
+	if (visibleCharacters.length > 0){
+		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
+			if (!visibleCharacters.includes(this.state.target)){
+				var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+			}
+		} else {
+			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+			// this.chasePeople(time)
+		}
+		return true
+	}
+
+	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	return false
+}
 
 Alien.prototype.wander = function(time){
-	//// check the visual range first
-	//// if there's an enemy around, chase him first
-	//// else wander around
-	// if (this.state.stateType == Utils.CHARACTER_STATES.PATROL) {
-		var visibleCharacters = this.checkVisualRange()
-		if (visibleCharacters.length > 0){
-			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
-			// this.state.setState(Utils.CHARACTER_STATES.CHASE, {character: randomVisibleCharacter})
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
-			this.chasePeople(time)
-			return
-		}
-	// }
-
-
-	// var directions = ['left', 'right', 'up', 'down']
-	// var direction = directions[Math.floor(Math.random() * directions.length)]
 	var direction
 	if (this.lastDirection == "") {
 		direction = Utils.DIRECTION[Math.floor(Math.random() * Utils.DIRECTION.length)]
@@ -183,17 +167,17 @@ Alien.prototype.wander = function(time){
 	this.lastDirection = direction
 
 	switch(direction){
-		case 'left':
-			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
-			break;
-		case 'right':
-			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
-			break
-		case 'up':
+		case Utils.DIRECTION[0]:
 			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
 			break
-		case 'down':
+		case Utils.DIRECTION[1]:
 			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
+			break
+		case Utils.DIRECTION[2]:
+			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
+			break;
+		case Utils.DIRECTION[3]:
+			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
 			break
 	}
 
@@ -208,65 +192,48 @@ Alien.prototype.wander = function(time){
 Alien.prototype.destroy = function(time){}
 
 Alien.prototype.chasePeople = function(time){
-	//// check whether the character was in the visual range first
-	//// if the character is not in the visual range, then he ran away
-	//// set the state to Patrol
-	var visibleCharacters = this.checkVisualRange()
-	if (!visibleCharacters.includes(this.state.target)){
-		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-		this.wander(time)
-		return
-	}
-
-
-	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
-		var character = CharactersData.charactersArray[i]
-		if (character.charName == this.state.target.charName) {
-			// console.log(this.charName + " was chasing " + character.charName)
-			Logger.info(JSON.stringify({
-				N1: this.charName,
-				L: "was chasing",
-				N2: character.charName,
-				T: time,
-			}))
-			var position = character.position
-			for (let j = 0; j < this.speed; j++){
-				if (position[0] != this.position[0] && position[1] != this.position[1]) {
-					var randomDir = Math.floor(Math.random() * 2)
-					this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
-				} else if (position[0] != this.position[0]) {
-					this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
-				} else if (position[1] != this.position[1]) {
-					this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
-				} else {
-					break
-				}
-			}
-
-			Logger.statesInfo(JSON.stringify({
-				N: this.charName,
-				A: "m", 
-				P: this.position,
-				T: time,
-			}))
-
-			if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
-				// this.attack(character, time)
-				this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
-			}
+	
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: "was chasing",
+		N2: this.state.target.charName,
+		T: time,
+	}))
+	var position = this.state.target.position
+	for (let j = 0; j < this.speed; j++){
+		if (position[0] != this.position[0] && position[1] != this.position[1]) {
+			var randomDir = Math.floor(Math.random() * 2)
+			this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
+		} else if (position[0] != this.position[0]) {
+			this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
+		} else if (position[1] != this.position[1]) {
+			this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
+		} else {
 			break
 		}
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		A: "m", 
+		P: this.position,
+		T: time,
+	}))
+
+	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
+		var characterName = this.state.target.charName
+		this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(characterName))
 	}
 }
 
 // attacked -> died
 Alien.prototype.attack = function(time){
-
 	// check if the character died
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-		return
-	}
+		this.wander(time)
+		return false
+	}		
 
 	// check attack range
 	var character = this.state.target
@@ -274,22 +241,55 @@ Alien.prototype.attack = function(time){
 	if (distance > this.attackRange) {
 		// this frame still need to move
 		if (distance > this.visualRange) {
-			this.setState(Utils.CHARACTER_STATES.PATROL, nil)
+			this.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
 			this.chasePeople(time)
 		}
-		return
+		return false
 	}
-
 	Logger.info(JSON.stringify({
-			N1: this.charName,
-			L: "attacked",
-			N2: character.charName,
-			T: time,
+		N1: this.charName,
+		L: "attacked",
+		N2: character.charName,
+		T: time,
 	}))
-	// this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
+	return true
+}
+
+Alien.prototype.runAway = function(time){
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: " ran away from ",
+		N2: this.state.target.charName,
+		T: time,
+	}))
+
+	var oppositDir = this.getRunAwayDirection()
+	var randomIdx = Math.floor(Math.random() * oppositDir.length)
+	var randomDirection = oppositDir[randomIdx]
+	switch(randomDirection){
+		case Utils.DIRECTION[0]:
+			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
+			break
+		case Utils.DIRECTION[1]:
+			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
+			break
+		case Utils.DIRECTION[2]:
+			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
+			break;
+		case Utils.DIRECTION[3]:
+			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
+			break
+		}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		A: "m", 
+		P: this.position,
+		T: time,
+	}))
 	
 }
 
