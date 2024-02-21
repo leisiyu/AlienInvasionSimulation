@@ -183,7 +183,7 @@ Alien.prototype.wander = function(time){
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
-		A: "m",
+		S: this.state.stateType,
 		P: this.position,
 		T: time
 	}))
@@ -215,7 +215,7 @@ Alien.prototype.chasePeople = function(time){
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
-		A: "m", 
+		S: this.state.stateType, 
 		P: this.position,
 		T: time,
 	}))
@@ -286,7 +286,7 @@ Alien.prototype.runAway = function(time){
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
-		A: "m", 
+		S: this.state.stateType, 
 		P: this.position,
 		T: time,
 	}))

@@ -76,18 +76,7 @@ var Townfolk = function(name, position){
 			var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
 			var content = msg.content; // for example the "Hello" text from the sendMsg code above
 			if (recipient_id == this.guid()){
-				// Logger.info(content)
 				var messageContent = JSON.parse(content)
-				// switch (messageContent.action) {
-				// 	case Utils.CHARACTER_STATES.CHASE:
-				// 		// townfolkThis.runAway(messageContent)
-				// 		var character = CharactersData.getCharacterByName(messageContent.Character2Name)
-				// 		if (character) {
-				// 			townfolkThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, {Character: character})
-				// 		}
-				// 		break
-				// 	//// TO DO: finish all the other cases
-				// }
 
 				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
 					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
@@ -137,7 +126,7 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 		}
 		return true
 	}
-	// this.setState(Utils.CHARACTER_STATES.WANDER, null)
+
 	return false
 }
 
@@ -183,7 +172,7 @@ Townfolk.prototype.runAway = function(time){
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
-		A: "m", 
+		S: this.state.stateType, 
 		P: this.position,
 		T: time,
 	}))
@@ -350,7 +339,7 @@ Townfolk.prototype.wander = function(time){
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
-		A: "m",
+		S: this.state.stateType,
 		P: this.position,
 		T: time,
 	}))
