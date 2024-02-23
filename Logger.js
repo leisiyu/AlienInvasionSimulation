@@ -27,12 +27,12 @@ Logger.info = function(infoStr){
 // example
 // {
 //     N: this.charName,
-//     A: "m",
+//     S: this.state.stateType,
 //     P: this.position,
 //     T: time
 // }
 // N for Name
-// A for Action 
+// S for State 
 // P for Pos 
 // T for Time
 Logger.statesInfo = function(infoStr){
@@ -51,7 +51,10 @@ Logger.setKeyFrame = function(){
     //characters' states
     var characters = CharactersData.charactersArray
     for (let i = 0; i < characters.length; i++){
-        keyFrame[characters[i].charName] = characters[i].position
+        keyFrame[characters[i].charName] = {
+            P: characters[i].position,
+            S: characters[i].state.stateType,
+        }
     }
 
     return JSON.stringify(keyFrame)
