@@ -113,6 +113,12 @@ var Alien = function(name, position){
 							N2: msgContent.attacker,
 							T: this.time,
 						}))
+						Logger.statesInfo(JSON.stringify({
+							N: alienThis.charName,
+							S: alienThis.state.stateType,
+							P: alienThis.position,
+							T: this.time
+						}))
 					}
 				}
 

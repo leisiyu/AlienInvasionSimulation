@@ -30,10 +30,35 @@ var Townfolk = function(name, position){
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
-		
 		// if character died
 		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
+		// read messages
+		var messages = this.readInBox();
+		for(var i = 0; i < messages.length; ++i){
+			var msg = messages[i];
+			var sender_id = msg.sender;
+			var recipient_id = msg.recipient; // should equal to this.guid()
+			var time = msg.time;
+
+
+			var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
+			var content = msg.content; // for example the "Hello" text from the sendMsg code above
+			if (recipient_id == this.guid()){
+				var messageContent = JSON.parse(content)
+
+				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
+					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
+					if (townfolkThis.hp <= 0) {
+						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
+						townfolkThis.printDieLog(this.time, messageContent.attacker)
+						return
+					}
+					townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
+				}
+			}
+		}
+	}
 		// check the character's state
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
@@ -65,36 +90,25 @@ var Townfolk = function(name, position){
 				break
 		}
 
-		var messages = this.readInBox();
-		for(var i = 0; i < messages.length; ++i){
-			var msg = messages[i];
-			var sender_id = msg.sender;
-			var recipient_id = msg.recipient; // should equal to this.guid()
-			var time = msg.time;
+		
+}
 
-
-			var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
-			var content = msg.content; // for example the "Hello" text from the sendMsg code above
-			if (recipient_id == this.guid()){
-				var messageContent = JSON.parse(content)
-
-				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
-					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
-					if (townfolkThis.hp <= 0) {
-						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
-						Logger.info(JSON.stringify({
-							N1: townfolkThis.charName,
-							L: "was killed by",
-							N2: msgContent.attacker,
-							T: this.time,
-						}))
-						return
-					}
-					townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
-				}
-			}
-		}
-	}
+Townfolk.prototype.printDieLog = function(time, attacker){
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType,
+		P: this.position,
+		T: time
+	}))
+	console.log("why??????")
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: "was killed by",
+		N2: attacker,
+		T: time,
+	}))
+	console.log("why??????222")
+	
 }
 
 Townfolk.prototype.hideOrWander = function(time){
@@ -138,6 +152,12 @@ Townfolk.prototype.hide = function(time){
 		T: time,
 	}))
 	this.lastDirection = ""
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+	}))
 }
 
 Townfolk.prototype.runAway = function(time){

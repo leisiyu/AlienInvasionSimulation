@@ -120,6 +120,12 @@ var Soldier = function(name, position){
 							N2: messageContent.attacker,
 							T: this.time,
 						}))
+						Logger.statesInfo(JSON.stringify({
+							N: soldierThis.charName,
+							S: soldierThis.state.stateType,
+							P: soldierThis.position,
+							T: this.time
+						}))
 					} else {
 						soldierThis.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(messageContent.attacker))
 					}
