@@ -100,14 +100,12 @@ Townfolk.prototype.printDieLog = function(time, attacker){
 		P: this.position,
 		T: time
 	}))
-	console.log("why??????")
 	Logger.info(JSON.stringify({
 		N1: this.charName,
 		L: "was killed by",
 		N2: attacker,
 		T: time,
 	}))
-	console.log("why??????222")
 	
 }
 
