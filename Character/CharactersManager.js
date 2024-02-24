@@ -23,7 +23,7 @@ function generateAllCharacters(){
 		// 	T: 0,
 		// }))
 		var townfolk = new Townfolk(townfolkName, pos);
-		Scheduler.scheduler.scheduleRepeatingIn(townfolk.simEvent, 50)
+		Scheduler.scheduler.scheduleRepeatingIn(townfolk.simEvent, 5)
 		CharactersData.charactersArray.push(townfolk)
 	}
 	for (let i = 0; i < utils.SOLIDERS_NUM; i++) {
