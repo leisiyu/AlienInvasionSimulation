@@ -14,6 +14,7 @@ var EncodingLetters = {
 
 var allRoads = []
 var junctions = []
+var buildings = []
 var drawIdx = 0
 
 function generateRoads(startPos){
@@ -144,7 +145,7 @@ function drawRoad(startPos, direction, roadLength){
             roadSize = [endPosition[0] - startPosition[0], 1]
             break
     }
-    var road = new Road(roadPosition, roadSize)
+    var road = new Road(roadPosition, roadSize, direction)
     allRoads.push(road)
 }
 

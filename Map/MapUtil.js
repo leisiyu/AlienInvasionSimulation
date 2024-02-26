@@ -6,7 +6,7 @@ const BUILDING_TYPE = [
 
 ]
 
-const MAX_BUILDING_SIZE = 5
+const MAX_BUILDING_SIZE = 4
 const MIN_BUILDING_SIZE = 2
 const MAIN_ROAD_WIDTH = 4
 const MAIN_ROAD_LENGTH = 8

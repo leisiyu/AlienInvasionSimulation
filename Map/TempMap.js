@@ -11,7 +11,6 @@ class TempMap{
         this.buildings = []
 		this.roads = []
 
-        // for checking overlap
         this.map = [];
 		for (var i = 0; i < this.size[0]; i++){
 			this.map[i] = [];
@@ -27,21 +26,6 @@ class TempMap{
 		return this.instance;
 	}
 
-    createRandomBuilding(){
-		var x = Math.floor(Math.random() * (this.size[0] - MapUtil.MAX_BUILDING_SIZE))
-		var y = Math.floor(Math.random() *(this.size[1] - MapUtil.MAX_BUILDING_SIZE))
-		var w = Math.ceil(Math.random() * (MapUtil.MAX_BUILDING_SIZE - MapUtil.MIN_BUILDING_SIZE)) + MapUtil.MIN_BUILDING_SIZE
-		var h = Math.ceil(Math.random() * (MapUtil.MAX_BUILDING_SIZE - MapUtil.MIN_BUILDING_SIZE)) + MapUtil.MIN_BUILDING_SIZE
-		var buildingType = MapUtil.BUILDING_TYPE[Math.floor(Math.random() * MapUtil.BUILDING_TYPE.length)]
-
-		var building = new Building([w,h], [x,y], buildingType, [])
-        if (this.isValid(building)){
-            this.buildings.push(building)
-            this.fillMap(building)
-        }
-		return building
-	}
-
     isValid(building){
 		var x = building.position[0]
 		var y = building.position[1]
@@ -55,7 +39,7 @@ class TempMap{
 		for (var i = x; i < x + w; i++){
 			for (var j = y; j < y + h; j++){
 				// if (this.map[i] && this.map[i][j] === 1) { return false }
-				if (this.map[i][j] == 1) { return false }
+				if (this.map[i][j] != 0) { return false }
 			}
 		}
 
@@ -72,19 +56,21 @@ class TempMap{
 	}
 
     createRandomMap(){
-		/////random buildings
-        // for (let i = 0; i < 4; i++){
-        //     this.createRandomBuilding()
-        // }
-
 		//////random roads
 		this.roads = RoadManager.generateRoads([Utils.MAP_SIZE[0] / 2, Utils.MAP_SIZE[1] / 2])
-		// console.log('road num ' + this.roads.length)
 		for (let i = 0; i < this.roads.length; i++){
-			// console.log(this.roads[i].position + '  '+ this.roads[i].size)
 			this.fillMap(this.roads[i], 'r')
 		}
 		
+		this.generateBuildings()
+		var tempBuildings = []
+		for (let i = 0; i < this.buildings.length; i++){
+			if (this.isValid(this.buildings[i])){
+				this.fillMap(this.buildings[i], 'b')
+				tempBuildings.push(this.buildings[i])
+			}
+			
+		}
 
         ////draw a map
         for (var i = 0; i < this.size[0]; i++){
@@ -102,6 +88,62 @@ class TempMap{
 			}
 		}) 
 	}
+
+	
+	// two buildings along roads
+	generateBuildings(){
+		for (let i = 0; i < this.roads.length; i++) {
+			var road = this.roads[i]
+			var roadPos = road.position
+			var roadSize = road.size
+
+			if (road.direction == Utils.DIRECTION[0] || road.direction == Utils.DIRECTION[1]) {
+				var endPos = [roadPos[0], roadPos[1] + roadSize[1]]
+				this.createRandomBuilding(roadPos, endPos, true, true)
+				this.createRandomBuilding(roadPos, endPos, true, false)
+			} else {
+				var endPos = [roadPos[0] + roadSize[0], roadPos[1]]
+				this.createRandomBuilding(roadPos, endPos, false, true)
+				this.createRandomBuilding(roadPos, endPos, false, false)
+			}
+
+		}
+	}
+
+	createRandomBuilding(startPos, endPos, isVertical, isLeft){
+		if (isVertical){
+			if (Math.abs(startPos[1] - endPos[1]) <= 2 + MapUtil.MIN_BUILDING_SIZE) { return false }
+		} else {
+			if (Math.abs(startPos[0] - endPos[0]) <= 2 + MapUtil.MIN_BUILDING_SIZE) { return false}
+		}
+		var sizeDifference = MapUtil.MAX_BUILDING_SIZE - MapUtil.MIN_BUILDING_SIZE
+		var randomSizeW = Math.floor(Math.random() * sizeDifference) + MapUtil.MIN_BUILDING_SIZE
+		var randomSizeH = Math.floor(Math.random() * sizeDifference) + MapUtil.MIN_BUILDING_SIZE
+		var size = [randomSizeW, randomSizeH]
+
+		var buildingType = MapUtil.BUILDING_TYPE[Math.floor(Math.random() * MapUtil.BUILDING_TYPE.length)]
+
+		var posX = 0
+		var posY = 0
+		if (isVertical) {
+			posY = Math.floor(Math.random() * ((endPos[1] - 1) - (startPos[1] + 1))) + startPos[1] + 1
+			posX = isLeft ? startPos[0] - randomSizeW : startPos[0] + 1
+		} else {
+			posX = Math.floor(Math.random() * ((endPos[0] - 1) - (startPos[0] - 1))) + startPos[0] + 1
+			posY = isLeft ? startPos[1] + 1 : startPos[1] - randomSizeH
+		}
+
+		if (posX < 0 || posY < 0 || posX >= Utils.MAP_SIZE[0] || posY >= Utils.MAP_SIZE[1]){
+			return false
+		}
+
+		var building = new Building(size, [posX, posY], buildingType, [])
+		// check road overlapping
+		if (!this.isValid(building)) { return false }
+		this.buildings.push(building)
+	}
+
+
 
     generateRandomPos(){
         return [Math.floor(Math.random() * this.size[0]), Math.floor(Math.random() * this.size[1])]
