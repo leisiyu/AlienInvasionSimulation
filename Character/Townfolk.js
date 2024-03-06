@@ -9,6 +9,7 @@ const Logger = require('../Logger.js').Logger
 const Map = require('../Map/TempMap.js').TempMap
 const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
+const MapManager = require("../Map/MapManager.js")
 
 
 
@@ -18,7 +19,7 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
-	this.speed = 1
+	this.speed = 2
 	this.visualRange = 3
 	this.attackRange = 1
 	this.attackValue = 10
@@ -276,84 +277,9 @@ Townfolk.prototype.getRunAwayDirection = function(){
 
 
 Townfolk.prototype.wander = function(time){
-	var direction 
-	if (this.lastDirection == "") {
-		direction = Utils.DIRECTION[Math.floor(Math.random() * Utils.DIRECTION.length)]
-	} else {
-		var idx = Utils.DIRECTION.indexOf(this.lastDirection)
-		var newWeights = []
-		for (let i = 0; i < Utils.DIRECTION.length; i++) {
-			if (i == idx) {
-				newWeights.push(30)
-			} else (
-				newWeights.push(10)
-			)
-		}
-		this.directionProbability.updateWeights(newWeights)
-		direction = this.directionProbability.randomlyPick()
+	for (let i = 0; i < this.speed; i++) {
+		this.moveOneStep()
 	}
-	this.lastDirection = direction
-	 
-
-	var newPosition = [Number(JSON.stringify(this.position[0])), Number(JSON.stringify(this.position[1]))]
-	switch(direction){
-		case Utils.DIRECTION[0]:
-			newPosition[1] = newPosition[1] - this.speed < 0 ? 0 : newPosition[1] - this.speed
-			break
-		case Utils.DIRECTION[1]:
-			newPosition[1] = newPosition[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : newPosition[1] + this.speed
-			break
-		case Utils.DIRECTION[2]:
-			newPosition[0] = newPosition[0] - this.speed < 0 ? 0 : newPosition[0] - this.speed
-			break;
-		case Utils.DIRECTION[3]:
-			newPosition[0] = newPosition[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : newPosition[0] + this.speed
-			break
-	}
-
-
-	/////check buildings
-	// // check the new position
-	// var isOldPositionInBuilding = Map.getInstance().checkIsInABuilding(this.position)
-	// var isNewPositionInBuilding = Map.getInstance().checkIsInABuilding(newPosition)
-
-	// // old and new positions are in different buildings
-	// if (isOldPositionInBuilding[0] && isNewPositionInBuilding[0] && isOldPositionInBuilding[1] != isNewPositionInBuilding[1]){
-	// 	var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
-	// 	// check if accessible
-	// 	if (!oldBuilding.checkPosAccessible(newPosition)) {
-	// 		return 
-	// 	}
-	// }
-	// // old is in a building; new is not in a building
-	// if (isOldPositionInBuilding[0] && !isNewPositionInBuilding[0]) {
-	// 	var oldBuilding = Map.getInstance().getBuilding(isOldPositionInBuilding[1])
-	// 	// check if accessible
-	// 	if (!oldBuilding.checkPosAccessible(newPosition)) {
-	// 		return 
-	// 	}
-	// }
-	// // old is not in a building; new is in a building
-	// if (!isOldPositionInBuilding[0] && isNewPositionInBuilding[0]) {
-	// 	var newBuilding = Map.getInstance().getBuilding(isNewPositionInBuilding[1])
-	// 	// check if accessible
-	// 	if (!newBuilding.checkPosAccessible(this.position)) {
-	// 		return 
-	// 	}
-	// }
-
-	//////////////
-	//////log
-	// if (isOldPositionInBuilding[0]) {
-	// 	console.log(this.charName + " was in building " + isOldPositionInBuilding[1])
-	// }
-	// console.log(this.charName + "(" + isOldPositionInBuilding + ")" + " moved to " + newPosition)
-	// if (isNewPositionInBuilding[0]) {
-	// 	console.log(this.charName + "is in building " + isNewPositionInBuilding[1] + " now")
-	// }
-	/////////////
-	
-	this.position = newPosition
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
@@ -361,6 +287,86 @@ Townfolk.prototype.wander = function(time){
 		P: this.position,
 		T: time,
 	}))
+}
+
+Townfolk.prototype.moveOneStep = function(){
+	var availableDirections = this.getAvailableDirections()
+
+	var direction
+	if (this.lastDirection == "") {
+		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+	} else {
+		var idx = availableDirections.indexOf(this.lastDirection)
+
+		if (idx < 0) {
+			direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+		} else {
+			var newWeights = []
+			for (let i = 0; i < Utils.DIRECTION.length; i++) {
+				if (i == idx) {
+					newWeights.push(30)
+				} else (
+					newWeights.push(10)
+				)
+			}
+			this.directionProbability.updateWeights(newWeights)
+			direction = this.directionProbability.randomlyPick()
+		}
+	}
+
+	this.lastDirection = direction
+
+	switch(direction){
+		case Utils.DIRECTION[0]:
+			this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
+			break
+		case Utils.DIRECTION[1]:
+			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
+			break
+		case Utils.DIRECTION[2]:
+			this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
+			break;
+		case Utils.DIRECTION[3]:
+			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
+			break
+	}
+}
+
+Townfolk.prototype.getAvailableDirections = function(){
+	var availableDirections = []
+	for (let i = 0; i < Utils.DIRECTION.length; i++) {
+		var tempDir = Utils.DIRECTION[i]
+		var tempPos = JSON.parse(JSON.stringify(this.position))
+		switch (tempDir) {
+			case Utils.DIRECTION[0]:
+				tempPos[1]--
+				break
+			case Utils.DIRECTION[1]:
+				tempPos[1]++
+				break
+			case Utils.DIRECTION[2]:
+				tempPos[0]--
+				break
+			case Utils.DIRECTION[3]:
+				tempPos[0]++
+				break
+		}
+		if (tempPos[0] >=0 && tempPos[0] < Utils.MAP_SIZE[0] 
+			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
+
+			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
+			if (isInBuilding[0]) {
+				var building = MapManager.getMap().getBuilding(isInBuilding[1])
+				if (building.isAccessibleTo(Utils.CHARACTER_TYPE.ALIEN)) {
+					availableDirections.push(tempDir)
+				}
+			} else {
+				availableDirections.push(tempDir)
+			}
+		}
+	}
+
+	return availableDirections
 }
 
 Townfolk.prototype.checkVisualRange = function(){

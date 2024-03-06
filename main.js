@@ -1,10 +1,10 @@
 
 const Utils = require('./Utils.js') 
-const TownMap = require('./Map/TownMap.js').TownMap
+// const TownMap = require('./Map/TownMap.js').TownMap
 const CharactersManager = require('./Character/CharactersManager.js');
 const jssim = require('js-simulator')
 const Scheduler = require('./Scheduler.js')
-const TempMap = require('./Map/TempMap.js').TempMap
+const MapManager = require('./Map/MapManager.js')
 
 
 // var scheduler = new jssim.Scheduler();
@@ -16,8 +16,7 @@ function main(){
 
 	// CharactersManager.generateAllCharacters();
 
-	var map = TempMap.getInstance()
-	map.createRandomMap()
+	MapManager.generateMap()
 	// CharactersManager.generateTempChar()
 	CharactersManager.generateAllCharacters()
 

@@ -7,6 +7,7 @@ const CharactersData = require('./CharactersData.js')
 const Logger = require('../Logger.js').Logger
 const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
+const MapManager = require("../Map/MapManager.js")
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -14,7 +15,7 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.speed = 1
+	this.speed = 2
 	this.visualRange = 6
 	this.attackRange = 2
 	this.maxHp = 100
@@ -89,6 +90,8 @@ var Alien = function(name, position){
 				
 				break
 		}
+
+
 		
 		var messages = this.readInBox();
 		for(var i = 0; i < messages.length; ++i){
@@ -153,38 +156,8 @@ Alien.prototype.checkEnemiesAround = function(time){
 }
 
 Alien.prototype.wander = function(time){
-	var direction
-	if (this.lastDirection == "") {
-		direction = Utils.DIRECTION[Math.floor(Math.random() * Utils.DIRECTION.length)]
-	} else {
-		var idx = Utils.DIRECTION.indexOf(this.lastDirection)
-		var newWeights = []
-		for (let i = 0; i < Utils.DIRECTION.length; i++) {
-			if (i == idx) {
-				newWeights.push(30)
-			} else (
-				newWeights.push(10)
-			)
-		}
-		this.directionProbability.updateWeights(newWeights)
-		direction = this.directionProbability.randomlyPick()
-	}
-
-	this.lastDirection = direction
-
-	switch(direction){
-		case Utils.DIRECTION[0]:
-			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
-			break
-		case Utils.DIRECTION[1]:
-			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
-			break
-		case Utils.DIRECTION[2]:
-			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
-			break;
-		case Utils.DIRECTION[3]:
-			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
-			break
+	for (let i = 0; i < this.speed; i++) {
+		this.moveOneStep()
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -193,6 +166,86 @@ Alien.prototype.wander = function(time){
 		P: this.position,
 		T: time
 	}))
+}
+
+Alien.prototype.moveOneStep = function(){
+	var availableDirections = this.getAvailableDirections()
+
+	var direction
+	if (this.lastDirection == "") {
+		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+	} else {
+		var idx = availableDirections.indexOf(this.lastDirection)
+
+		if (idx < 0) {
+			direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+		} else {
+			var newWeights = []
+			for (let i = 0; i < Utils.DIRECTION.length; i++) {
+				if (i == idx) {
+					newWeights.push(30)
+				} else (
+					newWeights.push(10)
+				)
+			}
+			this.directionProbability.updateWeights(newWeights)
+			direction = this.directionProbability.randomlyPick()
+		}
+	}
+
+	this.lastDirection = direction
+
+	switch(direction){
+		case Utils.DIRECTION[0]:
+			this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
+			break
+		case Utils.DIRECTION[1]:
+			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
+			break
+		case Utils.DIRECTION[2]:
+			this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
+			break;
+		case Utils.DIRECTION[3]:
+			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
+			break
+	}
+}
+
+Alien.prototype.getAvailableDirections = function(){
+	var availableDirections = []
+	for (let i = 0; i < Utils.DIRECTION.length; i++) {
+		var tempDir = Utils.DIRECTION[i]
+		var tempPos = JSON.parse(JSON.stringify(this.position))
+		switch (tempDir) {
+			case Utils.DIRECTION[0]:
+				tempPos[1]--
+				break
+			case Utils.DIRECTION[1]:
+				tempPos[1]++
+				break
+			case Utils.DIRECTION[2]:
+				tempPos[0]--
+				break
+			case Utils.DIRECTION[3]:
+				tempPos[0]++
+				break
+		}
+		if (tempPos[0] >=0 && tempPos[0] < Utils.MAP_SIZE[0] 
+			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
+
+			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
+			if (isInBuilding[0]) {
+				var building = MapManager.getMap().getBuilding(isInBuilding[1])
+				if (building.isAccessibleTo(Utils.CHARACTER_TYPE.ALIEN)) {
+					availableDirections.push(tempDir)
+				}
+			} else {
+				availableDirections.push(tempDir)
+			}
+		}
+	}
+
+	return availableDirections
 }
 
 Alien.prototype.destroy = function(time){}
