@@ -20,7 +20,7 @@ var Townfolk = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
 	this.speed = 2
-	this.visualRange = 3
+	this.visualRange = 5
 	this.attackRange = 1
 	this.attackValue = 10
 	this.maxHp = 100
@@ -31,6 +31,8 @@ var Townfolk = function(name, position){
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
+
+		
 		// if character died
 		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
@@ -49,17 +51,10 @@ var Townfolk = function(name, position){
 				var messageContent = JSON.parse(content)
 
 				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
-					townfolkThis.hp = townfolkThis.hp - messageContent.atkValue
-					if (townfolkThis.hp <= 0) {
-						townfolkThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
-						townfolkThis.printDieLog(this.time, messageContent.attacker)
-						return
-					}
-					townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
+					townfolkThis.getAttacked(this.time, messageContent.attacker, messageContent.atkValue)
 				}
 			}
 		}
-	}
 		// check the character's state
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
@@ -92,33 +87,67 @@ var Townfolk = function(name, position){
 		}
 
 		
+	}
 }
 
-Townfolk.prototype.printDieLog = function(time, attacker){
-	Logger.statesInfo(JSON.stringify({
-		N: this.charName,
-		S: this.state.stateType,
-		P: this.position,
-		T: time
-	}))
-	Logger.info(JSON.stringify({
-		N1: this.charName,
-		L: "was killed by",
-		N2: attacker,
-		T: time,
-	}))
+Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
+
+	this.hp = this.hp - atkValue
+
+	if (this.hp <= 0) {
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+		Logger.statesInfo(JSON.stringify({
+			N: this.charName,
+			S: this.state.stateType,
+			P: this.position,
+			T: time
+		}))
+		Logger.info(JSON.stringify({
+			N1: this.charName,
+			L: "was killed by",
+			N2: attacker,
+			T: time,
+		}))
+		return
+	}
+	townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 	
 }
 
 Townfolk.prototype.hideOrWander = function(time){
 	// townfolk may wander/hide
 	var newState = this.hideProbability.randomlyPick()
-	this.state.setState(newState, null)
-	if (newState == Utils.CHARACTER_STATES.HIDE) {
-		this.hide(time)
-	} else {
-		this.wander(time)
-	}
+	var oldState = this.state.stateType
+
+
+
+		if (newState == Utils.CHARACTER_STATES.HIDE) {
+			this.hide(time)
+			if (newState != oldState) {
+				this.state.setState(newState, null)
+				Logger.info(JSON.stringify({
+					N1: this.charName,
+					L: "was hiding in ",
+					N2: this.position,
+					T: time,
+				}))
+			}
+			
+		} else {
+			this.wander(time)
+
+			if (newState != oldState) {
+				this.state.setState(newState, null)
+				Logger.info(JSON.stringify({
+					N1: this.charName,
+					L: "walked to ",
+					N2: this.position,
+					T: time,
+				}))
+			}
+		}
+
+	
 }
 
 
@@ -144,12 +173,6 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 }
 
 Townfolk.prototype.hide = function(time){
-	Logger.info(JSON.stringify({
-		N1: this.charName,
-		L: "was hiding in ",
-		N2: this.position,
-		T: time,
-	}))
 	this.lastDirection = ""
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
@@ -172,6 +195,16 @@ Townfolk.prototype.runAway = function(time){
 	// 	this.runawaySingleMove(time)
 	// }
 	var oppositDir = this.getRunAwayDirection()
+	var availableDirections = this.getAvailableDirections()
+	var availableOppositDirections = []
+
+	for (let i = 0; i < oppositDir.length; i++){
+		var index = availableDirections.indexOf(oppositDir[i])
+		if (index > 0) {
+			availableOppositDirections.push(oppositDir[i])
+		}
+	}
+
 	var randomIdx = Math.floor(Math.random() * oppositDir.length)
 	var randomDirection = oppositDir[randomIdx]
 	switch(randomDirection){
@@ -278,7 +311,8 @@ Townfolk.prototype.getRunAwayDirection = function(){
 
 Townfolk.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
-		this.moveOneStep()
+		var availableDirections = this.getAvailableDirections()
+		this.moveOneStep(availableDirections)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -289,9 +323,7 @@ Townfolk.prototype.wander = function(time){
 	}))
 }
 
-Townfolk.prototype.moveOneStep = function(){
-	var availableDirections = this.getAvailableDirections()
-
+Townfolk.prototype.moveOneStep = function(availableDirections){
 	var direction
 	if (this.lastDirection == "") {
 		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
@@ -318,16 +350,20 @@ Townfolk.prototype.moveOneStep = function(){
 
 	switch(direction){
 		case Utils.DIRECTION[0]:
-			this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
+			// this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
+			this.position[1] = this.position[1] - 1
 			break
 		case Utils.DIRECTION[1]:
-			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
+			// this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
+			this.position[1] = this.position[1] + 1
 			break
 		case Utils.DIRECTION[2]:
-			this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
+			// this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
+			this.position[0] = this.position[0] - 1
 			break;
 		case Utils.DIRECTION[3]:
-			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
+			// this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
+			this.position[0] = this.position[0] + 1
 			break
 	}
 }
