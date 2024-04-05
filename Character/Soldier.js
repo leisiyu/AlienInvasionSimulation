@@ -18,9 +18,9 @@ var Soldier = function(name, position){
 	this.speed = 2
 	this.visualRange = 5
 	this.attackRange = 1
-	this.maxHp = 150
-	this.hp = 150
-	this.attackValue = 60
+	this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.hp = this.maxHp
+	this.attackValue = Math.floor(Math.random() * 30) + 10
 	this.state = new CharacterState()
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
@@ -31,6 +31,11 @@ var Soldier = function(name, position){
 
 		// if character died
 		if (soldierThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
+
+		// self healing
+		if (soldierThis.hp < soldierThis.maxHp) {
+			soldierThis.hp ++
+		}
 
 		// check the character's state
 		switch(soldierThis.state.stateType){

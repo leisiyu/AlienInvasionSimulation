@@ -23,8 +23,8 @@ var Townfolk = function(name, position){
 	this.visualRange = 5
 	this.attackRange = 1
 	this.attackValue = 10
-	this.maxHp = 100
-	this.hp = 100
+	this.maxHp = Math.floor(Math.random() * 200) + 100
+	this.hp = this.maxHp
 	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [10, 90])
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
@@ -35,6 +35,11 @@ var Townfolk = function(name, position){
 		
 		// if character died
 		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
+
+		// self healing
+		if (townfolkThis.hp < townfolkThis.maxHp) {
+			townfolkThis.hp ++
+		}
 
 		// read messages
 		var messages = this.readInBox();

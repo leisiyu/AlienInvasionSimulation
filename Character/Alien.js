@@ -20,7 +20,7 @@ var Alien = function(name, position){
 	this.attackRange = 2
 	this.maxHp = Math.floor(Math.random() * 300) + 200
 	this.hp = this.maxHp
-	this.attackValue = 50
+	this.attackValue = Math.floor(Math.random() * 30) + 10
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.state = new CharacterState()
@@ -32,9 +32,8 @@ var Alien = function(name, position){
 
 
 		// if hurt, recover 1 every step
-		if (this.hp < this.maxHp) {
-			this.hp ++
-			console.log("haha " + alienThis.charName + hp)
+		if (alienThis.hp < alienThis.maxHp) {
+			alienThis.hp ++
 		}
 
 		// check the character's state
