@@ -18,8 +18,8 @@ var Alien = function(name, position){
 	this.speed = 2
 	this.visualRange = 6
 	this.attackRange = 2
-	this.maxHp = 100
-	this.hp = 100
+	this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.hp = this.maxHp
 	this.attackValue = 50
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
@@ -30,11 +30,23 @@ var Alien = function(name, position){
 		// if character died
 		if (alienThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
+
+		// if hurt, recover 1 every step
+		if (this.hp < this.maxHp) {
+			this.hp ++
+			console.log("haha " + alienThis.charName + hp)
+		}
+
 		// check the character's state
 		switch(alienThis.state.stateType){
 			case Utils.CHARACTER_STATES.PATROL:
 				if (alienThis.checkEnemiesAround(this.time)){
-					alienThis.chasePeople(this.time)
+					if (alienThis.isBadlyHurt()) {
+						alienThis.runAway(this.time)
+					} else {
+						alienThis.chasePeople(this.time)
+					}
+					
 					break
 				}
 				alienThis.wander(this.time)
@@ -42,6 +54,9 @@ var Alien = function(name, position){
 			case Utils.CHARACTER_STATES.CHASE:
 				if (!alienThis.checkEnemiesAround(this.time)){
 					alienThis.wander(this.time)
+					break
+				} else if (alienThis.isBadlyHurt()){
+					alienThis.runAway(this.time)
 					break
 				}
 				alienThis.chasePeople(this.time)
@@ -67,6 +82,7 @@ var Alien = function(name, position){
 				alienThis.destroy(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
+				alienThis.runAway(this.time)
 				break
 			case Utils.CHARACTER_STATES.ATTACK:		
 				
@@ -122,6 +138,8 @@ var Alien = function(name, position){
 							P: alienThis.position,
 							T: this.time
 						}))
+					} else {
+						alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
 					}
 				}
 
@@ -131,13 +149,25 @@ var Alien = function(name, position){
 	}
 }
 
+Alien.prototype.isBadlyHurt = function(){
+	return this.hp / this.maxHp <= 0.2
+}
+
 Alien.prototype.checkEnemiesAround = function(time){
 	//// check the visual range
-	//// if there's an enemy around, chase him first
+	//// if there's an enemy around, 
+		////check self hp first
+		////if healthy enough chase it 
+		////else run away
 	//// if already chasing someone, check if he's in the visual range
 	//// else wander around
 	var visibleCharacters = this.checkVisualRange()
 	if (visibleCharacters.length > 0){
+		if (this.isBadlyHurt()) {
+			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
+			return true
+		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
 			if (!visibleCharacters.includes(this.state.target)){
 				var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
@@ -289,10 +319,23 @@ Alien.prototype.chasePeople = function(time){
 Alien.prototype.attack = function(time){
 	// check if the character died
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		Logger.info(JSON.stringify({
+			N1: this.charName,
+			L: "killed",
+			N2: this.state.target.charName,
+			T: time,
+		}))
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return false
 	}		
+
+	// check self hp
+	if (this.isBadlyHurt()){
+		this.state.updateState(Utils.CHARACTER_STATES.RUN_AWAY)
+		this.runAway(time)
+		return false
+	}
 
 	// check attack range
 	var character = this.state.target
@@ -320,7 +363,7 @@ Alien.prototype.attack = function(time){
 Alien.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: " ran away from ",
+		L: "is Badly hurt, ran away from ",
 		N2: this.state.target.charName,
 		T: time,
 	}))
@@ -350,6 +393,9 @@ Alien.prototype.runAway = function(time){
 		T: time,
 	}))
 	
+	if (!this.isBadlyHurt()) {
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	}
 }
 
 Alien.prototype.checkVisualRange = function(){
@@ -374,6 +420,28 @@ Alien.prototype.checkVisualRange = function(){
 	return visibleCharacters
 }
 
+Alien.prototype.getRunAwayDirection = function(){
+	var oppositDir = []
+	if (this.position[0] - this.state.target.position[0] > 0) {
+		oppositDir.push(Utils.DIRECTION[3])
+	} else if (this.position[0] - this.state.target.position[0] < 0) {
+		oppositDir.push(Utils.DIRECTION[2])
+	} else {
+		oppositDir.push(Utils.DIRECTION[2])
+		oppositDir.push(Utils.DIRECTION[3])
+	}
+
+	if (this.position[1] - this.state.target.position[1] > 0) {
+		oppositDir.push(Utils.DIRECTION[1])
+	} else if (this.position[1] - this.state.target.position[0] < 1) {
+		oppositDir.push(Utils.DIRECTION[0])
+	} else {
+		oppositDir.push(Utils.DIRECTION[0])
+		oppositDir.push(Utils.DIRECTION[1])
+	}
+
+	return oppositDir
+}
 
 module.exports = {
 	Alien,

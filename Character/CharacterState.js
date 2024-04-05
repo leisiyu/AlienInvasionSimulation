@@ -19,10 +19,13 @@ class CharacterState{
         // console.log("state updated!")
     }
 
-    // stateFinished(){
-    //     this.stateType = Utils.CHARACTER_MISSION.PATROL
-    //     this.target = {}
-    // }
+    updateTarget(target){
+        this.target = target
+    }
+
+    updateState(stateType){
+        this.stateType = stateType
+    }
 }
 
 module.exports = {
