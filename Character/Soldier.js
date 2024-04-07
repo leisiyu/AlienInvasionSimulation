@@ -15,7 +15,7 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	this.speed = 2
+	this.speed = Math.floor(Math.random() * 3) + 1
 	this.visualRange = 5
 	this.attackRange = 1
 	this.maxHp = Math.floor(Math.random() * 300) + 200
@@ -44,7 +44,12 @@ var Soldier = function(name, position){
 			case Utils.CHARACTER_STATES.PATROL:
 				// check visual range first
 				if (soldierThis.checkEnemiesAround(this.time)) {
-					soldierThis.chase(this.time)
+					if (soldierThis.isBadlyHurt()) {
+						soldierThis.runAway(this.time)
+					} else {
+						soldierThis.chase(this.time)
+					}
+					
 					break
 				}
 				soldierThis.wander(this.time)
@@ -53,6 +58,11 @@ var Soldier = function(name, position){
 				if (!soldierThis.checkEnemiesAround(this.time)) {
 					soldierThis.wander(time)
 					break
+				} else {
+					if (soldierThis.isBadlyHurt()){
+						soldierThis.runAway(time)
+						break
+					}
 				}
 
 				soldierThis.chase(this.time)
@@ -77,11 +87,15 @@ var Soldier = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				// check visual range first
-				// if (!soldierThis.checkEnemiesAround(this.time)) {
-				// 	soldierThis.wander(this.time)
-				// 	break
-				// }
-				// soldierThis.runAway(this.time)
+				if (!soldierThis.checkEnemiesAround(this.time)) {
+					soldierThis.wander(this.time)
+					break
+				} else {
+					if (!soldierThis.isBadlyHurt()) {
+						soldierThis.chase(this.time)
+					}
+				}
+				soldierThis.runAway(this.time)
 				break
 			case Utils.CHARACTER_STATES.ATTACK:
 				var isSuccessfulAttack = soldierThis.attack(this.time)
@@ -133,7 +147,12 @@ var Soldier = function(name, position){
 							T: this.time
 						}))
 					} else {
-						soldierThis.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(messageContent.attacker))
+						if (soldierThis.isBadlyHurt()){
+							soldierThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(messageContent.attacker))
+						} else {
+							soldierThis.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(messageContent.attacker))
+						}
+						
 					}
 
 				}
@@ -145,7 +164,8 @@ var Soldier = function(name, position){
 // step length == 1
 Soldier.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
-		this.moveOneStep()
+		var availableDirections = this.getAvailableDirections()
+		this.moveOneStep(availableDirections)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -156,9 +176,7 @@ Soldier.prototype.wander = function(time){
 	}))
 }
 
-Soldier.prototype.moveOneStep = function(){
-	var availableDirections = this.getAvailableDirections()
-
+Soldier.prototype.moveOneStep = function(availableDirections){
 	var direction
 	if (this.lastDirection == "") {
 		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
@@ -236,6 +254,70 @@ Soldier.prototype.getAvailableDirections = function(){
 	return availableDirections
 }
 
+Soldier.prototype.runAway = function(time){
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: "is Badly hurt, ran away from ",
+		N2: this.state.target.charName,
+		T: time,
+	}))
+
+	for (let i = 0; i < this.speed; i++){
+		var oppositDir = this.getRunAwayDirection()
+		this.moveOneStep(oppositDir)
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+	}))
+	
+	if (!this.isBadlyHurt()) {
+		var enemies = this.checkVisualRange()
+		if (enemies.length <= 0) {
+			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+		} else {
+			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+		}
+		
+	}
+
+	// run away succeed
+	if (this.checkVisualRange().length <= 0) {
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	}
+}
+
+Soldier.prototype.isBadlyHurt = function(){
+	return this.hp / this.maxHp <= 0.2
+}
+
+Soldier.prototype.getRunAwayDirection = function(){
+	var oppositDir = []
+	if (this.position[0] - this.state.target.position[0] > 0) {
+		oppositDir.push(Utils.DIRECTION[3])
+	} else if (this.position[0] - this.state.target.position[0] < 0) {
+		oppositDir.push(Utils.DIRECTION[2])
+	} else {
+		oppositDir.push(Utils.DIRECTION[2])
+		oppositDir.push(Utils.DIRECTION[3])
+	}
+
+	if (this.position[1] - this.state.target.position[1] > 0) {
+		oppositDir.push(Utils.DIRECTION[1])
+	} else if (this.position[1] - this.state.target.position[0] < 1) {
+		oppositDir.push(Utils.DIRECTION[0])
+	} else {
+		oppositDir.push(Utils.DIRECTION[0])
+		oppositDir.push(Utils.DIRECTION[1])
+	}
+
+	return oppositDir
+}
+
 Soldier.prototype.chase = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
@@ -284,7 +366,7 @@ Soldier.prototype.attack = function(time){
 	if (distance > this.attackRange) {
 		// this frame still need to move
 		if (distance > this.visualRange) {
-			this.setState(Utils.CHARACTER_STATES.PATROL, nil)
+			this.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
@@ -309,6 +391,11 @@ Soldier.prototype.checkEnemiesAround = function(){
 	//// else wander around
 	var visibleCharacters = this.checkVisualRange()
 	if (visibleCharacters.length > 0){
+		if (this.isBadlyHurt()) {
+			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
+			return true
+		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
 			if (!visibleCharacters.includes(this.state.target)){
 				var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]

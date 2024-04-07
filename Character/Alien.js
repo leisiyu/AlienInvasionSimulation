@@ -15,7 +15,7 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.speed = 2
+	this.speed = Math.floor(Math.random() * 3) + 1
 	this.visualRange = 6
 	this.attackRange = 2
 	this.maxHp = Math.floor(Math.random() * 300) + 200
@@ -186,7 +186,8 @@ Alien.prototype.checkEnemiesAround = function(time){
 
 Alien.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
-		this.moveOneStep()
+		var availableDirections = this.getAvailableDirections()
+		this.moveOneStep(availableDirections)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -197,8 +198,7 @@ Alien.prototype.wander = function(time){
 	}))
 }
 
-Alien.prototype.moveOneStep = function(){
-	var availableDirections = this.getAvailableDirections()
+Alien.prototype.moveOneStep = function(availableDirections){
 
 	var direction
 	if (this.lastDirection == "") {
@@ -280,6 +280,10 @@ Alien.prototype.getAvailableDirections = function(){
 Alien.prototype.destroy = function(time){}
 
 Alien.prototype.chasePeople = function(time){
+	// if (this.position[0] == this.state.target.position[0]
+	// 	&& this.position[1] == this.state.target.position[1]) {
+	// 		return
+	// }
 	
 	Logger.info(JSON.stringify({
 		N1: this.charName,
@@ -367,23 +371,10 @@ Alien.prototype.runAway = function(time){
 		T: time,
 	}))
 
-	var oppositDir = this.getRunAwayDirection()
-	var randomIdx = Math.floor(Math.random() * oppositDir.length)
-	var randomDirection = oppositDir[randomIdx]
-	switch(randomDirection){
-		case Utils.DIRECTION[0]:
-			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
-			break
-		case Utils.DIRECTION[1]:
-			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
-			break
-		case Utils.DIRECTION[2]:
-			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
-			break;
-		case Utils.DIRECTION[3]:
-			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
-			break
-		}
+	for (let i = 0; i < this.speed; i++) {
+		var oppositDir = this.getRunAwayDirection()
+		this.moveOneStep(oppositDir)
+	}
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
@@ -393,6 +384,18 @@ Alien.prototype.runAway = function(time){
 	}))
 	
 	if (!this.isBadlyHurt()) {
+		var enemies = this.checkVisualRange()
+		if (enemies.length <= 0) {
+			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+		} else {
+			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+		}
+		
+	}
+
+	// run away succeed
+	if (this.checkVisualRange().length <= 0) {
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }

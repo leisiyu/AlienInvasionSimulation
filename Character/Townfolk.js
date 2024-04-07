@@ -19,7 +19,7 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
-	this.speed = 2
+	this.speed = Math.floor(Math.random() * 3) + 1
 	this.visualRange = 5
 	this.attackRange = 1
 	this.attackValue = 10
@@ -199,33 +199,11 @@ Townfolk.prototype.runAway = function(time){
 	// for(let i = 0; i < this.speed; i++){
 	// 	this.runawaySingleMove(time)
 	// }
-	var oppositDir = this.getRunAwayDirection()
-	var availableDirections = this.getAvailableDirections()
-	var availableOppositDirections = []
-
-	for (let i = 0; i < oppositDir.length; i++){
-		var index = availableDirections.indexOf(oppositDir[i])
-		if (index > 0) {
-			availableOppositDirections.push(oppositDir[i])
-		}
+	
+	for (let i = 0; i < this.speed; i++){
+		var oppositDir = this.getRunAwayDirection()
+		this.moveOneStep(oppositDir)
 	}
-
-	var randomIdx = Math.floor(Math.random() * oppositDir.length)
-	var randomDirection = oppositDir[randomIdx]
-	switch(randomDirection){
-		case Utils.DIRECTION[0]:
-			this.position[1] = this.position[1] - this.speed < 0 ? 0 : this.position[1] - this.speed
-			break
-		case Utils.DIRECTION[1]:
-			this.position[1] = this.position[1] + this.speed >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.speed
-			break
-		case Utils.DIRECTION[2]:
-			this.position[0] = this.position[0] - this.speed < 0 ? 0 : this.position[0] - this.speed
-			break;
-		case Utils.DIRECTION[3]:
-			this.position[0] = this.position[0] + this.speed >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + this.speed
-			break
-		}
 
 	Logger.statesInfo(JSON.stringify({
 		N: this.charName,
@@ -233,6 +211,7 @@ Townfolk.prototype.runAway = function(time){
 		P: this.position,
 		T: time,
 	}))
+	
 	
 }
 
