@@ -148,8 +148,20 @@ var Soldier = function(name, position){
 						}))
 					} else {
 						if (soldierThis.isBadlyHurt()){
+							Logger.info(JSON.stringify({
+								N1: soldierThis.charName,
+								L: "was badly hurt, ran away from",
+								N2: messageContent.attacker,
+								T: time,
+							}))
 							soldierThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(messageContent.attacker))
 						} else {
+							Logger.info(JSON.stringify({
+								N1: soldierThis.charName,
+								L: "was attacked, and fighted back",
+								N2: messageContent.attacker,
+								T: time,
+							}))
 							soldierThis.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(messageContent.attacker))
 						}
 						
@@ -257,7 +269,7 @@ Soldier.prototype.getAvailableDirections = function(){
 Soldier.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: "is Badly hurt, ran away from ",
+		L: "ran away from ",
 		N2: this.state.target.charName,
 		T: time,
 	}))
@@ -277,9 +289,21 @@ Soldier.prototype.runAway = function(time){
 	if (!this.isBadlyHurt()) {
 		var enemies = this.checkVisualRange()
 		if (enemies.length <= 0) {
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "recovered, and started to partrol ",
+				N2: "",
+				T: time,
+			}))
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "recovered, and started to chase ",
+				N2: randomEnemy.charName,
+				T: time,
+			}))
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
 		
@@ -287,6 +311,12 @@ Soldier.prototype.runAway = function(time){
 
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
+		Logger.info(JSON.stringify({
+			N1: this.charName,
+			L: "successfully ran away from ",
+			N2: this.state.target.charName,
+			T: time,
+		}))
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
@@ -347,7 +377,7 @@ Soldier.prototype.chase = function(time){
 	}))
 
 	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
-		var character = this.state.target
+		var character = this.state.target	
 		this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
 	}
 }
@@ -355,6 +385,7 @@ Soldier.prototype.chase = function(time){
 Soldier.prototype.attack = function(time){
 	// check if the character died
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return false
@@ -366,9 +397,21 @@ Soldier.prototype.attack = function(time){
 	if (distance > this.attackRange) {
 		// this frame still need to move
 		if (distance > this.visualRange) {
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "target ran away, started to patrol",
+				N2: character.charName,
+				T: time,
+			}))
 			this.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "target is out of attack range, started to chase ",
+				N2: character.charName,
+				T: time,
+			}))
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
 			this.chase(time)
 		}

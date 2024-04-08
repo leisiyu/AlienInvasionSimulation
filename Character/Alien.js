@@ -138,7 +138,24 @@ var Alien = function(name, position){
 							T: this.time
 						}))
 					} else {
-						alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
+						if (alienThis.isBadlyHurt()) {
+							Logger.info(JSON.stringify({
+								N1: alienThis.charName,
+								L: "was badly hurt, ran away from",
+								N2: msgContent.attacker,
+								T: this.time,
+							}))
+							alienThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
+						} else {
+							Logger.info(JSON.stringify({
+								N1: alienThis.charName,
+								L: "was attacked. Fighted back",
+								N2: msgContent.attacker,
+								T: this.time,
+							}))
+							alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
+						}
+						
 					}
 				}
 
@@ -335,6 +352,12 @@ Alien.prototype.attack = function(time){
 
 	// check self hp
 	if (this.isBadlyHurt()){
+		Logger.info(JSON.stringify({
+			N1: this.charName,
+			L: "was badly hurt, run away from",
+			N2: this.state.target,
+			T: this.time,
+		}))
 		this.state.updateState(Utils.CHARACTER_STATES.RUN_AWAY)
 		this.runAway(time)
 		return false
@@ -386,9 +409,21 @@ Alien.prototype.runAway = function(time){
 	if (!this.isBadlyHurt()) {
 		var enemies = this.checkVisualRange()
 		if (enemies.length <= 0) {
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "recovered, started to wandering around",
+				N2: "",
+				T: this.time,
+			}))
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+			Logger.info(JSON.stringify({
+				N1: this.charName,
+				L: "recovered, started to wandering around",
+				N2: randomEnemy.charName,
+				T: this.time,
+			}))
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
 		
@@ -396,6 +431,12 @@ Alien.prototype.runAway = function(time){
 
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
+		Logger.info(JSON.stringify({
+			N1: this.charName,
+			L: "successfully ran away from",
+			N2: this.state.target,
+			T: this.time
+		}))
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }

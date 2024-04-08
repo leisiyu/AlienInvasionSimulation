@@ -115,6 +115,12 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		}))
 		return
 	}
+	Logger.info(JSON.stringify({
+		N1: this.charName,
+		L: "was attacked, and ran away from",
+		N2: attacker,
+		T: this.time,
+	}))
 	townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 	
 }
