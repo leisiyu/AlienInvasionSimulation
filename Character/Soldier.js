@@ -269,7 +269,7 @@ Soldier.prototype.getAvailableDirections = function(){
 Soldier.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: "ran away from ",
+		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
 	}))
@@ -291,7 +291,7 @@ Soldier.prototype.runAway = function(time){
 		if (enemies.length <= 0) {
 			Logger.info(JSON.stringify({
 				N1: this.charName,
-				L: "recovered, and started to partrol ",
+				L: "recovered, and started to partrol",
 				N2: "",
 				T: time,
 			}))
@@ -313,7 +313,7 @@ Soldier.prototype.runAway = function(time){
 	if (this.checkVisualRange().length <= 0) {
 		Logger.info(JSON.stringify({
 			N1: this.charName,
-			L: "successfully ran away from ",
+			L: "successfully ran away from",
 			N2: this.state.target.charName,
 			T: time,
 		}))
