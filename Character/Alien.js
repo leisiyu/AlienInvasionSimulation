@@ -389,7 +389,7 @@ Alien.prototype.attack = function(time){
 Alien.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: "is Badly hurt, ran away from ",
+		L: "was Badly hurt, ran away from ",
 		N2: this.state.target.charName,
 		T: time,
 	}))
@@ -431,10 +431,11 @@ Alien.prototype.runAway = function(time){
 
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
+		var target = this.state.target
 		Logger.info(JSON.stringify({
 			N1: this.charName,
 			L: "successfully ran away from",
-			N2: this.state.target.charName,
+			N2: target.charName,
 			T: this.time
 		}))
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
