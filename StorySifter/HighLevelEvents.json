@@ -1,0 +1,67 @@
+{
+    "almost_kill": {
+        "id": 1,
+        "events": [
+            {
+                "char1": "actor1",
+                "tag": "attacked",
+                "char2": "actor2"
+            },
+            {
+                "char1": "actor2",
+                "tag": "was badly hurt, ran away from",
+                "char2": "actor1"
+            }
+        ],
+        "unless": [
+            {
+                "char1": "actor1",
+                "tag": "was killed by",
+                "char2": "actor2"
+            },
+            {
+                "char1": "actor2",
+                "tag": "was killed by",
+                "char2": "actor1"
+            }
+        ],
+        "time_limit": 20000
+    },
+
+    "escape": {
+        "id": 2,
+        "events": [
+            {
+                "char1": "actor1",
+                "tag": "ran away from",
+                "char2": "actor2"
+            },
+            {
+                "char1": "actor1",
+                "tag": "successfully ran away from",
+                "char2": "actor2"
+            }
+        ],
+        "unless": [],
+        "time_limit": 20000
+    },
+
+    "defeat": {
+        "id": 3,
+        "events": [
+            {
+                "char1": "actor1",
+                "tag": "attacked",
+                "char2": "actor2"
+            },
+            {
+                "char1": "actor1",
+                "tag": "was killed by",
+                "char2": "actor2"
+            }
+        ],
+        "unless": [],
+        "time_limit": 20000
+
+    }
+}
