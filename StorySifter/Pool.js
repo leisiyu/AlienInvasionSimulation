@@ -10,26 +10,35 @@ function addIntoPool(event){
 }
 
 function updatePool(newEvent){
-    var newPool = []
+    var removedEventsPool = []
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
         var result = obj.checkNewEvent(newEvent)
-        if (!result["isEnd"]) {
-            newPool.push(obj)
+        if (result["isEnd"]) {
+
+            removedEventsPool.push(obj)
+            console.log("new pool length " + removedEventsPool.length)
+            console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
         }
 
         if (result["isSuccessful"]) {
             eventFinish(obj.getJson())
         }
     }
-    partialMatchPool = newPool
+    
+    for (let i = 0; i < removedEventsPool.length; i++){
+        var index = partialMatchPool.indexOf(removedEventsPool[i])
+        if (index != -1){
+            partialMatchPool.splice(index, 1)
+        }
+    }
 
     console.log("pool " + partialMatchPool.length)
 }
 
 function eventFinish(highLevelEventJson){
 
-    fs.writeFileSync('./HighLevelEventsLog.txt', JSON.stringify(highLevelEventJson) + "\n", (err) => { 
+    fs.writeFileSync('./HighLevelEventsLog.txt', JSON.stringify(highLevelEventJson) + "\n", {flag: 'a'}, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
