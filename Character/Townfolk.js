@@ -138,7 +138,7 @@ Townfolk.prototype.hideOrWander = function(time){
 				this.state.setState(newState, null)
 				Logger.info(JSON.stringify({
 					N1: this.charName,
-					L: "was hiding in ",
+					L: "was hiding in",
 					N2: this.position,
 					T: time,
 				}))
@@ -151,7 +151,7 @@ Townfolk.prototype.hideOrWander = function(time){
 				this.state.setState(newState, null)
 				Logger.info(JSON.stringify({
 					N1: this.charName,
-					L: "walked to ",
+					L: "walked to",
 					N2: this.position,
 					T: time,
 				}))
@@ -196,7 +196,7 @@ Townfolk.prototype.hide = function(time){
 Townfolk.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: " ran away from ",
+		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
 	}))

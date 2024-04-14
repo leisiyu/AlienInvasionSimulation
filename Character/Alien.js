@@ -354,7 +354,7 @@ Alien.prototype.attack = function(time){
 	if (this.isBadlyHurt()){
 		Logger.info(JSON.stringify({
 			N1: this.charName,
-			L: "was badly hurt, run away from",
+			L: "was badly hurt, ran away from",
 			N2: this.state.target.charName,
 			T: this.time,
 		}))
@@ -389,7 +389,7 @@ Alien.prototype.attack = function(time){
 Alien.prototype.runAway = function(time){
 	Logger.info(JSON.stringify({
 		N1: this.charName,
-		L: "was Badly hurt, ran away from ",
+		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
 	}))

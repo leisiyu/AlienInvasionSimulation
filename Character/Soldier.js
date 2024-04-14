@@ -300,7 +300,7 @@ Soldier.prototype.runAway = function(time){
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
 			Logger.info(JSON.stringify({
 				N1: this.charName,
-				L: "recovered, and started to chase ",
+				L: "recovered, and started to chase",
 				N2: randomEnemy.charName,
 				T: time,
 			}))
@@ -408,7 +408,7 @@ Soldier.prototype.attack = function(time){
 		} else {
 			Logger.info(JSON.stringify({
 				N1: this.charName,
-				L: "target is out of attack range, started to chase ",
+				L: "target is out of attack range, started to chase",
 				N2: character.charName,
 				T: time,
 			}))
