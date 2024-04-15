@@ -3,26 +3,26 @@
         "id": 1,
         "events": [
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "attacked",
-                "char2": "actor2"
+                "char2Idx": 1
             },
             {
-                "char1": "actor2",
+                "char1Idx": 1,
                 "tag": "was badly hurt, ran away from",
-                "char2": "actor1"
+                "char2Idx": 0
             }
         ],
         "unless": [
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "was killed by",
-                "char2": "actor2"
+                "char2Idx": 1
             },
             {
-                "char1": "actor2",
+                "char1Idx": 1,
                 "tag": "was killed by",
-                "char2": "actor1"
+                "char2Idx": 0
             }
         ],
         "time_limit": 20000
@@ -32,32 +32,37 @@
         "id": 2,
         "events": [
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "ran away from",
-                "char2": "actor2"
+                "char2Idx": 1
             },
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "successfully ran away from",
-                "char2": "actor2"
+                "char2Idx": 1
             }
         ],
-        "unless": [],
-        "time_limit": 20000
+        "unless": [
+            {
+                "char1Idx": 0,
+                "tag": "was killed by"
+            }
+        ],
+        "time_limit": 300
     },
 
     "defeat": {
         "id": 3,
         "events": [
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "attacked",
-                "char2": "actor2"
+                "char2Idx": 1
             },
             {
-                "char1": "actor1",
+                "char1Idx": 0,
                 "tag": "was killed by",
-                "char2": "actor2"
+                "char2Idx": 1
             }
         ],
         "unless": [],

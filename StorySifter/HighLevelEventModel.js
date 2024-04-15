@@ -3,9 +3,9 @@ const HighLevelEventsPatterns = require("./HighLevelEvents.json")
 class HighLevelEvent {
     constructor(eventName,newEvent, highLevelEvent){
         this.eventName = eventName
-        this.actor1 = newEvent["N1"]
-        this.actor2 = newEvent["N2"]
+        this.actors = [newEvent["N1"], newEvent["N2"]]
         this.startTime = newEvent["T"]
+        this.highLevelEvent = highLevelEvent
         this.unlessEvents = highLevelEvent["unless"]
         this.timeLimit = highLevelEvent["time_limit"]
         this.patternEvents = highLevelEvent["events"]
@@ -24,8 +24,8 @@ class HighLevelEvent {
             return {"isEnd": true, "isSuccessful": false}
         }
 
-
-        if (this.actor1 != newEvent["N1"] || this.actor2 != newEvent["N2"]) {
+        var currentEvent = this.highLevelEvent["events"][this.index]
+        if (this.actors[currentEvent["char1Idx"]] != newEvent["N1"] || this.actors[currentEvent["char2Idx"]] != newEvent["N2"]) {
             console.log("actors not fit ")
             return {"isEnd": false, "isSuccessful": false}
         }
@@ -38,9 +38,10 @@ class HighLevelEvent {
         if (newEvent["L"] == this.patternEvents[this.index]["tag"]){
             this.finishedTime = newEvent["T"]
             this.updateEventIdx()
+            console.log("update time to " + newEvent["T"])
         }
 
-        if (this.index == this.totalEventsNum - 1) {
+        if (this.index >= this.totalEventsNum) {
             return {"isEnd": true, "isSuccessful": true}
         }
 
@@ -59,9 +60,9 @@ class HighLevelEvent {
 
     getJson(){
         return {
-            "N1": this.actor1,
+            "N1": this.actors[0],
             "L": this.eventName,
-            "N2": this.actor2,
+            "N2": this.actors[1],
             "T": this.finishedTime
         }
     }
