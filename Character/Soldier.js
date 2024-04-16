@@ -69,12 +69,12 @@ var Soldier = function(name, position){
 
 				// reached attack range after chasing
 				if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					Logger.info(JSON.stringify({
+					Logger.info({
 						N1: soldierThis.charName,
 						L: "attacked",
 						N2: soldierThis.state.target.charName,
 						T: this.time,
-					}))
+					})
 					var msg = {
 						msgType: "attacked",
 						atkValue: soldierThis.attackValue,
@@ -134,12 +134,12 @@ var Soldier = function(name, position){
 					soldierThis.hp = soldierThis.hp - messageContent.atkValue
 					if (soldierThis.hp <= 0) {
 						soldierThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
-						Logger.info(JSON.stringify({
+						Logger.info({
 							N1: soldierThis.charName,
 							L: "was killed by",
 							N2: messageContent.attacker,
 							T: this.time,
-						}))
+						})
 						Logger.statesInfo(JSON.stringify({
 							N: soldierThis.charName,
 							S: soldierThis.state.stateType,
@@ -148,20 +148,20 @@ var Soldier = function(name, position){
 						}))
 					} else {
 						if (soldierThis.isBadlyHurt()){
-							Logger.info(JSON.stringify({
+							Logger.info({
 								N1: soldierThis.charName,
 								L: "was badly hurt, ran away from",
 								N2: messageContent.attacker,
 								T: time,
-							}))
+							})
 							soldierThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(messageContent.attacker))
 						} else {
-							Logger.info(JSON.stringify({
+							Logger.info({
 								N1: soldierThis.charName,
 								L: "was attacked, and fighted back",
 								N2: messageContent.attacker,
 								T: time,
-							}))
+							})
 							soldierThis.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(messageContent.attacker))
 						}
 						
@@ -267,12 +267,12 @@ Soldier.prototype.getAvailableDirections = function(){
 }
 
 Soldier.prototype.runAway = function(time){
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
-	}))
+	})
 
 	for (let i = 0; i < this.speed; i++){
 		var oppositDir = this.getRunAwayDirection()
@@ -289,21 +289,21 @@ Soldier.prototype.runAway = function(time){
 	if (!this.isBadlyHurt()) {
 		var enemies = this.checkVisualRange()
 		if (enemies.length <= 0) {
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "recovered, and started to partrol",
 				N2: "",
 				T: time,
-			}))
+			})
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "recovered, and started to chase",
 				N2: randomEnemy.charName,
 				T: time,
-			}))
+			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
 		
@@ -311,12 +311,12 @@ Soldier.prototype.runAway = function(time){
 
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
-		Logger.info(JSON.stringify({
+		Logger.info({
 			N1: this.charName,
 			L: "successfully ran away from",
 			N2: this.state.target.charName,
 			T: time,
-		}))
+		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
@@ -349,12 +349,12 @@ Soldier.prototype.getRunAwayDirection = function(){
 }
 
 Soldier.prototype.chase = function(time){
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "was chasing",
 		N2: this.state.target.charName,
 		T: time,
-	}))
+	})
 	var position = this.state.target.position
 	for (let j = 0; j < this.speed; j++){
 		if (position[0] != this.position[0] && position[1] != this.position[1]) {
@@ -397,33 +397,33 @@ Soldier.prototype.attack = function(time){
 	if (distance > this.attackRange) {
 		// this frame still need to move
 		if (distance > this.visualRange) {
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "target ran away, started to patrol",
 				N2: character.charName,
 				T: time,
-			}))
+			})
 			this.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "target is out of attack range, started to chase",
 				N2: character.charName,
 				T: time,
-			}))
+			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
 			this.chase(time)
 		}
 		return false
 	}
 
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "attacked",
 		N2: character.charName,
 		T: time,
-	}))
+	})
 	return true
 }
 

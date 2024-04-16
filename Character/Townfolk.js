@@ -107,20 +107,20 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			P: this.position,
 			T: time
 		}))
-		Logger.info(JSON.stringify({
+		Logger.info({
 			N1: this.charName,
 			L: "was killed by",
 			N2: attacker,
 			T: time,
-		}))
+		})
 		return
 	}
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "was attacked, and ran away from",
 		N2: attacker,
 		T: this.time,
-	}))
+	})
 	townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 	
 }
@@ -136,12 +136,12 @@ Townfolk.prototype.hideOrWander = function(time){
 			this.hide(time)
 			if (newState != oldState) {
 				this.state.setState(newState, null)
-				Logger.info(JSON.stringify({
+				Logger.info({
 					N1: this.charName,
 					L: "was hiding in",
 					N2: this.position,
 					T: time,
-				}))
+				})
 			}
 			
 		} else {
@@ -149,12 +149,12 @@ Townfolk.prototype.hideOrWander = function(time){
 
 			if (newState != oldState) {
 				this.state.setState(newState, null)
-				Logger.info(JSON.stringify({
+				Logger.info({
 					N1: this.charName,
 					L: "walked to",
 					N2: this.position,
 					T: time,
-				}))
+				})
 			}
 		}
 
@@ -194,12 +194,12 @@ Townfolk.prototype.hide = function(time){
 }
 
 Townfolk.prototype.runAway = function(time){
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
-	}))
+	})
 	// console.log(this.charName + " tried to run away from " + this.state.target.charName)
 
 	// for(let i = 0; i < this.speed; i++){

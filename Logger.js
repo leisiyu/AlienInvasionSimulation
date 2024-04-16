@@ -1,5 +1,7 @@
 const fs = require('node:fs')
 const CharactersData = require('./Character/CharactersData')
+const StorySifter = require("./StorySifter/Sifter")
+const { info } = require('node:console')
 
 var Logger = {
     logQueue: [],
@@ -19,10 +21,15 @@ var Logger = {
 // L for Log
 // N2 for Name2
 // T for Time
-Logger.info = function(infoStr){
-    this.logQueue.push(infoStr)
+Logger.info = function(infoJson){
+    infoJson["id"] = Logger.generateUniqueID()
+    StorySifter.sift(infoJson)
+    this.logQueue.push(JSON.stringify(infoJson))
 }
 
+Logger.generateUniqueID = function(){
+    return Math.random().toString(16).slice(2)
+}
 
 // example
 // {
@@ -71,7 +78,8 @@ Logger.writeToFile = function(){
         if (err) throw err;
         else {
             console.log('successful')
-            Logger.clearQueue()
+            // Logger.clearQueue()
+            Logger.logQueue = []
         }
     }) 
 
@@ -85,7 +93,8 @@ Logger.writeToFile = function(){
         if (err) throw err;
         else {
             console.log('successful')
-            Logger.clearQueue()
+            // Logger.clearQueue()
+            Logger.statesLogQueue = []
         }
     }) 
 }

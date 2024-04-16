@@ -125,34 +125,34 @@ var Alien = function(name, position){
 					alienThis.hp = alienThis.hp - msgContent.atkValue
 					if (alienThis.hp <= 0){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
-						Logger.info(JSON.stringify({
+						Logger.info({
 							N1: alienThis.charName,
 							L: "was killed by",
 							N2: msgContent.attacker,
 							T: this.time,
-						}))
-						Logger.statesInfo(JSON.stringify({
+						})
+						Logger.statesInfo({
 							N: alienThis.charName,
 							S: alienThis.state.stateType,
 							P: alienThis.position,
 							T: this.time
-						}))
+						})
 					} else {
 						if (alienThis.isBadlyHurt()) {
-							Logger.info(JSON.stringify({
+							Logger.info({
 								N1: alienThis.charName,
 								L: "was badly hurt, ran away from",
 								N2: msgContent.attacker,
 								T: this.time,
-							}))
+							})
 							alienThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
 						} else {
-							Logger.info(JSON.stringify({
+							Logger.info({
 								N1: alienThis.charName,
 								L: "was attacked. Fighted back",
 								N2: msgContent.attacker,
 								T: this.time,
-							}))
+							})
 							alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
 						}
 						
@@ -302,12 +302,12 @@ Alien.prototype.chasePeople = function(time){
 	// 		return
 	// }
 	
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "was chasing",
 		N2: this.state.target.charName,
 		T: time,
-	}))
+	})
 	var position = this.state.target.position
 	for (let j = 0; j < this.speed; j++){
 		if (position[0] != this.position[0] && position[1] != this.position[1]) {
@@ -339,12 +339,12 @@ Alien.prototype.chasePeople = function(time){
 Alien.prototype.attack = function(time){
 	// check if the character died
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		Logger.info(JSON.stringify({
+		Logger.info({
 			N1: this.charName,
 			L: "killed",
 			N2: this.state.target.charName,
 			T: time,
-		}))
+		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return false
@@ -352,12 +352,12 @@ Alien.prototype.attack = function(time){
 
 	// check self hp
 	if (this.isBadlyHurt()){
-		Logger.info(JSON.stringify({
+		Logger.info({
 			N1: this.charName,
 			L: "was badly hurt, ran away from",
 			N2: this.state.target.charName,
 			T: this.time,
-		}))
+		})
 		this.state.updateState(Utils.CHARACTER_STATES.RUN_AWAY)
 		this.runAway(time)
 		return false
@@ -377,22 +377,22 @@ Alien.prototype.attack = function(time){
 		}
 		return false
 	}
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "attacked",
 		N2: character.charName,
 		T: time,
-	}))
+	})
 	return true
 }
 
 Alien.prototype.runAway = function(time){
-	Logger.info(JSON.stringify({
+	Logger.info({
 		N1: this.charName,
 		L: "ran away from",
 		N2: this.state.target.charName,
 		T: time,
-	}))
+	})
 
 	for (let i = 0; i < this.speed; i++) {
 		var oppositDir = this.getRunAwayDirection()
@@ -409,21 +409,21 @@ Alien.prototype.runAway = function(time){
 	if (!this.isBadlyHurt()) {
 		var enemies = this.checkVisualRange()
 		if (enemies.length <= 0) {
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "recovered, started to wandering around",
 				N2: "",
 				T: this.time,
-			}))
+			})
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-			Logger.info(JSON.stringify({
+			Logger.info({
 				N1: this.charName,
 				L: "recovered, started to wandering around",
 				N2: randomEnemy.charName,
 				T: this.time,
-			}))
+			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
 		
@@ -432,12 +432,12 @@ Alien.prototype.runAway = function(time){
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
 		var target = this.state.target
-		Logger.info(JSON.stringify({
+		Logger.info({
 			N1: this.charName,
 			L: "successfully ran away from",
 			N2: target.charName,
 			T: this.time
-		}))
+		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
