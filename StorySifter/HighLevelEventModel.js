@@ -12,6 +12,7 @@ class HighLevelEvent {
         this.index = 0
         this.totalEventsNum = Object.keys(highLevelEvent["events"]).length
         this.finishedTime = this.startTime
+        this.eventIDs = [newEvent["id"]]
     }
 
     updateEventIdx(){
@@ -37,6 +38,7 @@ class HighLevelEvent {
         // console.log(this.patternEvents[this.index])
         if (newEvent["L"] == this.patternEvents[this.index]["tag"]){
             this.finishedTime = newEvent["T"]
+            this.eventIDs.push(newEvent["id"])
             this.updateEventIdx()
             console.log("update time to " + newEvent["T"])
         }
@@ -63,7 +65,8 @@ class HighLevelEvent {
             "N1": this.actors[0],
             "L": this.eventName,
             "N2": this.actors[1],
-            "T": this.finishedTime
+            "T": this.finishedTime,
+            "ids": this.eventIDs
         }
     }
 }
