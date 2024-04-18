@@ -311,10 +311,11 @@ Soldier.prototype.runAway = function(time){
 
 	// run away succeed
 	if (this.checkVisualRange().length <= 0) {
+		var characterName = this.state.target.charName
 		Logger.info({
 			N1: this.charName,
 			L: "successfully ran away from",
-			N2: this.state.target.charName,
+			N2: characterName,
 			T: time,
 		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
