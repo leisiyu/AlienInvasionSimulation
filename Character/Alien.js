@@ -18,7 +18,8 @@ var Alien = function(name, position){
 	this.speed = Math.floor(Math.random() * 3) + 1
 	this.visualRange = 6
 	this.attackRange = 2
-	this.maxHp = Math.floor(Math.random() * 300) + 200
+	// this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.maxHp = 9999  // test
 	this.hp = this.maxHp
 	this.attackValue = Math.floor(Math.random() * 30) + 10
 	this.lastDirection = ""
@@ -369,7 +370,7 @@ Alien.prototype.attack = function(time){
 	if (distance > this.attackRange) {
 		// this frame still need to move
 		if (distance > this.visualRange) {
-			this.setState(Utils.CHARACTER_STATES.PATROL, null)
+			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
