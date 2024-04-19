@@ -404,7 +404,7 @@ Soldier.prototype.attack = function(time){
 				N2: character.charName,
 				T: time,
 			})
-			this.setState(Utils.CHARACTER_STATES.PATROL, null)
+			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 			this.wander(time)
 		} else {
 			Logger.info({
