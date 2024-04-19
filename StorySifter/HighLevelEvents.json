@@ -1,6 +1,5 @@
 {
     "almost_kill": {
-        "id": 1,
         "events": [
             {
                 "char1Idx": 0,
@@ -25,11 +24,12 @@
                 "char2Idx": 0
             }
         ],
+        "tag": "almost killed",
+        "main_characters": [0, 1],
         "time_limit": 20000
     },
 
     "escape": {
-        "id": 2,
         "events": [
             {
                 "char1Idx": 0,
@@ -46,13 +46,18 @@
             {
                 "char1Idx": 0,
                 "tag": "was killed by"
+            },
+            {
+                "char1Idx": 1,
+                "tag": "was killed by"
             }
         ],
+        "tag": "escaped from",
+        "main_characters": [0, 1],
         "time_limit": 300
     },
 
     "defeat": {
-        "id": 3,
         "events": [
             {
                 "char1Idx": 0,
@@ -60,13 +65,95 @@
                 "char2Idx": 1
             },
             {
+                "char1Idx": 1,
+                "tag": "was killed by",
+                "char2Idx": 0
+            }
+        ],
+        "unless": [
+            {
                 "char1Idx": 0,
+                "tag": "was killed by"
+            }
+        ],
+        "tag": "defeated",
+        "main_characters": [0, 1],
+        "time_limit": 20000
+
+    },
+
+    "revenge": {
+        "events": [
+            {
+                "char1Idx": 0,
+                "tag": "almost killed",
+                "char2Idx": 1
+            },
+            {
+                "char1Idx": 1,
+                "tag": "escaped from",
+                "char2Idx": 0
+            },
+            {
+                "char1Idx": 1,
+                "tag": "defeated",
+                "char2Idx": 0
+            }
+        ],
+        "unless": [
+            {
+                "char1Idx": 1,
+                "tag": "was killed by"
+            }
+        ],
+        "tag": "took revenge on",
+        "main_characters": [1, 0],
+        "time_limit": 20000
+    },
+
+    "giant_killer": {
+        "events": [
+            {
+                "char1Idx": 0,
+                "tag": "was killed by",
+                "char2Idx": 1
+            },
+            {
+                "char1Idx": 2,
                 "tag": "was killed by",
                 "char2Idx": 1
             }
         ],
-        "unless": [],
+        "unless": [
+            {
+                "char1Idx": 1,
+                "tag": "was killed by"
+            }
+        ],
+        "tag": "giant killer",
+        "main_characters": [1],
         "time_limit": 20000
+    },
 
+    "ace_killer": {
+        "events": [
+            {
+                "char1Idx": 0,
+                "tag": "giant killer"
+            },
+            {
+                "char1Idx": 0,
+                "tag": "giant killer"
+            }
+        ],
+        "unless": [
+            {
+                "char1Idx": 0,
+                "tag": "was killed by"
+            }
+        ],
+        "tag": "ace killer",
+        "main_characters": [0],
+        "time_limit": 20000
     }
 }
