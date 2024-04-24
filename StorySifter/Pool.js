@@ -6,18 +6,28 @@ var partialMatchPool = []
 const poolSize = 5000
 
 function matchNew(newEvent){
-    for (let i = 0; i < partialMatchPool.length; i++) {
-        var obj = partialMatchPool[i]
-        if (obj.checkIsTheSameEvent(newEvent)) {
-            return
-        }
-    }
-    for (var event in HighLevelEvents) {
-        var highLevelEvent = HighLevelEvents[event]
+    for (var eventName in HighLevelEvents) {
+        var highLevelEvent = HighLevelEvents[eventName]
         if (newEvent["L"] == highLevelEvent["events"][0]["tag"]) {
-            var newHighEvent = new HighLevelEventModel(event, newEvent, highLevelEvent)
-            partialMatchPool.push(newHighEvent)
-            console.log("partial matches num: " + partialMatchPool.length)
+            var isPartialMatched = false
+            for (let i = 0; i < partialMatchPool.length; i++) {
+                var obj = partialMatchPool[i]
+                if (eventName == obj.eventName) {
+                    if (obj.checkIsTheSameEvent(newEvent)) {
+                        isPartialMatched = true
+                        break
+                    }
+                }
+                
+            }
+
+
+            // console.log("hahahaha ", isPartialMatched, highLevelEvent["tag"], newEvent)
+            if (!isPartialMatched) {
+                var newHighEvent = new HighLevelEventModel(eventName, newEvent, highLevelEvent)
+                partialMatchPool.push(newHighEvent)
+                console.log("partial matches num: " + partialMatchPool.length)
+            }
         }
     }
 }
@@ -30,8 +40,8 @@ function updatePool(newEvent){
         if (result["isEnd"]) {
 
             removedEventsPool.push(obj)
-            console.log("new pool length " + removedEventsPool.length)
-            console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
+            // console.log("new pool length " + removedEventsPool.length)
+            // console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
         }
 
         if (result["isSuccessful"]) {
@@ -52,7 +62,7 @@ function updatePool(newEvent){
     }
 
 
-    console.log("pool " + partialMatchPool.length)
+    // console.log("pool " + partialMatchPool.length)
 }
 
 function eventFinish(highLevelEventJson){
