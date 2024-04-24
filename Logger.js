@@ -27,8 +27,10 @@ Logger.info = function(infoJson){
     this.logQueue.push(JSON.stringify(infoJson))
 }
 
+var id = 0
 Logger.generateUniqueID = function(){
-    return Math.random().toString(16).slice(2)
+    id++
+    return id
 }
 
 // example
