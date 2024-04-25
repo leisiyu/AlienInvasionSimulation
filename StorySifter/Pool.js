@@ -1,5 +1,6 @@
 const fs = require('node:fs')
 const HighLevelEvents = require("./HighLevelEvents.json")
+// const Logger = require('../Logger').Logger
 const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
 
 var partialMatchPool = []
@@ -57,10 +58,18 @@ function updatePool(newEvent){
             partialMatchPool.splice(index, 1)
         }
 
-        updatePool(obj.getJson)
-        matchNew(obj.getJson())
+        // updatePool(obj.getJson)
+        // matchNew(obj.getJson())
+        // Logger.info(obj.getJson)
     }
 
+
+
+    const Logger = require('../Logger').Logger
+    // console.log("hahaha ", Logger)
+    for (let i = 0; i < removedEventsPool.length; i++) {
+        Logger.info(obj.getJson())
+    }
 
     // console.log("pool " + partialMatchPool.length)
 }
