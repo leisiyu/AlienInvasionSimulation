@@ -15,7 +15,17 @@ function getMap(){
     return map
 }
 
+function checkIsOnARoad(position){
+    return map.checkIsOnARoad(position)
+}
+
+function checkIsInABuilding(position){
+    return map.checkIsInABuilding(position)
+}
+
 module.exports = {
     generateMap,
     getMap,
+    checkIsOnARoad,
+    checkIsInABuilding,
 }

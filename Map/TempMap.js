@@ -65,11 +65,10 @@ class TempMap{
 		this.generateBuildings()
 		var tempBuildings = []
 		for (let i = 0; i < this.buildings.length; i++){
-			if (this.isValid(this.buildings[i])){
+			// if (this.isValid(this.buildings[i])){
 				this.fillMap(this.buildings[i], 'b')
-				tempBuildings.push(this.buildings[i])
-			}
-			
+				// tempBuildings.push(this.buildings[i])
+			// }			
 		}
 
         ////draw a map
@@ -156,6 +155,15 @@ class TempMap{
 			}
 		}
 		return [false]
+	}
+
+	checkIsOnARoad(position){
+		for (let i = 0; i < this.roads.length; i++){
+			if (this.roads[i].checkIsOnRoad(position)) {
+				return true
+			}
+		}
+		return false
 	}
 
 	getBuilding(idx){

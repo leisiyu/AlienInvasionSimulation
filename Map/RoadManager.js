@@ -145,7 +145,7 @@ function drawRoad(startPos, direction, roadLength){
             roadSize = [endPosition[0] - startPosition[0], 1]
             break
     }
-    var road = new Road(roadPosition, roadSize, direction)
+    var road = new Road(roadPosition, roadSize, direction, allRoads.length)
     allRoads.push(road)
 }
 
