@@ -1,5 +1,5 @@
-const TownMap = require("../Map/TownMap").TownMap;
-// const TempMap = require('../Map/TempMap.js').TempMap
+// const TownMap = require("../Map/TownMap").TownMap;
+const TownMap = require('../Map/TempMap.js').TempMap
 const Townfolk = require('./Townfolk').Townfolk;
 const utils = require('../Utils.js'); 
 const Soldier = require("./Soldier.js").Soldier;
