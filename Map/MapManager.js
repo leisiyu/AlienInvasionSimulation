@@ -23,9 +23,14 @@ function checkIsInABuilding(position){
     return map.checkIsInABuilding(position)
 }
 
+function getBuilding(idx) {
+    return map.getBuilding(idx)
+}
+
 module.exports = {
     generateMap,
     getMap,
     checkIsOnARoad,
     checkIsInABuilding,
+    getBuilding,
 }

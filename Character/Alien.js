@@ -15,15 +15,18 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.speed = Math.floor(Math.random() * 3) + 1
+	this.baseSpeed = Math.floor(Math.random() * 3) + 1
+	this.speed = this.baseSpeed
 	this.visualRange = 6
 	this.attackRange = 2
-	// this.maxHp = Math.floor(Math.random() * 300) + 200
-	this.maxHp = 9999  // test
+	this.maxHp = Math.floor(Math.random() * 300) + 200
+	// this.maxHp = 9999  // test
 	this.hp = this.maxHp
 	this.attackValue = Math.floor(Math.random() * 30) + 10
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
+	this.TARGET = ["enemy", "building"]
+	this.enemyOrBuildingProbability = new Probability(this.TARGET, [1, 1])
 	this.state = new CharacterState()
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
@@ -37,29 +40,48 @@ var Alien = function(name, position){
 			alienThis.hp ++
 		}
 
+		// check is on a road
+		// speed will be higher when on a road
+		// if (MapManager.checkIsOnARoad(alienThis.position)) {
+		// 	this.speed = this.speed + 20
+		// } else {
+		// 	this.speed = this.baseSpeed
+		// }
+
+
 		// check the character's state
 		switch(alienThis.state.stateType){
 			case Utils.CHARACTER_STATES.PATROL:
-				if (alienThis.checkEnemiesAround(this.time)){
-					if (alienThis.isBadlyHurt()) {
-						alienThis.runAway(this.time)
-					} else {
-						alienThis.chasePeople(this.time)
-					}
-					
-					break
+				var newState = alienThis.checkSurrounding(this.time)
+				if (newState == Utils.CHARACTER_STATES.PATROL) {
+					alienThis.wander(this.time)
+				} else if (newState == Utils.CHARACTER_STATES.CHASE) {
+					alienThis.chasePeople(this.time)
+				} else if (newState == Utils.CHARACTER_STATES.RUN_AWAY) {
+					alienThis.runAway(this.time)
+				} else if (newState == Utils.CHARACTER_STATES.DESTROY) {
+					alienThis.destroy(this.time)
+				} else if (newState == Utils.CHARACTER_STATES.MOVE_TO){
+					alienThis.moveTo(this.time)
 				}
-				alienThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
-				if (!alienThis.checkEnemiesAround(this.time)){
+				var newState = alienThis.checkSurrounding(this.time)
+				if (newState == Utils.CHARACTER_STATES.PATROL) {
 					alienThis.wander(this.time)
 					break
-				} else if (alienThis.isBadlyHurt()){
+				} else if (newState == Utils.CHARACTER_STATES.CHASE) {
+					alienThis.chasePeople(this.time)
+				} else if (newState == Utils.CHARACTER_STATES.RUN_AWAY) {
 					alienThis.runAway(this.time)
 					break
+				} else if (newState == Utils.CHARACTER_STATES.DESTROY) {
+					alienThis.destroy(this.time)
+					break
+				} else if (newState == Utils.CHARACTER_STATES.MOVE_TO){
+					alienThis.moveTo(this.time)
+					break
 				}
-				alienThis.chasePeople(this.time)
 
 				// reached attack range after chasing
 				if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
@@ -127,32 +149,32 @@ var Alien = function(name, position){
 					if (alienThis.hp <= 0){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
 						Logger.info({
-							N1: alienThis.charName,
-							L: "was killed by",
-							N2: msgContent.attacker,
-							T: this.time,
+							"N1": alienThis.charName,
+							"L": "was killed by",
+							"N2": msgContent.attacker,
+							"T": this.time,
 						})
 						Logger.statesInfo({
-							N: alienThis.charName,
-							S: alienThis.state.stateType,
-							P: alienThis.position,
-							T: this.time
+							"N": alienThis.charName,
+							"S": alienThis.state.stateType,
+							"P": alienThis.position,
+							"T": this.time
 						})
 					} else {
 						if (alienThis.isBadlyHurt()) {
 							Logger.info({
-								N1: alienThis.charName,
-								L: "was badly hurt, ran away from",
-								N2: msgContent.attacker,
-								T: this.time,
+								"N1": alienThis.charName,
+								"L": "was badly hurt, ran away from",
+								"N2": msgContent.attacker,
+								"T": this.time,
 							})
 							alienThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
 						} else {
 							Logger.info({
-								N1: alienThis.charName,
-								L: "was attacked. Fighted back",
-								N2: msgContent.attacker,
-								T: this.time,
+								"N1": alienThis.charName,
+								"L": "was attacked. Fighted back",
+								"N2": msgContent.attacker,
+								"T": this.time,
 							})
 							alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
 						}
@@ -170,7 +192,7 @@ Alien.prototype.isBadlyHurt = function(){
 	return this.hp / this.maxHp <= 0.2
 }
 
-Alien.prototype.checkEnemiesAround = function(time){
+Alien.prototype.checkSurrounding = function(time){
 	//// check the visual range
 	//// if there's an enemy around, 
 		////check self hp first
@@ -178,12 +200,27 @@ Alien.prototype.checkEnemiesAround = function(time){
 		////else run away
 	//// if already chasing someone, check if he's in the visual range
 	//// else wander around
-	var visibleCharacters = this.checkVisualRange()
-	if (visibleCharacters.length > 0){
+	var result = this.checkVisualRange()
+	var visibleCharacters = result[0]
+	var visibleBuildings = result[1]
+
+	var isRandomChoose = false
+	var randomResult = "enemy"
+	if (visibleBuildings.length > 0 &&  visibleCharacters.length > 0) {
 		if (this.isBadlyHurt()) {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
-			return true
+			return Utils.CHARACTER_STATES.RUN_AWAY
+		}
+		isRandomChoose = true
+		randomResult = this.enemyOrBuildingProbability.randomlyPick()
+	}
+
+	if ((visibleCharacters.length > 0 && visibleBuildings.length <= 0) || (isRandomChoose && randomResult == "enemy")){	
+		if (this.isBadlyHurt()) {
+			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
+			return Utils.CHARACTER_STATES.RUN_AWAY
 		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
 			if (!visibleCharacters.includes(this.state.target)){
@@ -195,11 +232,62 @@ Alien.prototype.checkEnemiesAround = function(time){
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
 			// this.chasePeople(time)
 		}
-		return true
+		return Utils.CHARACTER_STATES.CHASE
+	}
+
+	if ((visibleBuildings.length > 0 && visibleCharacters.length <= 0) || (isRandomChoose && randomResult == "building")) {
+		var randomBuilding = visibleBuildings[Math.floor(Math.random() * visibleBuildings.length)]
+		var distance = randomBuilding.calculateDistance(this.position)
+		if (distance > this.visualRange) {
+			this.state.setState(Utils.CHARACTER_STATES.MOVE_TO, randomBuilding)
+			return Utils.CHARACTER_STATES.MOVE_TO
+		} else {
+			this.state.setState(Utils.CHARACTER_STATES.DESTROY, randomBuilding)
+			randomBuilding.isAttacked(this.attackValue)
+			Logger.info({
+				"N1": this.charName,
+				"L": "was destroying",
+				"N2": "building" + randomBuilding.idx,
+				"T": time,
+			})
+
+			if (randomBuilding.checkIsDestroyed()) {
+				this.state.setState(Utils.CHARACTER_STATES.PATROL, "")
+				return Utils.CHARACTER_STATES.PATROL
+			}
+			return Utils.CHARACTER_STATES.DESTROY
+		}
 	}
 
 	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-	return false
+	return Utils.CHARACTER_STATES.PATROL
+}
+
+Alien.prototype.moveTo = function(time){
+	var building = this.state.target
+
+	for (let i = 0; i < this.speed; i++) {
+		if (this.position[0] < building.position[0]) {
+			this.position[0] = this.position[0] + 1
+		} else if (this.position[0] > building.position[0] + building.size[0]) {
+			this.position[0] = this.position[0] - 1
+		} else if (this.position[1] < building.position[1]) {
+			this.position[1] = this.position[1] + 1
+		} else if (this.position[1] > building.position[1] + building.size[1]) {
+			this.position[1] = this.position[1] - 1
+		}
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType,
+		P: this.position,
+		T: time
+	}))
+
+	if (building.calculateDistance(this.position) <= this.visualRange) {
+		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
+	}
 }
 
 Alien.prototype.wander = function(time){
@@ -295,7 +383,27 @@ Alien.prototype.getAvailableDirections = function(){
 	return availableDirections
 }
 
-Alien.prototype.destroy = function(time){}
+Alien.prototype.destroy = function(time){
+	var building = this.state.target
+
+	building.isAttacked(this.attackValue)
+	Logger.info({
+		"N1": this.charName,
+		"L": "was destroying",
+		"N2": "building" + building.idx,
+		"T": time,
+	})
+
+	if (building.checkIsDestroyed()) {
+		Logger.info({
+			"N1": this.charName,
+			"L": "destroyed",
+			"N2": "building" + building.idx,
+			"T": time,
+		})
+		this.state.setState(Utils.PATROL, "")
+	}
+}
 
 Alien.prototype.chasePeople = function(time){
 	// if (this.position[0] == this.state.target.position[0]
@@ -408,7 +516,7 @@ Alien.prototype.runAway = function(time){
 	}))
 	
 	if (!this.isBadlyHurt()) {
-		var enemies = this.checkVisualRange()
+		var [enemies, buildings] = this.checkVisualRange()
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
@@ -431,7 +539,7 @@ Alien.prototype.runAway = function(time){
 	}
 
 	// run away succeed
-	if (this.checkVisualRange().length <= 0) {
+	if (this.checkVisualRange()[0].length <= 0) {
 		var target = this.state.target
 		Logger.info({
 			N1: this.charName,
@@ -461,8 +569,21 @@ Alien.prototype.checkVisualRange = function(){
 				// console.log(this.charName + " saw " + character.charName)
 			}
 	}
+
+	var visibleBuildings = []
+	for (let i = startX; i <= endX; i++ ){
+		for (let j = startY; j <= endY; j++){
+			var result = MapManager.checkIsInABuilding([i, j])
+			if (result[0]){
+				var building = MapManager.getBuilding(result[1])
+				if ((!building.checkIsDestroyed()) && !visibleBuildings.includes(building)) {
+					visibleBuildings.push(building)
+				}
+			}
+		}
+	}
 	
-	return visibleCharacters
+	return [visibleCharacters, visibleBuildings]
 }
 
 Alien.prototype.getRunAwayDirection = function(){
