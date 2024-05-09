@@ -118,7 +118,8 @@ class HighLevelEvent {
             "L": this.highLevelEvent["tag"],
             "N2": character2,
             "T": this.finishedTime,
-            "ids": this.eventIDs
+            "ids": this.eventIDs,
+            "type": this.highLevelEvent['type']
         }
     }
 }
