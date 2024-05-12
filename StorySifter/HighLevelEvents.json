@@ -4,12 +4,14 @@
             {
                 "char1Idx": 0,
                 "tag": "attacked",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": true
             },
             {
                 "char1Idx": 1,
                 "tag": "was badly hurt, ran away from",
-                "char2Idx": 0
+                "char2Idx": 0,
+                "repeat": false
             }
         ],
         "unless": [
@@ -35,12 +37,14 @@
             {
                 "char1Idx": 0,
                 "tag": "ran away from",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": true
             },
             {
                 "char1Idx": 0,
                 "tag": "successfully ran away from",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": false
             }
         ],
         "unless": [
@@ -64,12 +68,14 @@
             {
                 "char1Idx": 0,
                 "tag": "attacked",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": true
             },
             {
                 "char1Idx": 1,
                 "tag": "was killed by",
-                "char2Idx": 0
+                "char2Idx": 0,
+                "repeat": false
             }
         ],
         "unless": [
@@ -90,17 +96,20 @@
             {
                 "char1Idx": 0,
                 "tag": "almost killed",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": true
             },
             {
                 "char1Idx": 1,
                 "tag": "escaped from",
-                "char2Idx": 0
+                "char2Idx": 0,
+                "repeat": true
             },
             {
                 "char1Idx": 1,
                 "tag": "defeated",
-                "char2Idx": 0
+                "char2Idx": 0,
+                "repeat": false
             }
         ],
         "unless": [
@@ -120,12 +129,14 @@
             {
                 "char1Idx": 0,
                 "tag": "was killed by",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": false
             },
             {
                 "char1Idx": 2,
                 "tag": "was killed by",
-                "char2Idx": 1
+                "char2Idx": 1,
+                "repeat": false
             }
         ],
         "unless": [
@@ -144,11 +155,13 @@
         "events": [
             {
                 "char1Idx": 0,
-                "tag": "giant killer"
+                "tag": "giant killer",
+                "repeat": false
             },
             {
                 "char1Idx": 0,
-                "tag": "giant killer"
+                "tag": "giant killer",
+                "repeat": false
             }
         ],
         "unless": [

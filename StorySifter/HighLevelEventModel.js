@@ -21,14 +21,18 @@ class HighLevelEvent {
 
     // check if there's a partial match already in the pool
     // with the same characters and log
-    checkIsTheSameEvent(newEvent){
-        var firstEvent = this.patternEvents[0]
-        if (newEvent["L"] == this.tag1) {
-            if (newEvent["N1"] == this.actors[firstEvent["char1Idx"]] 
-            && newEvent["N2"] == this.actors[firstEvent["char2Idx"]]) {
-                return true
+    // this function does not check the newest event in the event list
+    checkIsNewEventBelongsToThisMatch(newEvent){
+        for (let i = 0; i < this.index; i++){
+            var currentEvent = this.patternEvents[i]
+            if (newEvent["L"] == currentEvent["tag"]
+                && currentEvent["repeat"]
+                && newEvent["N1"] == this.actors[currentEvent["char1Idx"]]
+                && newEvent["N2"] == this.actors[currentEvent["char2Idx"]]){
+                    return true
             }
         }
+
         return false
     }
 
@@ -37,6 +41,20 @@ class HighLevelEvent {
     }
 
     checkNewEvent(newEvent){
+        // check the old events
+        // if matched and "repeat", then add to the event list
+        for (let i = 0; i < this.index; i++){
+            var event = this.patternEvents[i]
+            if (event["repeat"]
+                && newEvent["N1"] == this.actors[event["char1Idx"]]
+                && newEvent["N2"] == this.actors[event["char2Idx"]]
+                && newEvent["L"] == event["tag"]) {
+                    this.eventIDs.push(newEvent["id"])
+                    return {"isEnd": false, "isSuccessful": false}
+                }
+        }
+
+        // check the next event
         var currentEvent = this.patternEvents[this.index]
 
         // console.log("hahahahah   ",this.index, this.highLevelEvent["tag"], currentEvent)

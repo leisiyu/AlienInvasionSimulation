@@ -8,33 +8,30 @@ const poolSize = 5000
 
 function matchNew(newEvent){
     for (var eventName in HighLevelEvents) {
-        var highLevelEvent = HighLevelEvents[eventName]
-        if (newEvent["L"] == highLevelEvent["events"][0]["tag"]) {
-            var isPartialMatched = false
-            for (let i = 0; i < partialMatchPool.length; i++) {
-                var obj = partialMatchPool[i]
-                if (eventName == obj.eventName) {
-                    if (obj.checkIsTheSameEvent(newEvent)) {
-                        isPartialMatched = true
-                        break
-                    }
-                }
-                
+        var currentEvent = HighLevelEvents[eventName]
+        var isBelongToOneMatch = false
+        for (let i = 0; i < partialMatchPool.length; i++){
+            var partialMatch = partialMatchPool[i]
+            isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
+            if (isBelongToOneMatch) {
+                break
             }
+        }
 
-
-            // console.log("hahahaha ", isPartialMatched, highLevelEvent["tag"], newEvent)
-            if (!isPartialMatched) {
-                var newHighEvent = new HighLevelEventModel(eventName, newEvent, highLevelEvent)
+        if (!isBelongToOneMatch) {
+            if (newEvent["L"] == currentEvent["events"][0]["tag"]) {
+                var newHighEvent = new HighLevelEventModel(eventName, newEvent, currentEvent)
                 partialMatchPool.push(newHighEvent)
                 console.log("partial matches num: " + partialMatchPool.length)
             }
+            
         }
     }
 }
 
 function updatePool(newEvent){
     var removedEventsPool = []
+
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
         var result = obj.checkNewEvent(newEvent)
@@ -49,7 +46,7 @@ function updatePool(newEvent){
             eventFinish(obj.getJson())
         }
     }
-    
+
     for (let i = 0; i < removedEventsPool.length; i++) {
         var obj = removedEventsPool[i]
 
@@ -57,16 +54,11 @@ function updatePool(newEvent){
         if (index != -1){
             partialMatchPool.splice(index, 1)
         }
-
-        // updatePool(obj.getJson)
-        // matchNew(obj.getJson())
-        // Logger.info(obj.getJson)
     }
 
-
+    // console.log("partial match num: " + partialMatchPool.length)
 
     const Logger = require('../Logger').Logger
-    // console.log("hahaha ", Logger)
     for (let i = 0; i < removedEventsPool.length; i++) {
         Logger.info(obj.getJson())
     }
