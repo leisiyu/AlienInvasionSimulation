@@ -1,9 +1,11 @@
+const Config = require('./Config')
 
 const TOTAL_STEPS = 10
-const MAP_SIZE = [50, 50]
-const TOWNFOLKS_NUM = 4
-const ALIENS_NUM = 3
-const SOLIDERS_NUM = 5
+const MAP_SIZE = Config.MAP_SIZE
+const TOWNFOLKS_NUM = Config.TOWNFOLKS_NUM
+const ALIENS_NUM = Config.ALIENS_NUM
+const SOLIDERS_NUM = Config.SOLIDERS_NUM
+
 
 const CHARACTER_TYPE = {
 	TOWNFOLK: 'TOWNFOLK',
@@ -60,6 +62,7 @@ const CHARACTER_STATES = {
 	ATTACK: 'ATTACK',
 	HIDE: 'HIDE',
 	WANDER: "WANDER",
+	MOVE_TO: "MOVE_TO",
 }
 
 const formatString = (template, ...args) => {
