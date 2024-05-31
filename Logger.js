@@ -2,6 +2,8 @@ const fs = require('node:fs')
 const CharactersData = require('./Character/CharactersData')
 const StorySifter = require("./StorySifter/Sifter")
 const { info } = require('node:console')
+const Config = require('./Config')
+const Sifter = require('./StorySifter/Sifter')
 
 var Logger = {
     logQueue: [],
@@ -70,12 +72,18 @@ Logger.setKeyFrame = function(){
 }
 
 Logger.writeToFile = function(){
+    var dirName = this.getDirName()
+    if (!fs.existsSync("." + dirName)) {
+        fs.mkdirSync("." + dirName, { recursive: true }, (err) => {
+            if (err) throw err;
+        })
+    }
     var content = ""
     for (let i = 0; i < Logger.logQueue.length; i++){
         content = content + Logger.logQueue[i] + "\n"
     }
     
-    fs.writeFileSync('./Log.txt', content, (err) => { 
+    fs.writeFileSync('.'+ dirName +'/Log.txt', content, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
@@ -90,7 +98,7 @@ Logger.writeToFile = function(){
         statesContent = statesContent + Logger.statesLogQueue[i] + "\n"
     }
 
-    fs.writeFileSync('./StatesLog.txt', statesContent, (err) => { 
+    fs.writeFileSync('.' + dirName + '/StatesLog.txt', statesContent, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
@@ -101,9 +109,32 @@ Logger.writeToFile = function(){
     }) 
 }
 
+Logger.outputFinalResults = function(){
+    var dirName = this.getDirName()
+    if (!fs.existsSync(dirName)) {
+        fs.mkdir("." + dirName, { recursive: true }, (err) => {
+            if (err) throw err;
+        })
+    }
+    var finalResults = Sifter.getFinalResults()
+    fs.writeFileSync('.' + dirName + '/Results.txt', finalResults, (err) => { 
+        // In case of a error throw err. 
+        if (err) throw err;
+        else {
+            console.log('successful')
+        }
+    }) 
+}
+
 Logger.clearQueue = function(){
     Logger.logQueue = []
     Logger.statesLogQueue = []
+}
+
+Logger.getDirName = function(){
+    var dirName = "/Map" + Config.MAP_SIZE + "A" + Config.ALIENS_NUM + "S" + Config.SOLIDERS_NUM + "T" + Config.TOWNFOLKS_NUM
+
+    return dirName
 }
 
 module.exports = {

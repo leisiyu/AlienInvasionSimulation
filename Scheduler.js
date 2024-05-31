@@ -5,13 +5,16 @@ const Logger = require("./Logger.js").Logger
 var scheduler = new jssim.Scheduler();
 
 function updateEvents(){
-    while(scheduler.hasEvents()) {
-    // while(scheduler.current_time < 5000){
+    // while(scheduler.hasEvents()) {
+    while(scheduler.current_time <= 5000){
         if (Logger.logQueue.length > 0){
             Logger.writeToFile()
         }
 		scheduler.update()
-   
+        
+        if (scheduler.current_time == 5000){
+            Logger.outputFinalResults()
+        }
 	}
 }
 

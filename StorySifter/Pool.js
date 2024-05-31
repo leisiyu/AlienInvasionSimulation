@@ -5,6 +5,9 @@ const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
 
 var partialMatchPool = []
 const poolSize = 5000
+var totalPartialMatchNum = 0
+var totalCompleteNum = 0
+
 
 function matchNew(newEvent){
     for (var eventName in HighLevelEvents) {
@@ -22,6 +25,8 @@ function matchNew(newEvent){
             if (newEvent["L"] == currentEvent["events"][0]["tag"]) {
                 var newHighEvent = new HighLevelEventModel(eventName, newEvent, currentEvent)
                 partialMatchPool.push(newHighEvent)
+                totalPartialMatchNum = totalPartialMatchNum + 1
+                console.log("total partial matches created " + totalPartialMatchNum)
                 console.log("partial matches num: " + partialMatchPool.length)
             }
             
@@ -43,6 +48,7 @@ function updatePool(newEvent){
         }
 
         if (result["isSuccessful"]) {
+            totalCompleteNum = totalCompleteNum + 1
             eventFinish(obj.getJson())
         }
     }
@@ -79,13 +85,20 @@ function eventFinish(highLevelEventJson){
         }
     }) 
 
-
 }
 
+function getResults(){
+    var result = ""
+    result = result + "Total partial matches number: " + totalPartialMatchNum + "\n"
+    result = result + "Total completed matches number: " + totalCompleteNum + "\n"
+
+    return result
+}
 
 
 module.exports = {
     matchNew,
     partialMatchPool,
     updatePool,
+    getResults,
 }

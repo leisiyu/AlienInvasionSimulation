@@ -16,11 +16,14 @@ function getEventsById(id){
     console.log("no event with id: " + id + ". Have a check!")
 }
 
-
+function getFinalResults(){
+    return Pool.getResults()
+}
 
 
 
 
 module.exports = {
     sift,
+    getFinalResults,
 }
