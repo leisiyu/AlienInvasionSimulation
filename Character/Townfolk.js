@@ -19,7 +19,8 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
-	this.speed = Math.floor(Math.random() * 3) + 1
+	// this.speed = Math.floor(Math.random() * 3) + 1
+	this.speed = 10 // test
 	this.visualRange = 5
 	this.attackRange = 1
 	this.attackValue = 10
@@ -121,7 +122,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		N2: attacker,
 		T: this.time,
 	})
-	townfolkThis.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
+	this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 	
 }
 
