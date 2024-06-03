@@ -73,17 +73,13 @@ Logger.setKeyFrame = function(){
 
 Logger.writeToFile = function(){
     var dirName = this.getDirName()
-    if (!fs.existsSync("." + dirName)) {
-        fs.mkdirSync("." + dirName, { recursive: true }, (err) => {
-            if (err) throw err;
-        })
-    }
+
     var content = ""
     for (let i = 0; i < Logger.logQueue.length; i++){
         content = content + Logger.logQueue[i] + "\n"
     }
     
-    fs.writeFileSync('.'+ dirName +'/Log.txt', content, (err) => { 
+    fs.writeFileSync(dirName +'/Log.txt', content, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
@@ -98,7 +94,7 @@ Logger.writeToFile = function(){
         statesContent = statesContent + Logger.statesLogQueue[i] + "\n"
     }
 
-    fs.writeFileSync('.' + dirName + '/StatesLog.txt', statesContent, (err) => { 
+    fs.writeFileSync(dirName + '/StatesLog.txt', statesContent, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
@@ -112,12 +108,12 @@ Logger.writeToFile = function(){
 Logger.outputFinalResults = function(){
     var dirName = this.getDirName()
     if (!fs.existsSync(dirName)) {
-        fs.mkdir("." + dirName, { recursive: true }, (err) => {
+        fs.mkdir(dirName, { recursive: true }, (err) => {
             if (err) throw err;
         })
     }
     var finalResults = Sifter.getFinalResults()
-    fs.writeFileSync('.' + dirName + '/Results.txt', finalResults, (err) => { 
+    fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
         else {
@@ -132,7 +128,13 @@ Logger.clearQueue = function(){
 }
 
 Logger.getDirName = function(){
-    var dirName = "/Map" + Config.MAP_SIZE + "A" + Config.ALIENS_NUM + "S" + Config.SOLIDERS_NUM + "T" + Config.TOWNFOLKS_NUM
+    var dirName = __dirname + "/Map" + Config.MAP_SIZE[0] + "A" + Config.ALIENS_NUM + "S" + Config.SOLIDERS_NUM + "T" + Config.TOWNFOLKS_NUM
+
+    if (!fs.existsSync( dirName)) {
+        fs.mkdirSync(dirName, { recursive: true }, (err) => {
+            if (err) throw err;
+        })
+    }
 
     return dirName
 }

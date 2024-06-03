@@ -1,3 +1,4 @@
+const { Logger } = require('../Logger.js')
 const Utils = require('../Utils.js')
 const MapUtil = require("./MapUtil.js")
 const Building = require('./Building.js').Building
@@ -78,7 +79,8 @@ class TempMap{
 		}
 
 		////output map data
-		fs.writeFileSync('./CityMap.txt', JSON.stringify(this.map), (err) => { 
+		var dirName = Logger.getDirName()
+		fs.writeFileSync(dirName + '/CityMap.txt', JSON.stringify(this.map), (err) => { 
 			// In case of a error throw err. 
 			if (err) throw err;
 			else {
