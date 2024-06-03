@@ -7,6 +7,8 @@ var partialMatchPool = []
 const poolSize = 5000
 var totalPartialMatchNum = 0
 var totalCompleteNum = 0
+var totalHighLevelEvents = 0
+var totalMiniStories = 0
 
 
 function matchNew(newEvent){
@@ -49,6 +51,12 @@ function updatePool(newEvent){
 
         if (result["isSuccessful"]) {
             totalCompleteNum = totalCompleteNum + 1
+            if (obj.highLevelEvent['type'] == "high-level") {
+                totalHighLevelEvents = totalHighLevelEvents + 1
+            } else if (obj.highLevelEvent['type'] == "story"){
+                totalMiniStories = totalMiniStories + 1
+            }
+
             eventFinish(obj.getJson())
         }
     }
@@ -77,13 +85,13 @@ function eventFinish(highLevelEventJson){
     // const Logger = require('../Logger.js').Logger
     // Logger.info(highLevelEventJson)
 
-    fs.writeFileSync('./HighLevelEventsLog.txt', JSON.stringify(highLevelEventJson) + "\n", {flag: 'a'}, (err) => { 
-        // In case of a error throw err. 
-        if (err) throw err;
-        else {
-            console.log('successful')
-        }
-    }) 
+    // fs.writeFileSync('./HighLevelEventsLog.txt', JSON.stringify(highLevelEventJson) + "\n", {flag: 'a'}, (err) => { 
+    //     // In case of a error throw err. 
+    //     if (err) throw err;
+    //     else {
+    //         console.log('successful')
+    //     }
+    // }) 
 
 }
 
@@ -91,6 +99,8 @@ function getResults(){
     var result = ""
     result = result + "Total partial matches number: " + totalPartialMatchNum + "\n"
     result = result + "Total completed matches number: " + totalCompleteNum + "\n"
+    result = result + "Total completed high-level events number: " + totalHighLevelEvents + "\n"
+    result = result + "Total completed stories number: " + totalMiniStories + "\n"
 
     return result
 }
