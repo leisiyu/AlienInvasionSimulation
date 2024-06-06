@@ -1,11 +1,17 @@
-const Config = require('./Config')
+// const Config = require('./Config')
 
 const TOTAL_STEPS = 10
-const MAP_SIZE = Config.MAP_SIZE
-const TOWNFOLKS_NUM = Config.TOWNFOLKS_NUM
-const ALIENS_NUM = Config.ALIENS_NUM
-const SOLIDERS_NUM = Config.SOLIDERS_NUM
+var MAP_SIZE = [50, 50]
+var TOWNFOLKS_NUM = 5
+var ALIENS_NUM = 5
+var SOLIDERS_NUM = 5
 
+function initParameters(townfolkNum, alienNum, soldierNum, mapSize){
+	this.TOWNFOLKS_NUM = townfolkNum != undefined ? Number(townfolkNum): TOWNFOLKS_NUM
+	this.ALIENS_NUM = alienNum != undefined ? Number(alienNum) : ALIENS_NUM
+	this.SOLIDERS_NUM = soldierNum != undefined ? Number(soldierNum) : SOLIDERS_NUM
+	this.MAP_SIZE = mapSize != undefined ? JSON.parse(mapSize) : MAP_SIZE
+}
 
 const CHARACTER_TYPE = {
 	TOWNFOLK: 'TOWNFOLK',
@@ -89,7 +95,6 @@ module.exports = {
 	CHARACTER_TYPE,
 	DIRECTION,
 	formatString,
-	// logger,
-	// CHARACTER_MISSION,
 	CHARACTER_STATES,
+	initParameters,
 }

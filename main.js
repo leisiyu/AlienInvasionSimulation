@@ -10,7 +10,12 @@ const MapManager = require('./Map/MapManager.js')
 // var scheduler = new jssim.Scheduler();
 
 function main(){
-	
+	var alienNum = process.argv[3]
+	var soldierNum = process.argv[4]
+	var townfolkNum = process.argv[5]
+	var mapSize = process.argv[6]
+	Utils.initParameters(townfolkNum, alienNum, soldierNum, mapSize)
+
 	// var map = TownMap.getInstance(Utils.MAP_SIZE);
 	// map.createRandomMap()
 
@@ -20,7 +25,8 @@ function main(){
 	// CharactersManager.generateTempChar()
 	CharactersManager.generateAllCharacters()
 
-	Scheduler.updateEvents()
+	var totalTimeSteps = process.argv[2]
+	Scheduler.updateEvents(totalTimeSteps)
 	
 
 	// console.log("map !!!" + TownMap.getInstance().map);

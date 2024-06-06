@@ -4,9 +4,12 @@ const Logger = require("./Logger.js").Logger
 
 var scheduler = new jssim.Scheduler();
 
-function updateEvents(){
+function updateEvents(totalTimeSteps){
     // while(scheduler.hasEvents()) {
-    while(scheduler.current_time <= 5000){
+    var timeSteps = 5000
+
+    if (totalTimeSteps != null) {timeSteps = totalTimeSteps}
+    while(scheduler.current_time <= timeSteps){
         if (Logger.logQueue.length > 0){
             Logger.writeToFile()
         }

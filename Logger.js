@@ -2,7 +2,8 @@ const fs = require('node:fs')
 const CharactersData = require('./Character/CharactersData')
 const StorySifter = require("./StorySifter/Sifter")
 const { info } = require('node:console')
-const Config = require('./Config')
+// const Config = require('./Config')
+const Utils = require('./Utils')
 const Sifter = require('./StorySifter/Sifter')
 
 var Logger = {
@@ -128,7 +129,7 @@ Logger.clearQueue = function(){
 }
 
 Logger.getDirName = function(){
-    var dirName = __dirname + "/Map" + Config.MAP_SIZE[0] + "A" + Config.ALIENS_NUM + "S" + Config.SOLIDERS_NUM + "T" + Config.TOWNFOLKS_NUM
+    var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
 
     if (!fs.existsSync( dirName)) {
         fs.mkdirSync(dirName, { recursive: true }, (err) => {
