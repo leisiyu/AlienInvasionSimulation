@@ -113,7 +113,8 @@ Logger.outputFinalResults = function(){
             if (err) throw err;
         })
     }
-    var finalResults = Sifter.getFinalResults()
+    var finalResults = "Total events number: " + (this.generateUniqueID() - 1) + '\n'
+    finalResults = finalResults + Sifter.getFinalResults()
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
