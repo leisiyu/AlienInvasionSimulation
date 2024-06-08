@@ -174,5 +174,38 @@
         "type": "story",
         "main_characters": [0],
         "time_limit": 20000
+    },
+
+    "lucky_kill": {
+        "events": [
+            {
+                "char1Idx": 0,
+                "tag": "attacked",
+                "char2Idx": 1,
+                "repeat": false
+            },
+            {
+                "char1Idx": 1,
+                "tag": "was killed by",
+                "char2Idx": 0,
+                "repeat": false
+            }
+        ],
+        "unless": [
+            {
+                "char1Idx": 0,
+                "tag": "was killed by"
+            }
+        ],
+        "unless_forever": [
+            {
+                "char1Idx": 0,
+                "tag": "attacked"
+            }
+        ],
+        "tag": "lucky kill",
+        "type": "high-level",
+        "main_characters": [0, 1],
+        "time_limit": 20000
     }
 }

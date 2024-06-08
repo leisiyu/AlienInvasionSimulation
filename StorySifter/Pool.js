@@ -9,6 +9,7 @@ var totalPartialMatchNum = 0
 var totalCompleteNum = 0
 var totalHighLevelEvents = 0
 var totalMiniStories = 0
+var totalAbandonedEvents = 0
 
 
 function matchNew(newEvent){
@@ -17,9 +18,12 @@ function matchNew(newEvent){
         var isBelongToOneMatch = false
         for (let i = 0; i < partialMatchPool.length; i++){
             var partialMatch = partialMatchPool[i]
-            isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
-            if (isBelongToOneMatch) {
-                break
+            isBelongToOneMatch = false
+            if (partialMatch.highLevelEventJson["tag"] == currentEvent["tag"]) {
+                isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
+                if (isBelongToOneMatch) {
+                    break
+                }
             }
         }
 
@@ -28,8 +32,8 @@ function matchNew(newEvent){
                 var newHighEvent = new HighLevelEventModel(eventName, newEvent, currentEvent)
                 partialMatchPool.push(newHighEvent)
                 totalPartialMatchNum = totalPartialMatchNum + 1
-                console.log("total partial matches created " + totalPartialMatchNum)
-                console.log("partial matches num: " + partialMatchPool.length)
+                // console.log("total partial matches created " + totalPartialMatchNum)
+                // console.log("partial matches num: " + partialMatchPool.length)
             }
             
         }
@@ -42,8 +46,8 @@ function updatePool(newEvent){
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
         var result = obj.checkNewEvent(newEvent)
+        
         if (result["isEnd"]) {
-
             removedEventsPool.push(obj)
             // console.log("new pool length " + removedEventsPool.length)
             // console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
@@ -51,13 +55,13 @@ function updatePool(newEvent){
 
         if (result["isSuccessful"]) {
             totalCompleteNum = totalCompleteNum + 1
-            if (obj.highLevelEvent['type'] == "high-level") {
+            if (obj.highLevelEventJson['type'] == "high-level") {
                 totalHighLevelEvents = totalHighLevelEvents + 1
-            } else if (obj.highLevelEvent['type'] == "story"){
+            } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
             }
 
-            eventFinish(obj.getJson())
+            // eventFinish(obj.getJson())
         }
     }
 
@@ -74,6 +78,7 @@ function updatePool(newEvent){
 
     const Logger = require('../Logger').Logger
     for (let i = 0; i < removedEventsPool.length; i++) {
+        var obj = removedEventsPool[i]
         Logger.info(obj.getJson())
     }
 
@@ -101,6 +106,15 @@ function getResults(){
     result = result + "Total completed matches number: " + totalCompleteNum + "\n"
     result = result + "Total completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Total completed stories number: " + totalMiniStories + "\n"
+
+    for (let i = 0; i < partialMatchPool.length; i++){
+        var obj = partialMatchPool[i]
+        if (obj.unlessForever) {
+            totalAbandonedEvents = totalAbandonedEvents + 1
+            console.log("hahahaha " + obj.eventName + " " + obj.actors)
+        }
+    }
+    result = result + "Total abandoned events: " + totalAbandonedEvents + "\n"
 
     return result
 }

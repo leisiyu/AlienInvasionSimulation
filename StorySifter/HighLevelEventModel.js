@@ -1,7 +1,7 @@
 const HighLevelEventsPatterns = require("./HighLevelEvents.json")
 
 class HighLevelEvent {
-    constructor(eventName,newEvent, highLevelEvent){
+    constructor(eventName,newEvent, highLevelEventJson){
         this.eventName = eventName
         this.actors = [newEvent["N1"]]
         if (newEvent["N2"] != "") {
@@ -9,14 +9,15 @@ class HighLevelEvent {
         }
         this.startTime = newEvent["T"]
         this.tag1 = newEvent["L"]
-        this.highLevelEvent = highLevelEvent
-        this.unlessEvents = highLevelEvent["unless"]
-        this.timeLimit = highLevelEvent["time_limit"]
-        this.patternEvents = highLevelEvent["events"]
+        this.highLevelEventJson = highLevelEventJson
+        this.unlessEvents = highLevelEventJson["unless"]
+        this.timeLimit = highLevelEventJson["time_limit"]
+        this.patternEvents = highLevelEventJson["events"]
         this.index = 1 // start with the 0th + 1
-        this.totalEventsNum = highLevelEvent["events"].length
+        this.totalEventsNum = highLevelEventJson["events"].length
         this.finishedTime = this.startTime
         this.eventIDs = [newEvent["id"]]
+        this.unlessForever = false
     }
 
     // check if there's a partial match already in the pool
@@ -57,8 +58,11 @@ class HighLevelEvent {
         // check the next event
         var currentEvent = this.patternEvents[this.index]
 
-        // console.log("hahahahah   ",this.index, this.highLevelEvent["tag"], currentEvent)
-        // console.log("hahahah  ", typeof(currentEvent))
+        if (this.checkUnlessForever(newEvent)){
+            // console.log("unless forever " + currentEvent["tag"] + this.eventIDs)
+            return {"isEnd": false, "isSuccessful": false}
+        }
+
         // if (("char1Idx" in currentEvent) && this.actors[currentEvent["char1Idx"]] != newEvent["N1"]) {
         //     // console.log("actors not fit ")
         //     return {"isEnd": false, "isSuccessful": false}
@@ -68,8 +72,8 @@ class HighLevelEvent {
         //     console.log("actors not fit " + currentEvent["char2Idx"] + " " + newEvent["N2"])
         //     return {"isEnd": false, "isSuccessful": false}
         // }
-        for (let i = 0; i < this.highLevelEvent["main_characters"].length; i++){
-            var characterIdx = this.highLevelEvent["main_characters"][i]
+        for (let i = 0; i < this.highLevelEventJson["main_characters"].length; i++){
+            var characterIdx = this.highLevelEventJson["main_characters"][i]
             if (newEvent["N1"] != this.actors[characterIdx] && newEvent["N2"] != this.actors[characterIdx]) {
                 
                 return {"isEnd": false, "isSuccessful": false}
@@ -128,16 +132,36 @@ class HighLevelEvent {
         return false
     }
 
+    checkUnlessForever(newEvent){
+        if (this.unlessForever) { return true }
+
+        if (this.highLevelEventJson["unless_forever"] != undefined){
+            for (let i = 0; i < this.highLevelEventJson["unless_forever"].length; i++){
+                var currentEvent = this.highLevelEventJson["unless_forever"][i]
+                if (newEvent["L"] == currentEvent["tag"]){
+                    if (currentEvent["char1Idx"] == undefined || this.actors[currentEvent["char1Idx"]] == newEvent["N1"]) {
+                        if (currentEvent["char2Idx"] == undefined || this.actors[currentEvent["char2Idx"]] == newEvent["N2"]) {
+                            this.unlessForever = true
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+        
     getJson(){
-        var character1 = this.actors[this.highLevelEvent["main_characters"][0]]
-        var character2 = this.highLevelEvent["main_characters"].length > 1 ? this.actors[this.highLevelEvent["main_characters"][1]] : ""
+        // console.log("haha2   " + this.actors)
+        var character1 = this.actors[this.highLevelEventJson["main_characters"][0]]
+        var character2 = this.highLevelEventJson["main_characters"].length > 1 ? this.actors[this.highLevelEventJson["main_characters"][1]] : ""
         return {
             "N1": character1,
-            "L": this.highLevelEvent["tag"],
+            "L": this.highLevelEventJson["tag"],
             "N2": character2,
             "T": this.finishedTime,
             "ids": this.eventIDs,
-            "type": this.highLevelEvent['type']
+            "type": this.highLevelEventJson['type']
         }
     }
 }
