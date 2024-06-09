@@ -8,6 +8,8 @@ function updateEvents(totalTimeSteps){
     // while(scheduler.hasEvents()) {
     var timeSteps = 5000
 
+    var startTime = Date.now()
+
     if (totalTimeSteps != null) {timeSteps = totalTimeSteps}
     while(scheduler.current_time <= timeSteps){
         if (Logger.logQueue.length > 0){
@@ -16,7 +18,8 @@ function updateEvents(totalTimeSteps){
 		scheduler.update()
         
         if (scheduler.current_time == 5000){
-            Logger.outputFinalResults()
+            var endTime = Date.now()
+            Logger.outputFinalResults(endTime - startTime)
         }
 	}
 }
