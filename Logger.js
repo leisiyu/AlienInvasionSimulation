@@ -106,7 +106,7 @@ Logger.writeToFile = function(){
     }) 
 }
 
-Logger.outputFinalResults = function(excutionTime){
+Logger.outputFinalResults = function(excutionTime, timeSteps){
     var dirName = this.getDirName()
     if (!fs.existsSync(dirName)) {
         fs.mkdir(dirName, { recursive: true }, (err) => {
@@ -116,6 +116,7 @@ Logger.outputFinalResults = function(excutionTime){
     var finalResults = "Total events number: " + (this.generateUniqueID() - 1) + '\n'
     finalResults = finalResults + Sifter.getFinalResults()
     finalResults = finalResults + "Excution time: " + excutionTime + '\n'
+    finalResults = finalResults + "Simulation time: " + timeSteps + '\n'
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;

@@ -10,6 +10,8 @@ var totalCompleteNum = 0
 var totalHighLevelEvents = 0
 var totalMiniStories = 0
 var totalAbandonedEvents = 0
+var initiatedHighLevelEvents = 0
+var initiatedStories = 0
 
 
 function matchNew(newEvent){
@@ -32,8 +34,12 @@ function matchNew(newEvent){
                 var newHighEvent = new HighLevelEventModel(eventName, newEvent, currentEvent)
                 partialMatchPool.push(newHighEvent)
                 totalPartialMatchNum = totalPartialMatchNum + 1
-                // console.log("total partial matches created " + totalPartialMatchNum)
-                // console.log("partial matches num: " + partialMatchPool.length)
+
+                if (currentEvent["type"] == "high-level") {
+                    initiatedHighLevelEvents = initiatedHighLevelEvents + 1
+                } else if (currentEvent["type"] == "story") {
+                    initiatedStories = initiatedStories + 1
+                }
             }
             
         }
@@ -104,17 +110,18 @@ function getResults(){
     var result = ""
     result = result + "Total partial matches number: " + totalPartialMatchNum + "\n"
     result = result + "Total completed matches number: " + totalCompleteNum + "\n"
-    result = result + "Total completed high-level events number: " + totalHighLevelEvents + "\n"
-    result = result + "Total completed stories number: " + totalMiniStories + "\n"
+    result = result + "Initiated high-level events number: " + initiatedHighLevelEvents + '\n'
+    result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
+    result = result + "Initiated stories number: " + initiatedStories + "\n"
+    result = result + "Completed stories number: " + totalMiniStories + "\n"
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
         if (obj.unlessForever) {
             totalAbandonedEvents = totalAbandonedEvents + 1
-            console.log("hahahaha " + obj.eventName + " " + obj.actors)
         }
     }
-    result = result + "Total abandoned events: " + totalAbandonedEvents + "\n"
+    result = result + "Abandoned events: " + totalAbandonedEvents + "\n"
 
     return result
 }
