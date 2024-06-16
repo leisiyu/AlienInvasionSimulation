@@ -20,6 +20,7 @@ function updateEvents(totalTimeSteps){
         if (scheduler.current_time == 5000){
             var endTime = Date.now()
             Logger.outputFinalResults(endTime - startTime, timeSteps)
+            Logger.outputStableTestResults(endTime - startTime, timeSteps)
         }
 	}
 }

@@ -5,6 +5,7 @@ const CharactersManager = require('./Character/CharactersManager.js');
 const jssim = require('js-simulator')
 const Scheduler = require('./Scheduler.js')
 const MapManager = require('./Map/MapManager.js')
+const Logger = require('./Logger.js').Logger
 
 
 // var scheduler = new jssim.Scheduler();
@@ -15,6 +16,9 @@ function main(){
 	var townfolkNum = process.argv[5]
 	var mapSize = process.argv[6]
 	Utils.initParameters(townfolkNum, alienNum, soldierNum, mapSize)
+
+	var dirNameIdx = process.argv[7]
+	Logger.setDirNameIdx(dirNameIdx)
 
 	// var map = TownMap.getInstance(Utils.MAP_SIZE);
 	// map.createRandomMap()

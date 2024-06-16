@@ -126,13 +126,29 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
     }) 
 }
 
+Logger.outputStableTestResults = function(excutionTime, timeSteps){
+    var results = Sifter.getFinalResultsJson()
+    results["excutionTime"] = excutionTime
+    results["total"] = (this.generateUniqueID() - 1)
+    results["simulationTime"] = timeSteps
+    fs.writeFileSync(__dirname + "/StableTest.txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+        if (err) throw err;
+        else {
+            console.log('successful')
+        }
+    })
+}
+
 Logger.clearQueue = function(){
     Logger.logQueue = []
     Logger.statesLogQueue = []
 }
 
+var dirNameIdx = ""
 Logger.getDirName = function(){
-    var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
+    // var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
+    var dirName = __dirname + "/StableTest" + dirNameIdx
+
 
     if (!fs.existsSync( dirName)) {
         fs.mkdirSync(dirName, { recursive: true }, (err) => {
@@ -141,6 +157,11 @@ Logger.getDirName = function(){
     }
 
     return dirName
+}
+
+Logger.setDirNameIdx = function(idx){
+    console.log("hahaha " + idx)
+    dirNameIdx = idx
 }
 
 module.exports = {

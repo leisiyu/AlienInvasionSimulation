@@ -126,10 +126,23 @@ function getResults(){
     return result
 }
 
+function getResultsJson(){
+    var result = {
+        "partialMatches": totalPartialMatchNum,
+        "completeMatches": totalCompleteNum,
+        "initiatedHighLevel": initiatedHighLevelEvents,
+        "completedHighLevel": totalHighLevelEvents,
+        "initiatedStories": initiatedStories,
+        "completedStories": totalMiniStories
+    }
+
+    return result
+}
 
 module.exports = {
     matchNew,
     partialMatchPool,
     updatePool,
     getResults,
+    getResultsJson
 }

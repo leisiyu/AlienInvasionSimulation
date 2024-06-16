@@ -20,10 +20,14 @@ function getFinalResults(){
     return Pool.getResults()
 }
 
+function getFinalResultsJson(){
+    return Pool.getResultsJson()
+}
 
 
 
 module.exports = {
     sift,
     getFinalResults,
+    getFinalResultsJson,
 }
