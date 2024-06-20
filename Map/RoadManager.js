@@ -18,10 +18,27 @@ var buildings = []
 var drawIdx = 0
 
 function generateRoads(startPos){
-    var LSystem = new LSystemGenerator(['[+F][-F]', '[+F]F[-F]', '[-F]F[+F]'], '[F]--F', 2, 0.35)
+    var iterationLimit = 2
+    var roadLengthCoefficient = 1
+    var roadDecrease = 2
+
+    if (Utils.MAP_SIZE[0] >= 100) {
+        iterationLimit = 3
+        roadLengthCoefficient = 2
+        roadDecrease = 4
+    }
+    if (Utils.MAP_SIZE[0] >= 500) {
+        iterationLimit = 4
+        roadLengthCoefficient = 3
+        roadDecrease = 6
+    }
+ 
+    var roadLength = MapUtil.MAIN_ROAD_LENGTH * roadLengthCoefficient
+
+    var LSystem = new LSystemGenerator(['[+F][-F]', '[+F]F[-F]', '[-F]F[+F]'], '[F]--F', iterationLimit, 0.35)
 	var sentence = LSystem.generateSentence()
     console.log(sentence)
-    var roadLength = MapUtil.MAIN_ROAD_LENGTH
+    
     var roadWidth = MapUtil.MAIN_ROAD_WIDTH
     var savePoints = []
     var currentPosition = JSON.stringify(startPos)
@@ -52,7 +69,7 @@ function generateRoads(startPos){
                 drawRoad(currentPosition, direction, roadLength)
                 currentPosition = JSON.stringify(calculateNewPosition(currentPosition, direction, roadLength))
                 if (drawIdx % 3 == 0){
-                    roadLength = roadLength - 2 > 0 ? roadLength - 2 : 1
+                    roadLength = roadLength - roadDecrease > 0 ? roadLength - roadDecrease : 1
                 }
                 junctions.push(currentPosition)
                 break
