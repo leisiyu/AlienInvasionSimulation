@@ -63,22 +63,23 @@ class HighLevelEvent {
             return {"isEnd": false, "isSuccessful": false}
         }
 
-        // if (("char1Idx" in currentEvent) && this.actors[currentEvent["char1Idx"]] != newEvent["N1"]) {
-        //     // console.log("actors not fit ")
-        //     return {"isEnd": false, "isSuccessful": false}
+        if (currentEvent["char1Idx"] != undefined && this.actors[currentEvent["char1Idx"]] != newEvent["N1"]) {
+            return {"isEnd": false, "isSuccessful": false}
+        }
+
+        if (currentEvent["char2Idx"] != undefined && this.actors[currentEvent["char2Idx"]] != newEvent["N2"]) {
+            return {"isEnd": false, "isSuccessful": false}
+        }
+
+        // for (let i = 0; i < this.highLevelEventJson["main_characters"].length; i++){
+        //     var characterIdx = this.highLevelEventJson["main_characters"][i]
+        //     if (newEvent["N1"] != this.actors[characterIdx] && newEvent["N2"] != this.actors[characterIdx]) {
+                
+        //         return {"isEnd": false, "isSuccessful": false}
+        //     }
         // }
 
-        // if (("char2Idx" in currentEvent) && this.actors[currentEvent["char2Idx"]] != newEvent["N2"]) {
-        //     console.log("actors not fit " + currentEvent["char2Idx"] + " " + newEvent["N2"])
-        //     return {"isEnd": false, "isSuccessful": false}
-        // }
-        for (let i = 0; i < this.highLevelEventJson["main_characters"].length; i++){
-            var characterIdx = this.highLevelEventJson["main_characters"][i]
-            if (newEvent["N1"] != this.actors[characterIdx] && newEvent["N2"] != this.actors[characterIdx]) {
-                
-                return {"isEnd": false, "isSuccessful": false}
-            }
-        }
+
 
         if (newEvent["L"] != this.patternEvents[this.index]["tag"]) {
             return {"isEnd": false, "isSuccessful": false}
@@ -142,6 +143,8 @@ class HighLevelEvent {
                     if (currentEvent["char1Idx"] == undefined || this.actors[currentEvent["char1Idx"]] == newEvent["N1"]) {
                         if (currentEvent["char2Idx"] == undefined || this.actors[currentEvent["char2Idx"]] == newEvent["N2"]) {
                             this.unlessForever = true
+                            // console.log("abandoned " + newEvent["N1"] + newEvent["L"] + newEvent["N2"])
+                            // console.log("abandoned high-level " + this.actors)
                             return true
                         }
                     }
