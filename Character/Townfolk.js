@@ -98,6 +98,7 @@ var Townfolk = function(name, position){
 
 Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 
+	if (this.hp <= 0) {return}
 	this.hp = this.hp - atkValue
 
 	if (this.hp <= 0) {

@@ -15,12 +15,13 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	this.speed = Math.floor(Math.random() * 3) + 1
+	// this.speed = Math.floor(Math.random() * 3) + 1
+	this.speed = 10  // test
 	this.visualRange = 5
 	this.attackRange = 1
 	this.maxHp = Math.floor(Math.random() * 300) + 200
 	this.hp = this.maxHp
-	this.attackValue = Math.floor(Math.random() * 30) + 10
+	this.attackValue = Math.floor(Math.random() * 100) + 10
 	this.state = new CharacterState()
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
@@ -131,6 +132,7 @@ var Soldier = function(name, position){
 			if (recipient_id == this.guid()){
 				var messageContent = JSON.parse(content)
 				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
+					if (soldierThis.hp <= 0) {return}
 					soldierThis.hp = soldierThis.hp - messageContent.atkValue
 					if (soldierThis.hp <= 0) {
 						soldierThis.state.setState(Utils.CHARACTER_STATES.DIED, null)

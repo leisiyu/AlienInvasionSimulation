@@ -145,6 +145,7 @@ var Alien = function(name, position){
 				var msgContent = JSON.parse(content)
 
 				if (msgContent.msgType.valueOf() == "attacked".valueOf()) {
+					if (alienThis.hp <= 0) {return}
 					alienThis.hp = alienThis.hp - msgContent.atkValue
 					if (alienThis.hp <= 0){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
