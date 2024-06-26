@@ -1,7 +1,7 @@
 #!/bin/sh
 echo "hahaha"
 
-totalTimeSteps=6000
+totalTimeSteps=10000
 
 
 # for alienNum in 5 50
@@ -25,9 +25,9 @@ totalTimeSteps=6000
 # done
 
 
-# for i in {1..1000}
-# do
-# 	echo $i
+for i in {1..1000}
+do
+	echo $i
 	# alien:soldier:townfolk
-	node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps 30 [1,2,3] [100,100] $i
-# done
+	node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps 10 [1,1,3] [50,50] $i
+done

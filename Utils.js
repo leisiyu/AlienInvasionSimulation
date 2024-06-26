@@ -18,10 +18,14 @@ var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
 
 function initParameters(totalCharacters, characterRatio, mapSize){
 	TOTAL_CHARACTERS = totalCharacters != undefined ?  Number(totalCharacters) : TOTAL_CHARACTERS
+	this.TOTAL_CHARACTERS = TOTAL_CHARACTERS
 	CHARACTER_RATIO = characterRatio != undefined ? JSON.parse(characterRatio) : CHARACTER_RATIO
+	this.CHARACTER_RATIO = CHARACTER_RATIO
+
 	this.TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
 	this.ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 	this.SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
+
 
 	this.MAP_SIZE = mapSize != undefined ? JSON.parse(mapSize) : MAP_SIZE
 }
@@ -38,7 +42,6 @@ function getNumberByRatio(characterType){
 			break
 		case CHARACTER_TYPE.ALIEN:
 			ratio = CHARACTER_RATIO[0] / totalRatioSum
-			console.log("hahah3333 " + ratio + CHARACTER_RATIO)
 			break
 		case CHARACTER_TYPE.SOLDIER:
 			ratio = CHARACTER_RATIO[1] / totalRatioSum
@@ -125,5 +128,6 @@ module.exports = {
 	formatString,
 	CHARACTER_STATES,
 	initParameters,
-	CHARACTER_RATIO
+	CHARACTER_RATIO,
+	TOTAL_CHARACTERS,
 }
