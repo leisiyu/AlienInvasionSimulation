@@ -25,8 +25,9 @@ totalTimeSteps=6000
 # done
 
 
-for i in {1..10}
-do
-	echo $i
-	node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps 20 20 20 [100,100] $i
-done
+# for i in {1..1000}
+# do
+# 	echo $i
+	# alien:soldier:townfolk
+	node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps 30 [1,2,3] [100,100] $i
+# done

@@ -11,13 +11,14 @@ const Logger = require('./Logger.js').Logger
 // var scheduler = new jssim.Scheduler();
 
 function main(){
-	var alienNum = process.argv[3]
-	var soldierNum = process.argv[4]
-	var townfolkNum = process.argv[5]
-	var mapSize = process.argv[6]
-	Utils.initParameters(townfolkNum, alienNum, soldierNum, mapSize)
+	var totalCharacters = process.argv[3]
+	var characterRatio = process.argv[4]
+	// var soldierNum = process.argv[4]
+	// var townfolkNum = process.argv[5]
+	var mapSize = process.argv[5]
+	Utils.initParameters(totalCharacters, characterRatio, mapSize)
 
-	var dirNameIdx = process.argv[7]
+	var dirNameIdx = process.argv[6]
 	Logger.setDirNameIdx(dirNameIdx)
 
 	// var map = TownMap.getInstance(Utils.MAP_SIZE);

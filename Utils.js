@@ -1,22 +1,50 @@
 // const Config = require('./Config')
 
-const TOTAL_STEPS = 10
-var MAP_SIZE = [50, 50]
-var TOWNFOLKS_NUM = 5
-var ALIENS_NUM = 5
-var SOLIDERS_NUM = 5
-
-function initParameters(townfolkNum, alienNum, soldierNum, mapSize){
-	this.TOWNFOLKS_NUM = townfolkNum != undefined ? Number(townfolkNum): TOWNFOLKS_NUM
-	this.ALIENS_NUM = alienNum != undefined ? Number(alienNum) : ALIENS_NUM
-	this.SOLIDERS_NUM = soldierNum != undefined ? Number(soldierNum) : SOLIDERS_NUM
-	this.MAP_SIZE = mapSize != undefined ? JSON.parse(mapSize) : MAP_SIZE
-}
 
 const CHARACTER_TYPE = {
 	TOWNFOLK: 'TOWNFOLK',
 	ALIEN: 'ALIEN',
 	SOLDIER: 'SOLDIER',
+}
+
+
+var TOTAL_CHARACTERS = 30
+var CHARACTER_RATIO = [1, 1, 1]
+const TOTAL_STEPS = 10
+var MAP_SIZE = [100, 100]
+var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
+var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
+var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
+
+function initParameters(totalCharacters, characterRatio, mapSize){
+	TOTAL_CHARACTERS = totalCharacters != undefined ?  Number(totalCharacters) : TOTAL_CHARACTERS
+	CHARACTER_RATIO = characterRatio != undefined ? JSON.parse(characterRatio) : CHARACTER_RATIO
+	this.TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
+	this.ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
+	this.SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
+
+	this.MAP_SIZE = mapSize != undefined ? JSON.parse(mapSize) : MAP_SIZE
+}
+
+function getNumberByRatio(characterType){
+	var totalRatioSum = 0
+	for (let i = 0; i < CHARACTER_RATIO.length; i++) {
+		totalRatioSum = totalRatioSum + CHARACTER_RATIO[i]
+	}
+	var ratio = 0
+	switch (characterType) {
+		case CHARACTER_TYPE.TOWNFOLK:
+			ratio = CHARACTER_RATIO[2] / totalRatioSum
+			break
+		case CHARACTER_TYPE.ALIEN:
+			ratio = CHARACTER_RATIO[0] / totalRatioSum
+			console.log("hahah3333 " + ratio + CHARACTER_RATIO)
+			break
+		case CHARACTER_TYPE.SOLDIER:
+			ratio = CHARACTER_RATIO[1] / totalRatioSum
+			break
+	}
+	return Math.floor(ratio * TOTAL_CHARACTERS)
 }
 
 const TOWNFOLK_NAMES = [
@@ -97,4 +125,5 @@ module.exports = {
 	formatString,
 	CHARACTER_STATES,
 	initParameters,
+	CHARACTER_RATIO
 }
