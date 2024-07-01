@@ -22,12 +22,12 @@ function generateRoads(startPos){
     var roadLengthCoefficient = 1
     var roadDecrease = 2
 
-    if (Utils.MAP_SIZE[0] >= 100) {
+    if (Utils.MAP_SIZE[0] * Utils.MAP_SIZE[1] >= 10000) {
         iterationLimit = 3
         roadLengthCoefficient = 2
         roadDecrease = 4
     }
-    if (Utils.MAP_SIZE[0] >= 500) {
+    if (Utils.MAP_SIZE[0] * Utils.MAP_SIZE[1] >= 40000) {
         iterationLimit = 4
         roadLengthCoefficient = 3
         roadDecrease = 6

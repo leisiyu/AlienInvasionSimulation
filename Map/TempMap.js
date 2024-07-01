@@ -58,7 +58,7 @@ class TempMap{
 
     createRandomMap(){
 		//////random roads
-		this.roads = RoadManager.generateRoads([Utils.MAP_SIZE[0] / 2, Utils.MAP_SIZE[1] / 2])
+		this.roads = RoadManager.generateRoads([Math.floor(Utils.MAP_SIZE[0] / 2), Math.floor(Utils.MAP_SIZE[1] / 2)])
 		for (let i = 0; i < this.roads.length; i++){
 			this.fillMap(this.roads[i], 'r')
 		}
