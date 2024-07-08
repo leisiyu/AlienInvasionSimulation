@@ -127,13 +127,11 @@
     "giant_killer": {
         "events": [
             {
-                "char1Idx": 0,
                 "tag": "was killed by",
                 "char2Idx": 1,
                 "repeat": false
             },
             {
-                "char1Idx": 2,
                 "tag": "was killed by",
                 "char2Idx": 1,
                 "repeat": false

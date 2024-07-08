@@ -86,7 +86,7 @@ class HighLevelEvent {
         }
 
         if (newEvent["T"] > this.startTime + this.timeLimit) {
-            console.log("time end: " + newEvent["T"] + " " + this.startTime + " " + this.timeLimit)
+            // console.log("time end: " + newEvent["T"] + " " + this.startTime + " " + this.timeLimit)
             return {"isEnd": true, "isSuccessful": false}
         }
 
