@@ -15,14 +15,14 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.baseSpeed = Math.floor(Math.random() * 3) + 1
+	this.baseSpeed = Math.floor(Math.random() * 5) + 1
 	this.speed = this.baseSpeed
 	this.visualRange = 6
 	this.attackRange = 2
-	this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.maxHp = Math.floor(Math.random() * 400) + 200
 	// this.maxHp = 9999  // test
 	this.hp = this.maxHp
-	this.attackValue = Math.floor(Math.random() * 30) + 10
+	this.attackValue = Math.floor(Math.random() * 200) + 10
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.TARGET = ["enemy", "building"]
@@ -35,9 +35,9 @@ var Alien = function(name, position){
 		if (alienThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
 
-		// if hurt, recover 1 every step
+		// if hurt, recover a few every step
 		if (alienThis.hp < alienThis.maxHp) {
-			alienThis.hp ++
+			alienThis.hp = alienThis.hp + 2
 		}
 
 		// check is on a road
@@ -190,7 +190,7 @@ var Alien = function(name, position){
 }
 
 Alien.prototype.isBadlyHurt = function(){
-	return this.hp / this.maxHp <= 0.2
+	return this.hp / this.maxHp <= 0.3
 }
 
 Alien.prototype.checkSurrounding = function(time){
@@ -536,12 +536,13 @@ Alien.prototype.runAway = function(time){
 			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
-		
+		return
 	}
 
 	// run away succeed
 	if (this.checkVisualRange()[0].length <= 0) {
 		var target = this.state.target
+
 		Logger.info({
 			N1: this.charName,
 			L: "successfully ran away from",

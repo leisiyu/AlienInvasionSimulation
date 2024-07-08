@@ -15,11 +15,11 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	// this.speed = Math.floor(Math.random() * 3) + 1
-	this.speed = 10  // test
+	this.speed = Math.floor(Math.random() * 5) + 3
+	// this.speed = 10  // test
 	this.visualRange = 5
 	this.attackRange = 1
-	this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.maxHp = Math.floor(Math.random() * 200) + 200
 	this.hp = this.maxHp
 	this.attackValue = Math.floor(Math.random() * 100) + 10
 	this.state = new CharacterState()
@@ -35,7 +35,7 @@ var Soldier = function(name, position){
 
 		// self healing
 		if (soldierThis.hp < soldierThis.maxHp) {
-			soldierThis.hp ++
+			soldierThis.hp = soldierThis.hp + 5
 		}
 
 		// check the character's state
@@ -308,7 +308,7 @@ Soldier.prototype.runAway = function(time){
 			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
-		
+		return
 	}
 
 	// run away succeed
