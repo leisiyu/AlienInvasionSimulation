@@ -6,7 +6,7 @@ var scheduler = new jssim.Scheduler();
 
 function updateEvents(totalTimeSteps){
     // while(scheduler.hasEvents()) {
-    var timeSteps = 5000
+    var timeSteps = 10000
 
     var startTime = Date.now()
 
@@ -17,7 +17,7 @@ function updateEvents(totalTimeSteps){
         }
 		scheduler.update()
         
-        if (scheduler.current_time == 5000){
+        if (scheduler.current_time == timeSteps){
             var endTime = Date.now()
             Logger.outputFinalResults(endTime - startTime, timeSteps)
             Logger.outputStableTestResults(endTime - startTime, timeSteps)
