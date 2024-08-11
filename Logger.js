@@ -132,8 +132,10 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     results["total"] = (this.generateUniqueID() - 1)
     results["simulationTime"] = timeSteps
 
-    var mid = Utils.MAP_SIZE[0] + "C" + Utils.TOTAL_CHARACTERS
-    fs.writeFileSync(__dirname + "/StableTest" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+    var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
+    // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+    fs.writeFileSync(__dirname + "/StableTest/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+    // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
         if (err) throw err;
         else {
             console.log('successful')
@@ -149,7 +151,9 @@ Logger.clearQueue = function(){
 var dirNameIdx = ""
 Logger.getDirName = function(){
     // var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
-    var dirName = __dirname + "/StableTestM" + Utils.MAP_SIZE[0] + "C" + Utils.TOTAL_CHARACTERS + "/" + dirNameIdx
+    var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS + "/" + dirNameIdx
+    // var dirName = __dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + "/" + dirNameIdx
+    // var dirName = __dirname + "/SimulatorTime/" + Utils.TIME_STEPS + "/" + dirNameIdx
 
 
     if (!fs.existsSync( dirName)) {

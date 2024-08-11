@@ -11,12 +11,13 @@ const Logger = require('./Logger.js').Logger
 // var scheduler = new jssim.Scheduler();
 
 function main(){
+	var totalTimeSteps = process.argv[2]
 	var totalCharacters = process.argv[3]
 	var characterRatio = process.argv[4]
 	// var soldierNum = process.argv[4]
 	// var townfolkNum = process.argv[5]
 	var mapSize = process.argv[5]
-	Utils.initParameters(totalCharacters, characterRatio, mapSize)
+	Utils.initParameters(totalCharacters, characterRatio, mapSize, totalTimeSteps)
 
 	var dirNameIdx = process.argv[6]
 	Logger.setDirNameIdx(dirNameIdx)
@@ -30,7 +31,6 @@ function main(){
 	// CharactersManager.generateTempChar()
 	CharactersManager.generateAllCharacters()
 
-	var totalTimeSteps = process.argv[2]
 	Scheduler.updateEvents(totalTimeSteps)
 	
 

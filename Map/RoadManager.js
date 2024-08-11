@@ -27,7 +27,7 @@ function generateRoads(startPos){
         roadLengthCoefficient = 2
         roadDecrease = 4
     }
-    if (Utils.MAP_SIZE[0] * Utils.MAP_SIZE[1] >= 40000) {
+    if (Utils.MAP_SIZE[0] * Utils.MAP_SIZE[1] >= 20000) {
         iterationLimit = 4
         roadLengthCoefficient = 3
         roadDecrease = 6

@@ -54,6 +54,9 @@ function updatePool(newEvent){
         var result = obj.checkNewEvent(newEvent)
         
         if (result["isEnd"]) {
+            if (obj.unlessForever) {
+                console.log("wrong here")
+            }
             removedEventsPool.push(obj)
             // console.log("new pool length " + removedEventsPool.length)
             // console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
@@ -74,8 +77,9 @@ function updatePool(newEvent){
     for (let i = 0; i < removedEventsPool.length; i++) {
         var obj = removedEventsPool[i]
 
-        var index = partialMatchPool.indexOf(removedEventsPool[i])
+        var index = partialMatchPool.indexOf(obj)
         if (index != -1){
+            // console.log("test    " + JSON.stringify(obj.getJson()) + " " + JSON.stringify(partialMatchPool[index].getJson()))
             partialMatchPool.splice(index, 1)
         }
     }

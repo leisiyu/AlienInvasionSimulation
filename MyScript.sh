@@ -25,9 +25,15 @@ totalTimeSteps=10000
 # done
 
 
-for i in {1..1000}
+for i in {1..100}
 do
 	echo $i
 	# alien:soldier:townfolk
-	node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps 10 [1,1,3] [50,50] $i
+	for characterNum in 100
+	do
+		# for totalTimeSteps in 4000 6000 10000
+		# do
+			node /Users/qianwenlyu/PhD/Simulation/AlienInvasionSimulation/main.js $totalTimeSteps $characterNum [1,1,1] [100,100] $i
+		# done
+	done
 done

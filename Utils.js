@@ -8,19 +8,22 @@ const CHARACTER_TYPE = {
 }
 
 
-var TOTAL_CHARACTERS = 30
-var CHARACTER_RATIO = [1, 1, 1]
+var TOTAL_CHARACTERS = 100
+var CHARACTER_RATIO = [1, 1, 3]
 const TOTAL_STEPS = 10
 var MAP_SIZE = [100, 100]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
+var TIME_STEPS = 10000
 
-function initParameters(totalCharacters, characterRatio, mapSize){
+function initParameters(totalCharacters, characterRatio, mapSize, timeSteps){
 	TOTAL_CHARACTERS = totalCharacters != undefined ?  Number(totalCharacters) : TOTAL_CHARACTERS
 	this.TOTAL_CHARACTERS = TOTAL_CHARACTERS
 	CHARACTER_RATIO = characterRatio != undefined ? JSON.parse(characterRatio) : CHARACTER_RATIO
 	this.CHARACTER_RATIO = CHARACTER_RATIO
+	TIME_STEPS = timeSteps != undefined ? Number(timeSteps) : TIME_STEPS
+	this.TIME_STEPS = TIME_STEPS
 
 	this.TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
 	this.ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
@@ -130,4 +133,5 @@ module.exports = {
 	initParameters,
 	CHARACTER_RATIO,
 	TOTAL_CHARACTERS,
+	TIME_STEPS
 }
