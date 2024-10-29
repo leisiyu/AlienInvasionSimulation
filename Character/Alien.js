@@ -8,6 +8,7 @@ const Logger = require('../Logger.js').Logger
 const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
 const MapManager = require("../Map/MapManager.js")
+const CharacterBase = require('./CharacterBase.js')
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -15,7 +16,8 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.baseSpeed = Math.floor(Math.random() * 5) + 1
+	// this.baseSpeed = Math.floor(Math.random() * 5) + 1
+	this.baseSpeed = 1 // test
 	this.speed = this.baseSpeed
 	this.visualRange = 6
 	this.attackRange = 2
@@ -39,15 +41,6 @@ var Alien = function(name, position){
 		if (alienThis.hp < alienThis.maxHp) {
 			alienThis.hp = alienThis.hp + 2
 		}
-
-		// check is on a road
-		// speed will be higher when on a road
-		// if (MapManager.checkIsOnARoad(alienThis.position)) {
-		// 	this.speed = this.speed + 20
-		// } else {
-		// 	this.speed = this.baseSpeed
-		// }
-
 
 		// check the character's state
 		switch(alienThis.state.stateType){
@@ -155,12 +148,12 @@ var Alien = function(name, position){
 							"N2": msgContent.attacker,
 							"T": this.time,
 						})
-						Logger.statesInfo({
+						Logger.statesInfo(JSON.stringify({
 							"N": alienThis.charName,
 							"S": alienThis.state.stateType,
 							"P": alienThis.position,
 							"T": this.time
-						})
+						}))
 					} else {
 						if (alienThis.isBadlyHurt()) {
 							Logger.info({
@@ -307,44 +300,52 @@ Alien.prototype.wander = function(time){
 
 Alien.prototype.moveOneStep = function(availableDirections){
 
-	var direction
-	if (this.lastDirection == "") {
-		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-	} else {
-		var idx = availableDirections.indexOf(this.lastDirection)
+	this.lastDirection, this.position = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
 
-		if (idx < 0) {
-			direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-		} else {
-			var newWeights = []
-			for (let i = 0; i < Utils.DIRECTION.length; i++) {
-				if (i == idx) {
-					newWeights.push(30)
-				} else (
-					newWeights.push(10)
-				)
-			}
-			this.directionProbability.updateWeights(newWeights)
-			direction = this.directionProbability.randomlyPick()
-		}
-	}
+	// var direction
+	// if (this.lastDirection == "") {
+	// 	direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+	// } else {
+	// 	var idx = availableDirections.indexOf(this.lastDirection)
 
-	this.lastDirection = direction
+	// 	if (idx < 0) {
+	// 		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+	// 	} else {
+	// 		var newWeights = []
+	// 		for (let i = 0; i < Utils.DIRECTION.length; i++) {
+	// 			if (i == idx) {
+	// 				newWeights.push(30)
+	// 			} else (
+	// 				newWeights.push(10)
+	// 			)
+	// 		}
+	// 		this.directionProbability.updateWeights(newWeights)
+	// 		direction = this.directionProbability.randomlyPick()
+	// 	}
+	// }
 
-	switch(direction){
-		case Utils.DIRECTION[0]:
-			this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
-			break
-		case Utils.DIRECTION[1]:
-			this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
-			break
-		case Utils.DIRECTION[2]:
-			this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
-			break;
-		case Utils.DIRECTION[3]:
-			this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
-			break
-	}
+	// this.lastDirection = direction
+
+	// var step = 1
+	// // check is on a road
+	// // speed will be higher when on a road
+	// if (MapManager.checkIsOnARoad(this.position)) {
+	// 	step = step + 1
+	// }
+	// switch(direction){
+	// 	case Utils.DIRECTION[0]:
+	// 		this.position[1] = this.position[1] - step < 0 ? 0 : this.position[1] - step
+	// 		break
+	// 	case Utils.DIRECTION[1]:
+	// 		this.position[1] = this.position[1] + step >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + step
+	// 		break
+	// 	case Utils.DIRECTION[2]:
+	// 		this.position[0] = this.position[0] - step < 0 ? 0 : this.position[0] - step
+	// 		break;
+	// 	case Utils.DIRECTION[3]:
+	// 		this.position[0] = this.position[0] + step >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + step
+	// 		break
+	// }
 }
 
 Alien.prototype.getAvailableDirections = function(){
@@ -402,7 +403,7 @@ Alien.prototype.destroy = function(time){
 			"N2": "building" + building.idx,
 			"T": time,
 		})
-		this.state.setState(Utils.PATROL, "")
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
 
