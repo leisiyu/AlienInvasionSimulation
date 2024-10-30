@@ -120,6 +120,7 @@ var Alien = function(name, position){
 				}
 				
 				break
+			// case Utils.CHARACTER_STATES.MOVE_TO:
 		}
 
 
@@ -279,6 +280,7 @@ Alien.prototype.moveTo = function(time){
 		T: time
 	}))
 
+	// console.log("hahahahahhahaha " + this.charName + " " + building.calculateDistance(this.position) + " " + this.visualRange)
 	if (building.calculateDistance(this.position) <= this.visualRange) {
 		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
 	}
@@ -286,7 +288,7 @@ Alien.prototype.moveTo = function(time){
 
 Alien.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
-		var availableDirections = this.getAvailableDirections()
+		var availableDirections = this.getAvailableDirectionsForPatrol()
 		this.moveOneStep(availableDirections)
 	}
 
@@ -300,8 +302,10 @@ Alien.prototype.wander = function(time){
 
 Alien.prototype.moveOneStep = function(availableDirections){
 
-	this.lastDirection, this.position = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
-
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
+	this.lastDirection = result[0]
+	this.position = result[1]
+	// console.log("hahaha222222 " + this.lastDirection)
 	// var direction
 	// if (this.lastDirection == "") {
 	// 	direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
@@ -348,7 +352,7 @@ Alien.prototype.moveOneStep = function(availableDirections){
 	// }
 }
 
-Alien.prototype.getAvailableDirections = function(){
+Alien.prototype.getAvailableDirectionsForPatrol = function(){
 	var availableDirections = []
 	for (let i = 0; i < Utils.DIRECTION.length; i++) {
 		var tempDir = Utils.DIRECTION[i]
@@ -420,17 +424,33 @@ Alien.prototype.chasePeople = function(time){
 		T: time,
 	})
 	var position = this.state.target.position
+	this.lastDirection = ""
 	for (let j = 0; j < this.speed; j++){
-		if (position[0] != this.position[0] && position[1] != this.position[1]) {
-			var randomDir = Math.floor(Math.random() * 2)
-			this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
-		} else if (position[0] != this.position[0]) {
-			this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
-		} else if (position[1] != this.position[1]) {
-			this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
-		} else {
-			break
+		// if (position[0] != this.position[0] && position[1] != this.position[1]) {
+		// 	var randomDir = Math.floor(Math.random() * 2)
+		// 	this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
+		// } else if (position[0] != this.position[0]) {
+		// 	this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
+		// } else if (position[1] != this.position[1]) {
+		// 	this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
+		// } else {
+		// 	break
+		// }
+		var availableDirections = []
+		var horizontalOffset = position[0] - this.position[0]
+		if ( horizontalOffset > 1) {
+			availableDirections.push(Utils.DIRECTION[3])
+		} else if (horizontalOffset < -1) {
+			availableDirections.push(Utils.DIRECTION[2])
 		}
+		var verticalOffset = position[1] - this.position[1]
+		if (verticalOffset > 1) {
+			availableDirections.push(Utils.DIRECTION[0])
+		} else if (verticalOffset < -1) {
+			availableDirections.push(Utils.DIRECTION[1])
+		}
+		var result = CharacterBase.moveOneStep("", availableDirections, this.directionProbability, this.position)
+		this.position = result[1]
 	}
 
 	Logger.statesInfo(JSON.stringify({

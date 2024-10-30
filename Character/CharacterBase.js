@@ -58,7 +58,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 			break
 	}
 
-    return lastDirection, position
+    return [lastDirection, position]
 }
 
 module.exports = {
