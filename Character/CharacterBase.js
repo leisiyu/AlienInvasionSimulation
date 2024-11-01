@@ -1,6 +1,8 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
 
+
+//availableDirections can not be empty
 function moveOneStep(lastDirection, availableDirections, directionProbability, position){
 
 	var direction
@@ -40,7 +42,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 	// check is on a road
 	// speed will be higher when on a road
 	if (MapManager.checkIsOnARoad(position)) {
-        console.log("hahahahahahhahahahahahhahaha    ")
+        // console.log("hahahahahahhahahahahahhahaha    ")
 		step = step + 1
 	}
 	switch(direction){

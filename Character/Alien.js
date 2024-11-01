@@ -261,16 +261,34 @@ Alien.prototype.checkSurrounding = function(time){
 Alien.prototype.moveTo = function(time){
 	var building = this.state.target
 
+	// for (let i = 0; i < this.speed; i++) {
+	// 	if (this.position[0] < building.position[0]) {
+	// 		this.position[0] = this.position[0] + 1
+	// 	} else if (this.position[0] > building.position[0] + building.size[0]) {
+	// 		this.position[0] = this.position[0] - 1
+	// 	} else if (this.position[1] < building.position[1]) {
+	// 		this.position[1] = this.position[1] + 1
+	// 	} else if (this.position[1] > building.position[1] + building.size[1]) {
+	// 		this.position[1] = this.position[1] - 1
+	// 	}
+	// }
+
 	for (let i = 0; i < this.speed; i++) {
-		if (this.position[0] < building.position[0]) {
-			this.position[0] = this.position[0] + 1
-		} else if (this.position[0] > building.position[0] + building.size[0]) {
-			this.position[0] = this.position[0] - 1
-		} else if (this.position[1] < building.position[1]) {
-			this.position[1] = this.position[1] + 1
-		} else if (this.position[1] > building.position[1] + building.size[1]) {
-			this.position[1] = this.position[1] - 1
+		var availableDirections = []
+		var horizontalOffset = this.position[0] - building.position[0]
+		var verticalOffset = this.position[1] - building.position[1]
+		if (horizontalOffset < -1) {
+			availableDirections.push(Utils.DIRECTION[3])
+		} else if (horizontalOffset > building.size[0] + 1) {
+			availableDirections.push(Utils.DIRECTION[2])
 		}
+
+		if (verticalOffset < -1) {
+			availableDirections.push(Utils.DIRECTION[1])
+		} else if (verticalOffset > building.size[1] + 1) {
+			availableDirections.push(Utils.DIRECTION[0])
+		}
+		this.moveOneStep(availableDirections)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -282,7 +300,24 @@ Alien.prototype.moveTo = function(time){
 
 	// console.log("hahahahahhahaha " + this.charName + " " + building.calculateDistance(this.position) + " " + this.visualRange)
 	if (building.calculateDistance(this.position) <= this.visualRange) {
+		Logger.statesInfo(JSON.stringify({
+			N: this.charName,
+			S: this.state.stateType,
+			P: this.position,
+			T: time
+		}))
 		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
+	}
+
+	// 基本不可能到这里
+	if (building.checkIsDestroyed()) {
+		Logger.info({
+			"N1": this.charName,
+			"L": "destroyed",
+			"N2": "building" + building.idx,
+			"T": time,
+		})
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
 
@@ -449,8 +484,11 @@ Alien.prototype.chasePeople = function(time){
 		} else if (verticalOffset < -1) {
 			availableDirections.push(Utils.DIRECTION[1])
 		}
-		var result = CharacterBase.moveOneStep("", availableDirections, this.directionProbability, this.position)
-		this.position = result[1]
+		if (availableDirections.length > 0) {
+			var result = CharacterBase.moveOneStep("", availableDirections, this.directionProbability, this.position)
+			this.position = result[1]
+		}
+		
 	}
 
 	Logger.statesInfo(JSON.stringify({
