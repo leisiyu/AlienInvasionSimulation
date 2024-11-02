@@ -10,7 +10,7 @@ const Map = require('../Map/TempMap.js').TempMap
 const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
 const MapManager = require("../Map/MapManager.js")
-
+const CharacterBase = require('./CharacterBase.js')
 
 
 var Townfolk = function(name, position){
@@ -210,7 +210,10 @@ Townfolk.prototype.runAway = function(time){
 	
 	for (let i = 0; i < this.speed; i++){
 		var oppositDir = this.getRunAwayDirection()
-		this.moveOneStep(oppositDir)
+		if (oppositDir.length > 0) {
+			this.moveOneStep(oppositDir)
+		}
+		
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -303,7 +306,7 @@ Townfolk.prototype.getRunAwayDirection = function(){
 
 Townfolk.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
-		var availableDirections = this.getAvailableDirections()
+		var availableDirections = this.getAvailableDirectionsForPatrol()
 		this.moveOneStep(availableDirections)
 	}
 
@@ -316,51 +319,54 @@ Townfolk.prototype.wander = function(time){
 }
 
 Townfolk.prototype.moveOneStep = function(availableDirections){
-	var direction
-	if (this.lastDirection == "") {
-		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-	} else {
-		var idx = availableDirections.indexOf(this.lastDirection)
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
+	this.lastDirection = result[0]
+	this.position = result[1]
+// 	var direction
+// 	if (this.lastDirection == "") {
+// 		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+// 	} else {
+// 		var idx = availableDirections.indexOf(this.lastDirection)
 
-		if (idx < 0) {
-			direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-		} else {
-			var newWeights = []
-			for (let i = 0; i < Utils.DIRECTION.length; i++) {
-				if (i == idx) {
-					newWeights.push(30)
-				} else (
-					newWeights.push(10)
-				)
-			}
-			this.directionProbability.updateWeights(newWeights)
-			direction = this.directionProbability.randomlyPick()
-		}
-	}
+// 		if (idx < 0) {
+// 			direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
+// 		} else {
+// 			var newWeights = []
+// 			for (let i = 0; i < Utils.DIRECTION.length; i++) {
+// 				if (i == idx) {
+// 					newWeights.push(30)
+// 				} else (
+// 					newWeights.push(10)
+// 				)
+// 			}
+// 			this.directionProbability.updateWeights(newWeights)
+// 			direction = this.directionProbability.randomlyPick()
+// 		}
+// 	}
 
-	this.lastDirection = direction
+// 	this.lastDirection = direction
 
-	switch(direction){
-		case Utils.DIRECTION[0]:
-			// this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
-			this.position[1] = this.position[1] - 1
-			break
-		case Utils.DIRECTION[1]:
-			// this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
-			this.position[1] = this.position[1] + 1
-			break
-		case Utils.DIRECTION[2]:
-			// this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
-			this.position[0] = this.position[0] - 1
-			break;
-		case Utils.DIRECTION[3]:
-			// this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
-			this.position[0] = this.position[0] + 1
-			break
-	}
+// 	switch(direction){
+// 		case Utils.DIRECTION[0]:
+// 			// this.position[1] = this.position[1] - 1 < 0 ? 0 : this.position[1] - 1
+// 			this.position[1] = this.position[1] - 1
+// 			break
+// 		case Utils.DIRECTION[1]:
+// 			// this.position[1] = this.position[1] + 1 >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + 1
+// 			this.position[1] = this.position[1] + 1
+// 			break
+// 		case Utils.DIRECTION[2]:
+// 			// this.position[0] = this.position[0] - 1 < 0 ? 0 : this.position[0] - 1
+// 			this.position[0] = this.position[0] - 1
+// 			break;
+// 		case Utils.DIRECTION[3]:
+// 			// this.position[0] = this.position[0] + 1 >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + 1
+// 			this.position[0] = this.position[0] + 1
+// 			break
+// 	}
 }
 
-Townfolk.prototype.getAvailableDirections = function(){
+Townfolk.prototype.getAvailableDirectionsForPatrol = function(){
 	var availableDirections = []
 	for (let i = 0; i < Utils.DIRECTION.length; i++) {
 		var tempDir = Utils.DIRECTION[i]
