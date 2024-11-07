@@ -26,6 +26,7 @@ var Soldier = function(name, position){
 	this.state = new CharacterState()
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
+	this.inventory = []
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -180,7 +181,7 @@ var Soldier = function(name, position){
 Soldier.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
 		var availableDirections = this.getAvailableDirectionsForPatrol()
-		this.moveOneStep(availableDirections)
+		this.moveOneStep(availableDirections, time)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -191,10 +192,10 @@ Soldier.prototype.wander = function(time){
 	}))
 }
 
-Soldier.prototype.moveOneStep = function(availableDirections){
+Soldier.prototype.moveOneStep = function(availableDirections, time){
 	if (availableDirections.length <= 0) {return}
-	
-	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
+
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, this.inventory, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
 	// var direction
@@ -284,7 +285,7 @@ Soldier.prototype.runAway = function(time){
 
 	for (let i = 0; i < this.speed; i++){
 		var oppositDir = this.getRunAwayDirection()	
-		this.moveOneStep(oppositDir)
+		this.moveOneStep(oppositDir, time)
 		
 	}
 

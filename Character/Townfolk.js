@@ -29,6 +29,7 @@ var Townfolk = function(name, position){
 	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [10, 90])
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
+	this.inventory = []
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
@@ -211,7 +212,7 @@ Townfolk.prototype.runAway = function(time){
 	for (let i = 0; i < this.speed; i++){
 		var oppositDir = this.getRunAwayDirection()
 		if (oppositDir.length > 0) {
-			this.moveOneStep(oppositDir)
+			this.moveOneStep(oppositDir, time)
 		}
 		
 	}
@@ -307,7 +308,7 @@ Townfolk.prototype.getRunAwayDirection = function(){
 Townfolk.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
 		var availableDirections = this.getAvailableDirectionsForPatrol()
-		this.moveOneStep(availableDirections)
+		this.moveOneStep(availableDirections, time)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -318,8 +319,8 @@ Townfolk.prototype.wander = function(time){
 	}))
 }
 
-Townfolk.prototype.moveOneStep = function(availableDirections){
-	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
+Townfolk.prototype.moveOneStep = function(availableDirections, time){
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, this.inventory, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
 // 	var direction

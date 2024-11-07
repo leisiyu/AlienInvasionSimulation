@@ -24,6 +24,7 @@ var Alien = function(name, position){
 	this.maxHp = Math.floor(Math.random() * 400) + 200
 	// this.maxHp = 9999  // test
 	this.hp = this.maxHp
+	this.inventory = []
 	this.attackValue = Math.floor(Math.random() * 200) + 10
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
@@ -288,7 +289,7 @@ Alien.prototype.moveTo = function(time){
 		} else if (verticalOffset > building.size[1] + 1) {
 			availableDirections.push(Utils.DIRECTION[0])
 		}
-		this.moveOneStep(availableDirections)
+		this.moveOneStep(availableDirections, time)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -324,7 +325,7 @@ Alien.prototype.moveTo = function(time){
 Alien.prototype.wander = function(time){
 	for (let i = 0; i < this.speed; i++) {
 		var availableDirections = this.getAvailableDirectionsForPatrol()
-		this.moveOneStep(availableDirections)
+		this.moveOneStep(availableDirections, time)
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -335,9 +336,9 @@ Alien.prototype.wander = function(time){
 	}))
 }
 
-Alien.prototype.moveOneStep = function(availableDirections){
+Alien.prototype.moveOneStep = function(availableDirections, time){
 
-	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position)
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, this.inventory, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
 	// console.log("hahaha222222 " + this.lastDirection)
@@ -485,8 +486,7 @@ Alien.prototype.chasePeople = function(time){
 			availableDirections.push(Utils.DIRECTION[1])
 		}
 		if (availableDirections.length > 0) {
-			var result = CharacterBase.moveOneStep("", availableDirections, this.directionProbability, this.position)
-			this.position = result[1]
+			this.moveOneStep(availableDirections, time)
 		}
 		
 	}
@@ -565,7 +565,7 @@ Alien.prototype.runAway = function(time){
 
 	for (let i = 0; i < this.speed; i++) {
 		var oppositDir = this.getRunAwayDirection()
-		this.moveOneStep(oppositDir)
+		this.moveOneStep(oppositDir, time)
 	}
 
 	Logger.statesInfo(JSON.stringify({

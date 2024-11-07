@@ -8,10 +8,10 @@ const CHARACTER_TYPE = {
 }
 
 
-var TOTAL_CHARACTERS = 100
-var CHARACTER_RATIO = [1, 1, 3]
+var TOTAL_CHARACTERS = 20
+var CHARACTER_RATIO = [8, 1, 1]
 const TOTAL_STEPS = 10
-var MAP_SIZE = [100, 100]
+var MAP_SIZE = [20, 20]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
@@ -105,6 +105,29 @@ const CHARACTER_STATES = {
 	MOVE_TO: "MOVE_TO",
 }
 
+const GEAR_TYPES = [
+	"HEAL",
+	"WEAPON",
+]
+
+const HEALS = {
+	MEDICINE: {
+		value:[5, 20],
+		durability: 3,
+	},
+	BANDAGE: {
+		value: [3, 5],
+		durability: 5,
+	},
+}
+
+const WEAPONS = {
+	GUN: {
+		value: [50, 100],
+		durability: 20,
+	},
+}
+
 const formatString = (template, ...args) => {
 	return template.replace(/{([0-9]+)}/g, function (match, index) {
 	  return typeof args[index] === 'undefined' ? match : args[index];
@@ -133,5 +156,8 @@ module.exports = {
 	initParameters,
 	CHARACTER_RATIO,
 	TOTAL_CHARACTERS,
-	TIME_STEPS
+	TIME_STEPS,
+	GEAR_TYPES,
+	HEALS,
+	WEAPONS,
 }

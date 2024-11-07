@@ -1,9 +1,10 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
+const Logger = require('../Logger.js').Logger
 
 
 //availableDirections can not be empty
-function moveOneStep(lastDirection, availableDirections, directionProbability, position){
+function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
 
 	var direction
 	if (lastDirection == "") {
@@ -60,9 +61,26 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 			break
 	}
 
+    var gear = MapManager.checkHasGearOnPos(position)
+    if (gear != false) {
+        pickUpGear(gear, inventory)
+        Logger.info({
+			"N1": charName,
+			"L": "picked up",
+			"N2": "gear " + gear.name,
+			"T": time,
+		})
+    }
     return [lastDirection, position]
+}
+
+function pickUpGear(gear, inventory){
+    inventory.push(gear)
+    gear.updateMapPosition([0, 0])
+    MapManager.removeGearFromGearMap(gear)
 }
 
 module.exports = {
     moveOneStep,
+    pickUpGear,
 }
