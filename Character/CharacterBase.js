@@ -80,6 +80,10 @@ function pickUpGear(gear, inventory){
     MapManager.removeGearFromGearMap(gear)
 }
 
+function setState(state, character, target){
+    character.state.updateState(state, target)
+}
+
 module.exports = {
     moveOneStep,
     pickUpGear,
