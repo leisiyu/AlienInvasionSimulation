@@ -67,7 +67,7 @@ class TempMap{
 		var tempBuildings = []
 		for (let i = 0; i < this.buildings.length; i++){
 			// if (this.isValid(this.buildings[i])){
-				this.fillMap(this.buildings[i], 'b')
+				this.fillMap(this.buildings[i], 'b' + i)
 				// tempBuildings.push(this.buildings[i])
 			// }			
 		}
@@ -150,6 +150,14 @@ class TempMap{
     generateRandomPos(){
         return [Math.floor(Math.random() * this.size[0]), Math.floor(Math.random() * this.size[1])]
     }
+
+	generateRandomPosInBuilding(){
+		var randomBuilding = this.buildings[Math.floor(Math.random() * this.buildings.length)]
+		var randomX = Math.floor(Math.random() * randomBuilding.size[0]) + randomBuilding.position[0]
+		var randomY = Math.floor(Math.random() * randomBuilding.size[1]) + randomBuilding.position[1]
+		return [randomX, randomY]
+	}
+
 
 	checkIsInABuilding(position){
 		for (let i = 0; i < this.buildings.length; i++){

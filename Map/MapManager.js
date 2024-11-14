@@ -45,6 +45,10 @@ function getAllBuildings(){
 function randomGearInRandomPos(time){
     var gear = createRandomGear()
     var randomPos = map.generateRandomPos()
+    if (gear.gearType == Utils.GEAR_TYPES[0]) {
+        randomPos = map.generateRandomPosInBuilding()
+        // console.log("hahaha " + randomPos)
+    }
     gear.updateMapPosition(randomPos)
 
     Logger.statesInfo(JSON.stringify({
