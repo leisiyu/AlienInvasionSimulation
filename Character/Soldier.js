@@ -8,8 +8,9 @@ const Logger = require('../Logger.js').Logger
 // const Mission = require('./CharacterState.js').Mission
 const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
-const MapManager = require("../Map/MapManager.js")
 const CharacterBase = require('./CharacterBase.js')
+const MapManager = require("../Map/MapManager.js")
+const Gear = require('../Map/Gear.js').Gear
 
 var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
@@ -27,6 +28,8 @@ var Soldier = function(name, position){
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
 	this.inventory = []
+	var weapon = this.createWeapon()
+	this.inventory.push(weapon)
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -150,6 +153,8 @@ var Soldier = function(name, position){
 							P: soldierThis.position,
 							T: this.time
 						}))
+						// console.log("hahah1111   " + soldierThis.charName + " " + messageContent.attacker)
+						CharacterBase.dropInventory(soldierThis.inventory, soldierThis.position)
 					} else {
 						if (soldierThis.isBadlyHurt()){
 							Logger.info({
@@ -175,6 +180,25 @@ var Soldier = function(name, position){
 			}
 		}
 	}
+}
+
+Soldier.prototype.createWeapon = function(){
+	var keys = Object.keys(Utils.WEAPONS)
+    if (keys.length <= 0) {
+        return
+    }
+	var randomSubType = keys[Math.floor(keys.length * Math.random())]
+	var valueMin = Utils.WEAPONS[randomSubType].value[0]
+    var valueMax = Utils.WEAPONS[randomSubType].value[1]
+    var randomValue = Math.floor(Math.random() * (valueMax - valueMin + 1)) + valueMin
+	var weapon = new Gear(Utils.GEAR_TYPES[1], randomSubType, randomValue, Utils.WEAPONS[randomSubType].durability)
+
+	return weapon
+}
+
+Soldier.prototype.dropInventory = function(){
+	if (this.inventory.length <= 0) {return}
+
 }
 
 // step length == 1

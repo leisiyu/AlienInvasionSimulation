@@ -42,6 +42,25 @@ function getAllBuildings(){
     return map.buildings
 }
 
+function getRandomPosAroundPos(pos){
+    var isInBuilding = checkIsInABuilding(pos)
+    var minX = pos[0] - 1 >= 0? pos[0] - 1 : 0
+    var maxX = pos[0] + 1 < Utils.MAP_SIZE[0] ? pos[0] + 1 : pos[0]
+    var minY = pos[1] - 1 >= 0? pos[1] - 1 : 0
+    var maxY = pos[1] + 1 < Utils.MAP_SIZE[1] ? pos[1] + 1 : pos[1]
+
+    var validPos = []
+    for (let i = minX; i <= maxX; i++) {
+        for (let j = minY; j <= maxY; j++){
+            if ((isInBuilding && checkIsInABuilding([i, j])) || ((!isInBuilding) && (!checkIsInABuilding([i, j])))) {
+                validPos.push([i, j])
+            }
+        }
+    }
+
+    return validPos
+}
+
 function randomGearInRandomPos(time){
     var gear = createRandomGear()
     var randomPos = map.generateRandomPos()
@@ -84,11 +103,11 @@ function createRandomGear(){
     if (keys.length <= 0) {
         return
     }
-    randomSubType = keys[Math.floor(keys.length * Math.random())]
-    valueMin = gearSubtypes[randomSubType].value[0]
-    valueMax = gearSubtypes[randomSubType].value[1]
-    randomValue = Math.floor(Math.random() * (valueMax - valueMin + 1)) + valueMin
-    var gear = new Gear(randomType, randomValue, gearSubtypes[randomSubType].durability)
+    var randomSubType = keys[Math.floor(keys.length * Math.random())]
+    var valueMin = gearSubtypes[randomSubType].value[0]
+    var valueMax = gearSubtypes[randomSubType].value[1]
+    var randomValue = Math.floor(Math.random() * (valueMax - valueMin + 1)) + valueMin
+    var gear = new Gear(randomType, randomSubType, randomValue, gearSubtypes[randomSubType].durability)
 
     return gear
 }
@@ -107,6 +126,11 @@ function checkHasGearOnPos(pos){
     return false
 }
 
+function addGearOnMap(gear, pos) {
+    gearsOnMap.push(gear)
+    gear.updateMapPosition(pos)
+}
+
 module.exports = {
     generateMap,
     getMap,
@@ -118,4 +142,6 @@ module.exports = {
     randomGearInRandomPos,
     removeGearFromGearMap,
     checkHasGearOnPos,
+    getRandomPosAroundPos,
+    addGearOnMap,
 }

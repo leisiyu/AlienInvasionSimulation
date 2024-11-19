@@ -11,7 +11,7 @@ const CHARACTER_TYPE = {
 var TOTAL_CHARACTERS = 20
 var CHARACTER_RATIO = [8, 1, 1]
 const TOTAL_STEPS = 10
-var MAP_SIZE = [20, 20]
+var MAP_SIZE = [50, 50]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
@@ -124,8 +124,12 @@ const HEALS = {
 const WEAPONS = {
 	GUN: {
 		value: [50, 100],
-		durability: 20,
+		durability: 25,
 	},
+	RIFLE: {
+		value: [100, 200],
+		durability: 50,
+	}
 }
 
 const formatString = (template, ...args) => {

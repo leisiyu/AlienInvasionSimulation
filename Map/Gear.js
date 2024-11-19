@@ -1,11 +1,12 @@
 var idx = 0
 
 class Gear{
-    constructor(type, value, durability){
+    constructor(type, subType, value, durability){
         this.gearType = type
+        this.subType = subType
         this.value = value
         this.durability = durability
-        this.name = this.gearType + idx
+        this.name = this.subType + idx
         this.mapPosition = [0, 0]
         idx ++
     }

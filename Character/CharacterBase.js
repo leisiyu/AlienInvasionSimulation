@@ -62,7 +62,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 	}
 
     var gear = MapManager.checkHasGearOnPos(position)
-    if (gear != false) {
+    if (inventory != null && gear != false) {
         pickUpGear(gear, inventory)
         Logger.info({
 			"N1": charName,
@@ -80,11 +80,25 @@ function pickUpGear(gear, inventory){
     MapManager.removeGearFromGearMap(gear)
 }
 
-function setState(state, character, target){
-    character.state.updateState(state, target)
+// function setState(state, character, target){
+//     character.state.updateState(state, target)
+// }
+function dropInventory(inventory, pos){
+    if (inventory.length <= 0) {return}
+
+    var randomPositions = MapManager.getRandomPosAroundPos(pos)
+    for (let i = 0; i < inventory.length; i++) {
+        var randomPos = randomPositions[Math.floor(Math.random() * randomPositions.length)]
+        MapManager.addGearOnMap(inventory[i], randomPos)
+        // console.log("hahahahahha      " + inventory[i].name + " " + randomPos)
+    }
+    inventory = []
+
+    
 }
 
 module.exports = {
     moveOneStep,
     pickUpGear,
+    dropInventory
 }

@@ -24,7 +24,7 @@ var Alien = function(name, position){
 	this.maxHp = Math.floor(Math.random() * 400) + 200
 	// this.maxHp = 9999  // test
 	this.hp = this.maxHp
-	this.inventory = []
+	// this.inventory = []
 	this.attackValue = Math.floor(Math.random() * 200) + 10
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
@@ -338,7 +338,7 @@ Alien.prototype.wander = function(time){
 
 Alien.prototype.moveOneStep = function(availableDirections, time){
 
-	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, this.inventory, time, this.charName)
+	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, null, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
 	// console.log("hahaha222222 " + this.lastDirection)
