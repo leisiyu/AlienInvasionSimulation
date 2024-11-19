@@ -106,19 +106,23 @@ var Soldier = function(name, position){
 			case Utils.CHARACTER_STATES.ATTACK:
 				var isSuccessfulAttack = soldierThis.attack(this.time)
 
-				if (isSuccessfulAttack) {
+				if (isSuccessfulAttack[0]) {
 					// notify the attacked character
 					// state type maybe changed in the attack function
 					if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+						var atkValue = soldierThis.attackValue
+						if (isSuccessfulAttack[1] != null) {
+							atkValue = isSuccessfulAttack[1].value
+						}
 						var msg = {
 							msgType: "attacked",
-							atkValue: soldierThis.attackValue,
+							atkValue: atkValue,
 							attacker: soldierThis.charName,
 						}
 						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
 							content: JSON.stringify(msg)
 						})
-				}
+					}
 				}
 				break
 		}
@@ -418,48 +422,50 @@ Soldier.prototype.chase = function(time){
 }
 
 Soldier.prototype.attack = function(time){
-	// check if the character died
-	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+	var result = CharacterBase.attack(this, time)
+	return result
+	// // check if the character died
+	// if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		
-		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-		this.wander(time)
-		return false
-	}		
+	// 	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	// 	this.wander(time)
+	// 	return false
+	// }		
 
-	// check attack range
-	var character = this.state.target
-	var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
-	if (distance > this.attackRange) {
-		// this frame still need to move
-		if (distance > this.visualRange) {
-			Logger.info({
-				N1: this.charName,
-				L: "target ran away, started to patrol",
-				N2: character.charName,
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-			this.wander(time)
-		} else {
-			Logger.info({
-				N1: this.charName,
-				L: "target is out of attack range, started to chase",
-				N2: character.charName,
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
-			this.chase(time)
-		}
-		return false
-	}
+	// // check attack range
+	// var character = this.state.target
+	// var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
+	// if (distance > this.attackRange) {
+	// 	// this frame still need to move
+	// 	if (distance > this.visualRange) {
+	// 		Logger.info({
+	// 			N1: this.charName,
+	// 			L: "target ran away, started to patrol",
+	// 			N2: character.charName,
+	// 			T: time,
+	// 		})
+	// 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	// 		this.wander(time)
+	// 	} else {
+	// 		Logger.info({
+	// 			N1: this.charName,
+	// 			L: "target is out of attack range, started to chase",
+	// 			N2: character.charName,
+	// 			T: time,
+	// 		})
+	// 		this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
+	// 		this.chase(time)
+	// 	}
+	// 	return false
+	// }
 
-	Logger.info({
-		N1: this.charName,
-		L: "attacked",
-		N2: character.charName,
-		T: time,
-	})
-	return true
+	// Logger.info({
+	// 	N1: this.charName,
+	// 	L: "attacked",
+	// 	N2: character.charName,
+	// 	T: time,
+	// })
+	// return true
 }
 
 Soldier.prototype.checkEnemiesAround = function(){

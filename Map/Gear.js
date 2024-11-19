@@ -15,23 +15,15 @@ class Gear{
         this.mapPosition = pos
     }
 
+    // reduce durability every time use this gear
     use() {
         this.durability = this.durability - 1
-
-        switch(this.gearType){
-            
-        }
-
+        // console.log("hahahahah    " + this.name + " " + this.durability)
         if (this.durability <= 0) {
             return false
         }
         return true
     }
-
-    heal(target) {
-        
-    }
-
 
 }
 

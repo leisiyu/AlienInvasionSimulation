@@ -67,7 +67,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
         Logger.info({
 			"N1": charName,
 			"L": "picked up",
-			"N2": "gear " + gear.name,
+			"N2": gear.name,
 			"T": time,
 		})
     }
@@ -93,12 +93,83 @@ function dropInventory(inventory, pos){
         // console.log("hahahahahha      " + inventory[i].name + " " + randomPos)
     }
     inventory = []
+}
 
-    
+
+function attack(character, time){
+    // check if the character died
+	if (character.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		
+		character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+		character.wander(time)
+		return [false]
+	}		
+
+	// check attack range
+	var target = character.state.target
+	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
+	if (distance > character.attackRange) {
+		// this frame still need to move
+		if (distance > character.visualRange) {
+			Logger.info({
+				N1: character.charName,
+				L: "target ran away, started to patrol",
+				N2: target.charName,
+				T: time,
+			})
+			character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+			character.wander(time)
+		} else {
+			Logger.info({
+				N1: character.charName,
+				L: "target is out of attack range, started to chase",
+				N2: target.charName,
+				T: time,
+			})
+			character.state.setState(Utils.CHARACTER_STATES.CHASE, target)
+			character.chase(time)
+		}
+		return [false]
+	}
+
+    if (character.inventory.length > 0) {
+        for (let i = 0; i < character.inventory.length; i++){
+            var weapon = character.inventory[i]
+            if (weapon.gearType == Utils.GEAR_TYPES[1]) {
+                Logger.info({
+                    N1: character.charName,
+                    L: "shot",
+                    N2: target.charName,
+                    T: time,
+                })
+                var isAvailable = weapon.use()
+                if (!isAvailable) {
+                    character.inventory.splice(i, 1)
+                    Logger.info({
+                        "N1": weapon.name,
+                        "L": "was broken",
+                        "N2": "",
+                        "T": time,
+                    })
+                }
+                return [true, weapon]
+            }
+        }
+    } else {
+        Logger.info({
+            N1: character.charName,
+            L: "attacked",
+            N2: target.charName,
+            T: time,
+        })
+        return [true]
+    }
+	
 }
 
 module.exports = {
     moveOneStep,
     pickUpGear,
-    dropInventory
+    dropInventory,
+    attack
 }

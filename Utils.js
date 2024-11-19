@@ -123,12 +123,12 @@ const HEALS = {
 
 const WEAPONS = {
 	GUN: {
-		value: [50, 100],
+		value: [100, 150],
 		durability: 25,
 	},
 	RIFLE: {
-		value: [100, 200],
-		durability: 50,
+		value: [150, 200],
+		durability: 25,
 	}
 }
 
