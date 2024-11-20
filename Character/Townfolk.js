@@ -26,7 +26,7 @@ var Townfolk = function(name, position){
 	this.attackValue = 10
 	this.maxHp = Math.floor(Math.random() * 50) + 50
 	this.hp = this.maxHp
-	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [10, 90])
+	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [30, 70])
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
 	this.inventory = []
@@ -65,12 +65,6 @@ var Townfolk = function(name, position){
 		// check the character's state
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
-				// check visual range first
-				if (townfolkThis.checkEnemiesAround(this.time)) {
-					townfolkThis.runAway(this.time)
-					break
-				}
-
 				townfolkThis.hideOrWander(this.time)
 				break
 			case Utils.CHARACTER_STATES.WANDER:
@@ -79,18 +73,22 @@ var Townfolk = function(name, position){
 					townfolkThis.runAway(this.time)
 					break
 				}
-				townfolkThis.hideOrWander(this.time)
-				break
-			case Utils.CHARACTER_STATES.CHASE:
+				// townfolkThis.hideOrWander(this.time)
+				townfolkThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				// check visual range first
 				if (!townfolkThis.checkEnemiesAround(this.time)) {
-					townfolkThis.hideOrWander(this.time)
+					townfolkThis.wander(this.time)
 					break
 				}
 				townfolkThis.runAway(this.time)
 				break
+			case Utils.CHARACTER_STATES.ATTACK:
+				break
+			case Utils.CHARACTER_STATES.CHASE:
+				break
+
 		}
 
 		
@@ -129,38 +127,37 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 	
 }
 
+// hide only happen in a building
 Townfolk.prototype.hideOrWander = function(time){
-	// townfolk may wander/hide
+	// townfolk may wander/hide in a building
 	var newState = this.hideProbability.randomlyPick()
 	var oldState = this.state.stateType
 
-
-
-		if (newState == Utils.CHARACTER_STATES.HIDE) {
-			this.hide(time)
-			if (newState != oldState) {
-				this.state.setState(newState, null)
-				Logger.info({
-					N1: this.charName,
-					L: "was hiding",
-					N2: "",
-					T: time,
-				})
-			}
-			
-		} else {
-			this.wander(time)
-
-			if (newState != oldState) {
-				this.state.setState(newState, null)
-				Logger.info({
-					N1: this.charName,
-					L: "walked",
-					N2: "",
-					T: time,
-				})
-			}
+	if (newState == Utils.CHARACTER_STATES.HIDE) {
+		this.hide(time)
+		this.state.setState(newState, null)
+		var isInBuilding = MapManager.checkIsInABuilding(this.position)
+		if (isInBuilding[0]){
+			Logger.info({
+				N1: this.charName,
+				L: "was hiding in",
+				N2: "building" + isInBuilding[1],
+				T: time,
+			})
 		}
+		
+	} else {
+		this.wander(time)
+
+		this.state.setState(newState, null)
+		Logger.info({
+			N1: this.charName,
+			L: "was wandering around",
+			N2: "",
+			T: time,
+		})
+	
+	}
 
 	
 }
@@ -318,6 +315,15 @@ Townfolk.prototype.wander = function(time){
 		P: this.position,
 		T: time,
 	}))
+
+	// if come into a building, then have chance to hide
+	var isInBuilding = MapManager.checkIsInABuilding(this.position)
+	if (isInBuilding[0]) {
+		var newState = this.hideProbability.randomlyPick()
+		if (newState != this.state.stateType) {
+			this.state.setState(newState, null)
+		}
+	}
 }
 
 Townfolk.prototype.moveOneStep = function(availableDirections, time){
