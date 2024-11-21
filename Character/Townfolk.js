@@ -63,28 +63,39 @@ var Townfolk = function(name, position){
 			}
 		}
 		// check the character's state
+		townfolkThis.checkEnemiesAround(time)
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
 				townfolkThis.hideOrWander(this.time)
 				break
 			case Utils.CHARACTER_STATES.WANDER:
-				// check visual range first
-				if (townfolkThis.checkEnemiesAround(this.time)) {
-					townfolkThis.runAway(this.time)
-					break
-				}
-				// townfolkThis.hideOrWander(this.time)
 				townfolkThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
-				// check visual range first
-				if (!townfolkThis.checkEnemiesAround(this.time)) {
-					townfolkThis.wander(this.time)
-					break
-				}
+
 				townfolkThis.runAway(this.time)
 				break
 			case Utils.CHARACTER_STATES.ATTACK:
+				var isSuccessfulAttack = townfolkThis.attack(this.time)
+
+				if (isSuccessfulAttack[0]) {
+					// notify the attacked character
+					// state type maybe changed in the attack function
+					var atkValue = 0
+					if (isSuccessfulAttack[1] != null) {
+						atkValue = isSuccessfulAttack[1].value
+					} else {
+						break
+					}
+					var msg = {
+						msgType: "attacked",
+						atkValue: atkValue,
+						attacker: townfolkThis.charName,
+					}
+					this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+						content: JSON.stringify(msg)
+					})
+				}
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				break
@@ -147,41 +158,64 @@ Townfolk.prototype.hideOrWander = function(time){
 		}
 		
 	} else {
+		this.state.setState(newState, null)
 		this.wander(time)
 
-		this.state.setState(newState, null)
 		Logger.info({
 			N1: this.charName,
 			L: "was wandering around",
 			N2: "",
 			T: time,
 		})
-	
 	}
-
-	
 }
 
 
 // if there's a enemy, then runAway
+// if has weapon, attack or chase
+// change state only
 Townfolk.prototype.checkEnemiesAround = function(time){
-	var enemies = this.checkVisualRange()
-	if (enemies.length > 0) {
-		if (this.state.stateType != Utils.CHARACTER_STATES.RUN_AWAY) {
-			var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
-		} else{
-			// state: run away
-			// check if the enemy is in visual range
-			if (!enemies.includes(this.state.target)){
-				var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-				this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
-			}
-		}
-		return true
-	}
+	var isInBuilding = MapManager.checkIsInABuilding(this.position)
+	
+	if (isInBuilding[0]) {
+		var newState = this.hideProbability.randomlyPick()
+		this.state.setState(newState, null)
+	} else {
+		var enemies = this.checkVisualRange()
+		if (enemies.length > 0) {
+			if (this.hasWeapon()) {
+				var enemy = enemies[Math.floor(Math.random() * enemies.length)]
+				if (this.state.target != null) {
+					enemy = this.state.target
+				} 
 
-	return false
+				var enemyPos = enemy.position
+				if (Math.abs(this.position[0] - enemyPos[0]) + Math.abs(this.position[1] - enemyPos[1]) <= this.attackRange) {
+					this.state.setState(Utils.CHARACTER_STATES.ATTACK, enemy)
+				} else {
+					this.state.setState(Utils.CHARACTER_STATES.CHASE, enemy)
+				}
+						
+			} else {
+				if (this.state.stateType != Utils.CHARACTER_STATES.RUN_AWAY) {
+					var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+					this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
+				} else{
+					// state: run away
+					// check if the enemy is in visual range
+					if (!enemies.includes(this.state.target)){
+						var randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+						this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomEnemy)
+					}
+				}
+			}
+			
+			return true
+		}
+		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		return false
+	}
+	
 }
 
 Townfolk.prototype.hide = function(time){
@@ -201,18 +235,12 @@ Townfolk.prototype.runAway = function(time){
 		N2: this.state.target.charName,
 		T: time,
 	})
-	// console.log(this.charName + " tried to run away from " + this.state.target.charName)
-
-	// for(let i = 0; i < this.speed; i++){
-	// 	this.runawaySingleMove(time)
-	// }
 	
 	for (let i = 0; i < this.speed; i++){
 		var oppositDir = this.getRunAwayDirection()
 		if (oppositDir.length > 0) {
 			this.moveOneStep(oppositDir, time)
-		}
-		
+		}	
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -222,7 +250,7 @@ Townfolk.prototype.runAway = function(time){
 		T: time,
 	}))
 	
-	
+	// this.checkEnemiesAround(time)
 }
 
 Townfolk.prototype.getRunAwayDirection = function(){
@@ -316,14 +344,16 @@ Townfolk.prototype.wander = function(time){
 		T: time,
 	}))
 
-	// if come into a building, then have chance to hide
-	var isInBuilding = MapManager.checkIsInABuilding(this.position)
-	if (isInBuilding[0]) {
-		var newState = this.hideProbability.randomlyPick()
-		if (newState != this.state.stateType) {
-			this.state.setState(newState, null)
-		}
-	}
+	// // if come into a building, then have chance to hide
+	// var isInBuilding = MapManager.checkIsInABuilding(this.position)
+	// if (isInBuilding[0]) {
+	// 	var newState = this.hideProbability.randomlyPick()
+	// 	if (newState != this.state.stateType) {
+	// 		this.state.setState(newState, null)
+	// 	}
+	// } else {
+	// 	this.checkEnemiesAround()
+	// }
 }
 
 Townfolk.prototype.moveOneStep = function(availableDirections, time){
@@ -431,6 +461,24 @@ Townfolk.prototype.checkVisualRange = function(){
 	}
 	
 	return visibleEnemies
+}
+
+Townfolk.prototype.hasWeapon = function(){
+	if (this.inventory.length <= 0) {return false}
+	for (let i = 0; i < this.inventory.length; i++){
+		var gear = this.inventory[i]
+		if (gear.gearType == Utils.GEAR_TYPES[1]) {
+			return true
+		}
+	}
+	return false
+}
+
+Townfolk.prototype.attack = function(time){
+	var result = CharacterBase.attack(this, time)
+	// this.checkEnemiesAround(time)
+
+	return result
 }
 
 module.exports = {
