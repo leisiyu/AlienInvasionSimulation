@@ -161,7 +161,8 @@ class TempMap{
 
 	checkIsInABuilding(position){
 		for (let i = 0; i < this.buildings.length; i++){
-			if (this.buildings[i].checkIsInThisBuilding(position)){
+			var curBuilding = this.buildings[i]
+			if ((!curBuilding.checkIsDestroyed()) && curBuilding.checkIsInThisBuilding(position)){
 				return [true, i]
 			}
 		}
