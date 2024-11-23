@@ -34,6 +34,20 @@ function checkIsInABuilding(position){
     return map.checkIsInABuilding(position)
 }
 
+// function checkIsAccessibleToCharacter(position, characterType){
+//     var result = MapManager.checkIsInABuilding(position)
+//     if (result[0]) {
+//         var buildingId = result[1]
+//         var building = getBuilding(buildingId)
+//         if (building.isAccessibleTo(characterType)) {
+//             return true
+//         } else {
+//             return false
+//         }
+//     }
+//     return false
+// }
+
 function getBuilding(idx) {
     return map.getBuilding(idx)
 }
@@ -73,7 +87,7 @@ function randomGearInRandomPos(time){
     Logger.statesInfo(JSON.stringify({
 		N: gear.name,
 		S: "was generated in",
-		P: gear.position,
+		P: gear.mapPosition,
 		T: time
 	}))
 
