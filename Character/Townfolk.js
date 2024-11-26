@@ -126,6 +126,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			T: time,
 		})
 		CharacterBase.dropInventory(this.inventory, this.position)
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
 		return
 	}
 	Logger.info({
