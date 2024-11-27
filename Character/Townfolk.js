@@ -99,6 +99,8 @@ var Townfolk = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				break
+			case Utils.CHARACTER_STATES.DIED:
+				break
 
 		}
 
@@ -108,7 +110,10 @@ var Townfolk = function(name, position){
 
 Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 
-	if (this.hp <= 0) {return}
+	if (this.hp <= 0) {
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+		return
+	}
 	this.hp = this.hp - atkValue
 
 	if (this.hp <= 0) {
@@ -126,9 +131,9 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			T: time,
 		})
 		CharacterBase.dropInventory(this.inventory, this.position)
-		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
 		return
 	}
+
 	Logger.info({
 		N1: this.charName,
 		L: "was attacked, and ran away from",
@@ -176,6 +181,12 @@ Townfolk.prototype.hideOrWander = function(time){
 // if has weapon, attack or chase
 // change state only
 Townfolk.prototype.checkEnemiesAround = function(time){
+
+	if (this.hp <= 0) {
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+		return
+	}
+
 	var isInBuilding = MapManager.checkIsInABuilding(this.position)
 	
 	if (isInBuilding[0]) {
