@@ -3,7 +3,7 @@ const Utils = require('../Utils.js')
 const Logger = require('../Logger.js').Logger
 
 
-//availableDirections can not be empty
+//availableDirections can not be null
 function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
 
 	var direction
@@ -155,6 +155,13 @@ function attack(character, time){
                 return [true, weapon]
             }
         }
+		Logger.info({
+            N1: character.charName,
+            L: "attacked",
+            N2: target.charName,
+            T: time,
+        })
+        return [true]
     } else {
         Logger.info({
             N1: character.charName,
@@ -167,9 +174,29 @@ function attack(character, time){
 	
 }
 
+function updateHealthState(hp, baseHp){
+	var percentage = hp / baseHp
+	healthState = Utils.HEALTH_STATES.NORMAL
+	if (percentage >= Utils.HEALTH_STATES.SCRATCHED) {
+		healthState = Utils.HEALTH_STATES.NORMAL
+	} else if (percentage < Utils.HEALTH_STATES.SCRATCHED && percentage >= Utils.HEALTH_STATES.HURT) {
+		healthState = Utils.HEALTH_STATES.SCRATCHED
+	} else if (percentage < Utils.HEALTH_STATES.HURT && percentage >= Utils.HEALTH_STATES.INCAPACITATED) {
+		healthState = Utils.HEALTH_STATES.HURT
+	} else if (percentage < Utils.HEALTH_STATES.INCAPACITATED && percentage >= Utils.HEALTH_STATES.DIED) {
+		healthState = Utils.HEALTH_STATES.INCAPACITATED
+	} else {
+		healthState = Utils.HEALTH_STATES.DIED
+	}
+
+	return healthState
+}
+
+
 module.exports = {
     moveOneStep,
     pickUpGear,
     dropInventory,
-    attack
+    attack,
+	updateHealthState,
 }

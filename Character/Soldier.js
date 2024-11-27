@@ -17,19 +17,22 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	this.speed = Math.floor(Math.random() * 5) + 3
+	this.baseSpeed = Math.floor(Math.random() * 5) + 3
+	this.speed = this.baseSpeed
 	// this.speed = 10  // test
 	this.visualRange = 5
 	this.attackRange = 1
 	this.maxHp = Math.floor(Math.random() * 200) + 200
 	this.hp = this.maxHp
-	this.attackValue = Math.floor(Math.random() * 100) + 10
+	this.baseAttackValue = Math.floor(Math.random() * 100) + 10
+	this.attackValue = this.baseAttackValue
 	this.state = new CharacterState()
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
 	this.inventory = []
 	var weapon = this.createWeapon()
 	this.inventory.push(weapon)
+	this.healthState = Utils.HEALTH_STATES.NORMAL
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -37,96 +40,6 @@ var Soldier = function(name, position){
 
 		// if character died
 		if (soldierThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
-
-		// self healing
-		if (soldierThis.hp < soldierThis.maxHp) {
-			soldierThis.hp = soldierThis.hp + 5
-		}
-
-		// check the character's state
-		switch(soldierThis.state.stateType){
-			case Utils.CHARACTER_STATES.HIDE:
-				break
-			case Utils.CHARACTER_STATES.PATROL:
-				// check visual range first
-				if (soldierThis.checkEnemiesAround(this.time)) {
-					if (soldierThis.isBadlyHurt()) {
-						soldierThis.runAway(this.time)
-					} else {
-						soldierThis.chase(this.time)
-					}
-					
-					break
-				}
-				soldierThis.wander(this.time)
-				break
-			case Utils.CHARACTER_STATES.CHASE:
-				if (!soldierThis.checkEnemiesAround(this.time)) {
-					soldierThis.wander(time)
-					break
-				} else {
-					if (soldierThis.isBadlyHurt()){
-						soldierThis.runAway(time)
-						break
-					}
-				}
-
-				soldierThis.chase(this.time)
-
-				// reached attack range after chasing
-				if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					Logger.info({
-						N1: soldierThis.charName,
-						L: "attacked",
-						N2: soldierThis.state.target.charName,
-						T: this.time,
-					})
-					var msg = {
-						msgType: "attacked",
-						atkValue: soldierThis.attackValue,
-						attacker: soldierThis.charName,
-					}
-					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
-				}
-				break
-			case Utils.CHARACTER_STATES.RUN_AWAY:
-				// check visual range first
-				if (!soldierThis.checkEnemiesAround(this.time)) {
-					soldierThis.wander(this.time)
-					break
-				} else {
-					if (!soldierThis.isBadlyHurt()) {
-						soldierThis.chase(this.time)
-					}
-				}
-				soldierThis.runAway(this.time)
-				break
-			case Utils.CHARACTER_STATES.ATTACK:
-				var isSuccessfulAttack = soldierThis.attack(this.time)
-
-				if (isSuccessfulAttack[0]) {
-					// notify the attacked character
-					// state type maybe changed in the attack function
-					if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-						var atkValue = soldierThis.attackValue
-						if (isSuccessfulAttack[1] != null) {
-							atkValue = isSuccessfulAttack[1].value
-						}
-						var msg = {
-							msgType: "attacked",
-							atkValue: atkValue,
-							attacker: soldierThis.charName,
-						}
-						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
-							content: JSON.stringify(msg)
-						})
-					}
-				}
-				break
-		}
-
 
 		var messages = this.readInBox();
 		for(var i = 0; i < messages.length; ++i){
@@ -160,7 +73,7 @@ var Soldier = function(name, position){
 						// console.log("hahah1111   " + soldierThis.charName + " " + messageContent.attacker)
 						CharacterBase.dropInventory(soldierThis.inventory, soldierThis.position)
 					} else {
-						if (soldierThis.isBadlyHurt()){
+						if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 							Logger.info({
 								N1: soldierThis.charName,
 								L: "was badly hurt, ran away from",
@@ -183,7 +96,144 @@ var Soldier = function(name, position){
 				}
 			}
 		}
+
+		soldierThis.updateHealthStates(this.time)
+
+		// check the character's state
+		switch(soldierThis.state.stateType){
+			case Utils.CHARACTER_STATES.HIDE:
+				break
+			case Utils.CHARACTER_STATES.PATROL:
+				// check visual range first
+				if (soldierThis.checkEnemiesAround(this.time)) {
+					if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
+						soldierThis.runAway(this.time)
+					} else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+						this.state.setState(Utils.CHARACTER_STATES.STAY, null)
+					} else {
+						soldierThis.chase(this.time)
+					}
+					
+					break
+				}
+				soldierThis.wander(this.time)
+				break
+			case Utils.CHARACTER_STATES.CHASE:
+				if (!soldierThis.checkEnemiesAround(this.time)) {
+					soldierThis.wander(time)
+					break
+				} else {
+					if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
+						soldierThis.runAway(time)
+						break
+					}
+				}
+
+				soldierThis.chase(this.time)
+
+				// reached attack range after chasing
+				if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+					Logger.info({
+						N1: soldierThis.charName,
+						L: "attacked",
+						N2: soldierThis.state.target.charName,
+						T: this.time,
+					})
+					var msg = {
+						msgType: "attacked",
+						atkValue: soldierThis.attackValue,
+						attacker: soldierThis.charName,
+					}
+					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+						content: JSON.stringify(msg)
+					})
+				}
+				break
+			case Utils.CHARACTER_STATES.RUN_AWAY:
+				// check visual range first
+				if (!soldierThis.checkEnemiesAround(this.time)) {
+					soldierThis.wander(this.time)
+					break
+				} else {
+					if (soldierThis.healthState > Utils.HEALTH_STATES.HURT) {
+						soldierThis.chase(this.time)
+					}
+				}
+				soldierThis.runAway(this.time)
+				break
+			case Utils.CHARACTER_STATES.ATTACK:
+				var isSuccessfulAttack = soldierThis.attack(this.time)
+
+				if (isSuccessfulAttack[0]) {
+					// notify the attacked character
+					// state type maybe changed in the attack function
+					if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+						var atkValue = soldierThis.attackValue
+						if (isSuccessfulAttack[1] != null) {
+							atkValue = isSuccessfulAttack[1].value
+						}
+						var msg = {
+							msgType: "attacked",
+							atkValue: atkValue,
+							attacker: soldierThis.charName,
+						}
+						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					}
+				}
+				break
+			case Utils.CHARACTER_STATES.STAY:
+				soldierThis.stay(this.time)
+				break
+		}
+
+
+		
 	}
+}
+
+Soldier.prototype.updateHealthStates = function(time){
+	var newState = CharacterBase.updateHealthState(this.hp, this.maxHp)
+	switch(newState){
+		case Utils.HEALTH_STATES.NORMAL:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 2
+			}
+			this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.SCRATCHED:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 1
+			}
+			this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.HURT:
+			this.speed = Math.floor(this.baseSpeed * 0.5)
+			this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
+			break
+		case Utils.HEALTH_STATES.INCAPACITATED:
+			this.speed = 0
+			if (this.hp > 0) {
+				this.hp = this.hp - 5
+			}
+			this.attackValue = Math.floor(this.baseAttackValue * 0.4)
+			Logger.info({
+				"N1": this.charName,
+				"L": "was incapacitated, can't move anymore, need cure",
+				"N2": "",
+				"T": time,
+			})
+			break
+		case Utils.HEALTH_STATES.DIED:
+			this.speed = 0
+			this.hp = 0
+			this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+	}
+
+	this.healthState = newState
 }
 
 Soldier.prototype.createWeapon = function(){
@@ -203,6 +253,22 @@ Soldier.prototype.createWeapon = function(){
 Soldier.prototype.dropInventory = function(){
 	if (this.inventory.length <= 0) {return}
 
+}
+
+Soldier.prototype.stay = function(time){
+	Logger.info({
+		N1: this.charName,
+		L: "stayed in place",
+		N2: "",
+		T: time,
+	})
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+	}))
 }
 
 // step length == 1
@@ -324,7 +390,7 @@ Soldier.prototype.runAway = function(time){
 		T: time,
 	}))
 	
-	if (!this.isBadlyHurt()) {
+	if (this.healthState > Utils.HEALTH_STATES.HURT) {
 		var enemies = this.checkVisualRange()
 		if (enemies.length <= 0) {
 			Logger.info({
@@ -358,10 +424,6 @@ Soldier.prototype.runAway = function(time){
 		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
-}
-
-Soldier.prototype.isBadlyHurt = function(){
-	return this.hp / this.maxHp <= 0.2
 }
 
 Soldier.prototype.getRunAwayDirection = function(){
@@ -469,13 +531,20 @@ Soldier.prototype.attack = function(time){
 }
 
 Soldier.prototype.checkEnemiesAround = function(){
+	// // if incapacitated, can not move
+	// if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+	// 	this.state.setState(Utils.CHARACTER_STATES.STAY, null)
+	// 	return 
+	// }
+
+
 	//// check the visual range
 	//// if there's an enemy around, chase him first
 	//// if already chasing someone, check if he's in the visual range
 	//// else wander around
 	var visibleCharacters = this.checkVisualRange()
 	if (visibleCharacters.length > 0){
-		if (this.isBadlyHurt()) {
+		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
 			return true

@@ -103,6 +103,7 @@ const CHARACTER_STATES = {
 	HIDE: 'HIDE',
 	WANDER: "WANDER",
 	MOVE_TO: "MOVE_TO",
+	STAY: "STAY",
 }
 
 const GEAR_TYPES = [
@@ -119,6 +120,14 @@ const HEALS = {
 		value: [3, 5],
 		durability: 5,
 	},
+}
+
+const HEALTH_STATES = {
+	NORMAL: 1,
+	SCRATCHED: 0.9,
+	HURT: 0.5,
+	INCAPACITATED: 0.2,
+	DIED: 0,
 }
 
 const WEAPONS = {
@@ -164,4 +173,5 @@ module.exports = {
 	GEAR_TYPES,
 	HEALS,
 	WEAPONS,
+	HEALTH_STATES,
 }
