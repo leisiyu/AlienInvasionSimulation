@@ -17,20 +17,22 @@ var Alien = function(name, position){
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
 	// this.baseSpeed = Math.floor(Math.random() * 5) + 1
-	this.baseSpeed = 1 // test
+	this.baseSpeed = Math.floor(Math.random() * 5) + 1 // test
 	this.speed = this.baseSpeed
 	this.visualRange = 6
 	this.attackRange = 2
-	this.maxHp = Math.floor(Math.random() * 400) + 200
-	// this.maxHp = 9999  // test
+	// this.maxHp = Math.floor(Math.random() * 400) + 200
+	this.maxHp = 200  // test
 	this.hp = this.maxHp
 	// this.inventory = []
-	this.attackValue = Math.floor(Math.random() * 200) + 10
+	this.baseAttackValue = Math.floor(Math.random() * 200) + 10
+	this.attackValue = this.baseAttackValue
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.TARGET = ["enemy", "building"]
-	this.enemyOrBuildingProbability = new Probability(this.TARGET, [1, 1])
+	this.enemyOrBuildingProbability = new Probability(this.TARGET, [4, 1])
 	this.state = new CharacterState()
+	this.healthState = Utils.HEALTH_STATES.NORMAL
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
 
@@ -38,94 +40,7 @@ var Alien = function(name, position){
 		if (alienThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
 
-		// if hurt, recover a few every step
-		if (alienThis.hp < alienThis.maxHp) {
-			alienThis.hp = alienThis.hp + 2
-		}
-
-		// check the character's state
-		switch(alienThis.state.stateType){
-			case Utils.CHARACTER_STATES.PATROL:
-				var newState = alienThis.checkSurrounding(this.time)
-				if (newState == Utils.CHARACTER_STATES.PATROL) {
-					alienThis.wander(this.time)
-				} else if (newState == Utils.CHARACTER_STATES.CHASE) {
-					alienThis.chasePeople(this.time)
-				} else if (newState == Utils.CHARACTER_STATES.RUN_AWAY) {
-					alienThis.runAway(this.time)
-				} else if (newState == Utils.CHARACTER_STATES.DESTROY) {
-					alienThis.destroy(this.time)
-				} else if (newState == Utils.CHARACTER_STATES.MOVE_TO){
-					alienThis.moveTo(this.time)
-				}
-				break
-			case Utils.CHARACTER_STATES.CHASE:
-				var newState = alienThis.checkSurrounding(this.time)
-				if (newState == Utils.CHARACTER_STATES.PATROL) {
-					alienThis.wander(this.time)
-					break
-				} else if (newState == Utils.CHARACTER_STATES.CHASE) {
-					alienThis.chasePeople(this.time)
-				} else if (newState == Utils.CHARACTER_STATES.RUN_AWAY) {
-					alienThis.runAway(this.time)
-					break
-				} else if (newState == Utils.CHARACTER_STATES.DESTROY) {
-					alienThis.destroy(this.time)
-					break
-				} else if (newState == Utils.CHARACTER_STATES.MOVE_TO){
-					alienThis.moveTo(this.time)
-					break
-				}
-
-				// reached attack range after chasing
-				if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					var isSuccessfulAttack = alienThis.attack(this.time)
-					if (isSuccessfulAttack) {
-						var msg = {
-							msgType: "attacked",
-							atkValue: alienThis.attackValue,
-							attacker: alienThis.charName,
-						}
-						
-						this.sendMsg(alienThis.state.target.simEvent.guid(), {
-							content: JSON.stringify(msg)
-						})
-					}
-					
-				}
-				break
-			case Utils.CHARACTER_STATES.DESTROY:
-				alienThis.destroy(this.time)
-				break
-			case Utils.CHARACTER_STATES.RUN_AWAY:
-				alienThis.runAway(this.time)
-				break
-			case Utils.CHARACTER_STATES.ATTACK:		
-				
-				var isSuccessfulAttack = alienThis.attack(this.time)
-
-				if (isSuccessfulAttack) {
-					// notify the attacked character
-					// state type maybe changed in the attack function
-					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-						
-						var msg = {
-							msgType: "attacked",
-							atkValue: alienThis.attackValue,
-							attacker: alienThis.charName,
-						}
-						this.sendMsg(alienThis.state.target.simEvent.guid(), {
-							content: JSON.stringify(msg)
-						})
-				// }
-				}
-				
-				break
-			// case Utils.CHARACTER_STATES.MOVE_TO:
-		}
-
-
-		
+		// read message before check states
 		var messages = this.readInBox();
 		for(var i = 0; i < messages.length; ++i){
 			var msg = messages[i];
@@ -157,7 +72,7 @@ var Alien = function(name, position){
 							"T": this.time
 						}))
 					} else {
-						if (alienThis.isBadlyHurt()) {
+						if (alienThis.healthState <= Utils.HEALTH_STATES.HURT && alienThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 							Logger.info({
 								"N1": alienThis.charName,
 								"L": "was badly hurt, ran away from",
@@ -166,12 +81,25 @@ var Alien = function(name, position){
 							})
 							alienThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(msgContent.attacker))
 						} else {
-							Logger.info({
-								"N1": alienThis.charName,
-								"L": "was attacked. Fighted back",
-								"N2": msgContent.attacker,
-								"T": this.time,
-							})
+							// two conditions:
+							// 1. health state >= hurt, can fight back
+							// 2. health state < incapacitated, can not move, attack value reduce
+							if (alienThis.healthState > Utils.HEALTH_STATES.HURT) {
+								Logger.info({
+									"N1": alienThis.charName,
+									"L": "was attacked. Fighted back",
+									"N2": msgContent.attacker,
+									"T": this.time,
+								})
+							} else {
+								Logger.info({
+									"N1": alienThis.charName,
+									"L": "was incapacitated, can not move",
+									"N2": msgContent.attacker,
+									"T": this.time,
+								})
+							}
+							
 							alienThis.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(msgContent.attacker))
 						}
 						
@@ -181,14 +109,147 @@ var Alien = function(name, position){
 			}
 		}
 
+		// update health state every step
+		alienThis.updateHealthStates(this.time)
+
+		alienThis.checkSurrounding(this.time)
+
+		// check the character's state
+		switch(alienThis.state.stateType){
+			case Utils.CHARACTER_STATES.PATROL:
+				alienThis.wander(this.time)
+				break
+			case Utils.CHARACTER_STATES.CHASE:
+				alienThis.chasePeople(this.time)
+
+				// // reached attack range after chasing
+				// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+				// 	var isSuccessfulAttack = alienThis.attack(this.time)
+				// 	if (isSuccessfulAttack) {
+				// 		var msg = {
+				// 			msgType: "attacked",
+				// 			atkValue: alienThis.attackValue,
+				// 			attacker: alienThis.charName,
+				// 		}
+						
+				// 		this.sendMsg(alienThis.state.target.simEvent.guid(), {
+				// 			content: JSON.stringify(msg)
+				// 		})
+				// 	}
+					
+				// }
+				break
+			case Utils.CHARACTER_STATES.DESTROY:
+				alienThis.destroy(this.time)
+				break
+			case Utils.CHARACTER_STATES.RUN_AWAY:
+				alienThis.runAway(this.time)
+				break
+			case Utils.CHARACTER_STATES.ATTACK:		
+				
+				var isSuccessfulAttack = alienThis.attack(this.time)
+
+				if (isSuccessfulAttack) {
+					// notify the attacked character
+					// state type maybe changed in the attack function
+					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+						
+						var msg = {
+							msgType: "attacked",
+							atkValue: alienThis.attackValue,
+							attacker: alienThis.charName,
+						}
+						this.sendMsg(alienThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+				// }
+				}
+				
+				break
+			case Utils.CHARACTER_STATES.MOVE_TO:
+				alienThis.moveTo(this.time)
+				break
+			case Utils.CHARACTER_STATES.STAY:
+				alienThis.stay(this.time)
+				break
+			case Utils.CHARACTER_STATES.DIED:
+				break
+		}
+
 	}
 }
 
-Alien.prototype.isBadlyHurt = function(){
-	return this.hp / this.maxHp <= 0.3
+Alien.prototype.updateHealthStates = function(time){
+	var newState = CharacterBase.updateHealthState(this.hp, this.maxHp)
+	switch(newState){
+		case Utils.HEALTH_STATES.NORMAL:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 2
+			}
+			this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.SCRATCHED:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 1
+			}
+			this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.HURT:
+			this.speed = Math.floor(this.baseSpeed * 0.5)
+			this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
+			break
+		case Utils.HEALTH_STATES.INCAPACITATED:
+			this.speed = 0
+			if (this.hp > 0) {
+				this.hp = this.hp - 5
+			}
+			this.attackValue = Math.floor(this.baseAttackValue * 0.4)
+			Logger.info({
+				"N1": this.charName,
+				"L": "was incapacitated, can't move anymore, need cure",
+				"N2": "",
+				"T": time,
+			})
+			break
+		case Utils.HEALTH_STATES.DIED:
+			this.speed = 0
+			this.hp = 0
+			this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+	}
+
+	this.healthState = newState
 }
 
 Alien.prototype.checkSurrounding = function(time){
+	// check health state, if incapacitated, can not move or attack
+	// aliens can not use medicine
+	if (this.healthState == Utils.HEALTH_STATES.DIED){
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+		return Utils.CHARACTER_STATES.DIED
+	}
+	else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+		this.state.setState(Utils.CHARACTER_STATES.STAY, null)
+		return Utils.CHARACTER_STATES.STAY
+	} else if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
+		// can walk around
+		// but if the original state is run_away, keep it
+		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY){
+			return Utils.CHARACTER_STATES.RUN_AWAY
+		}
+	} else if (this.healthState > Utils.HEALTH_STATES.HURT) {
+		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY) {
+			Logger.info({
+				"N1": this.charName,
+				"L": "recovered, stopped running away from",
+				"N2": this.state.target.charName,
+				"T": time,
+			})
+		}
+	}
+
+
 	//// check the visual range
 	//// if there's an enemy around, 
 		////check self hp first
@@ -200,29 +261,45 @@ Alien.prototype.checkSurrounding = function(time){
 	var visibleCharacters = result[0]
 	var visibleBuildings = result[1]
 
+	// if original state is attack
+	if (this.state.stateType == Utils.CHARACTER_STATES.ATTACK) {
+		if (visibleCharacters.includes(this.state.target)) {
+			var targetPosition = this.state.target.position
+			var positionDistance = Math.abs(this.position[0] - targetPosition[0]) + Math.abs(this.position[1] - targetPosition[1])
+			if ( positionDistance <= this.attackRange){
+				return Utils.CHARACTER_STATES.ATTACK
+			} else if (positionDistance > this.attackRange && positionDistance <= this.visualRange) {
+				this.state.updateState(Utils.CHARACTER_STATES.CHASE)
+				return Utils.CHARACTER_STATES.CHASE
+			}
+		}
+	}
+
 	var isRandomChoose = false
 	var randomResult = "enemy"
 	if (visibleBuildings.length > 0 &&  visibleCharacters.length > 0) {
-		if (this.isBadlyHurt()) {
+		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
 			return Utils.CHARACTER_STATES.RUN_AWAY
 		}
+
 		isRandomChoose = true
 		randomResult = this.enemyOrBuildingProbability.randomlyPick()
 	}
 
 	if ((visibleCharacters.length > 0 && visibleBuildings.length <= 0) || (isRandomChoose && randomResult == "enemy")){	
-		if (this.isBadlyHurt()) {
+		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
 			return Utils.CHARACTER_STATES.RUN_AWAY
 		}
+
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
 			if (!visibleCharacters.includes(this.state.target)){
 				var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
-			}
+			} 
 		} else {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
@@ -238,19 +315,13 @@ Alien.prototype.checkSurrounding = function(time){
 			this.state.setState(Utils.CHARACTER_STATES.MOVE_TO, randomBuilding)
 			return Utils.CHARACTER_STATES.MOVE_TO
 		} else {
-			this.state.setState(Utils.CHARACTER_STATES.DESTROY, randomBuilding)
-			randomBuilding.isAttacked(this.attackValue)
-			Logger.info({
-				"N1": this.charName,
-				"L": "was destroying",
-				"N2": "building" + randomBuilding.idx,
-				"T": time,
-			})
-
 			if (randomBuilding.checkIsDestroyed()) {
 				this.state.setState(Utils.CHARACTER_STATES.PATROL, "")
 				return Utils.CHARACTER_STATES.PATROL
 			}
+
+			this.state.setState(Utils.CHARACTER_STATES.DESTROY, randomBuilding)
+			
 			return Utils.CHARACTER_STATES.DESTROY
 		}
 	}
@@ -262,16 +333,20 @@ Alien.prototype.checkSurrounding = function(time){
 Alien.prototype.moveTo = function(time){
 	var building = this.state.target
 
-	// for (let i = 0; i < this.speed; i++) {
-	// 	if (this.position[0] < building.position[0]) {
-	// 		this.position[0] = this.position[0] + 1
-	// 	} else if (this.position[0] > building.position[0] + building.size[0]) {
-	// 		this.position[0] = this.position[0] - 1
-	// 	} else if (this.position[1] < building.position[1]) {
-	// 		this.position[1] = this.position[1] + 1
-	// 	} else if (this.position[1] > building.position[1] + building.size[1]) {
-	// 		this.position[1] = this.position[1] - 1
-	// 	}
+	// if (this.speed <= 1) {
+	// 	Logger.info({
+	// 		"N1": this.charName,
+	// 		"L": "was baddly injured, can not move",
+	// 		"N2": "",
+	// 		"T": time,
+	// 	})
+	// 	Logger.statesInfo(JSON.stringify({
+	// 		N: this.charName,
+	// 		S: this.state.stateType,
+	// 		P: this.position,
+	// 		T: time
+	// 	}))
+	// 	return
 	// }
 
 	for (let i = 0; i < this.speed; i++) {
@@ -323,6 +398,7 @@ Alien.prototype.moveTo = function(time){
 }
 
 Alien.prototype.wander = function(time){
+
 	for (let i = 0; i < this.speed; i++) {
 		var availableDirections = this.getAvailableDirectionsForPatrol()
 		this.moveOneStep(availableDirections, time)
@@ -436,6 +512,9 @@ Alien.prototype.destroy = function(time){
 		"T": time,
 	})
 
+	//TO DO
+	// logger states info?????
+
 	if (building.checkIsDestroyed()) {
 		Logger.info({
 			"N1": this.charName,
@@ -448,11 +527,8 @@ Alien.prototype.destroy = function(time){
 }
 
 Alien.prototype.chasePeople = function(time){
-	// if (this.position[0] == this.state.target.position[0]
-	// 	&& this.position[1] == this.state.target.position[1]) {
-	// 		return
-	// }
-	
+
+	// console.log("hahahaha   " + this.charName + " " + this.speed + " " + this.baseSpeed  + " "  + this.hp + " " + this.maxHp + " " + time)
 	Logger.info({
 		N1: this.charName,
 		L: "was chasing",
@@ -462,16 +538,6 @@ Alien.prototype.chasePeople = function(time){
 	var position = this.state.target.position
 	this.lastDirection = ""
 	for (let j = 0; j < this.speed; j++){
-		// if (position[0] != this.position[0] && position[1] != this.position[1]) {
-		// 	var randomDir = Math.floor(Math.random() * 2)
-		// 	this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
-		// } else if (position[0] != this.position[0]) {
-		// 	this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
-		// } else if (position[1] != this.position[1]) {
-		// 	this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
-		// } else {
-		// 	break
-		// }
 		var availableDirections = []
 		var horizontalOffset = position[0] - this.position[0]
 		if ( horizontalOffset > 1) {
@@ -502,25 +568,26 @@ Alien.prototype.chasePeople = function(time){
 		var characterName = this.state.target.charName
 		this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(characterName))
 	}
+
 }
 
 // attacked -> died
 Alien.prototype.attack = function(time){
 	// check if the character died
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		Logger.info({
-			N1: this.charName,
-			L: "killed",
-			N2: this.state.target.charName,
-			T: time,
-		})
+		// Logger.info({
+		// 	N1: this.charName,
+		// 	L: "killed",
+		// 	N2: this.state.target.charName,
+		// 	T: time,
+		// })
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return false
 	}		
 
 	// check self hp
-	if (this.isBadlyHurt()){
+	if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 		Logger.info({
 			N1: this.charName,
 			L: "was badly hurt, ran away from",
@@ -536,6 +603,12 @@ Alien.prototype.attack = function(time){
 	var character = this.state.target
 	var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
 	if (distance > this.attackRange) {
+		// incapacitated, can not move
+		if (this.healthState < Utils.HEALTH_STATES.INCAPACITATED) {
+			this.state.setState(Utils.CHARACTER_STATES.STAY, null)
+			this.stay(time)
+			return false
+		}
 		// this frame still need to move
 		if (distance > this.visualRange) {
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
@@ -555,7 +628,24 @@ Alien.prototype.attack = function(time){
 	return true
 }
 
+Alien.prototype.stay = function(time){
+	Logger.info({
+		N1: this.charName,
+		L: "stayed in place",
+		N2: "",
+		T: time,
+	})
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+	}))
+}
+
 Alien.prototype.runAway = function(time){
+	// console.log("hahahaha   " + this.charName + " " + this.speed + " " + this.baseSpeed  + " "  + this.hp + " " + this.maxHp + " " + time)
 	Logger.info({
 		N1: this.charName,
 		L: "ran away from",
@@ -575,23 +665,24 @@ Alien.prototype.runAway = function(time){
 		T: time,
 	}))
 	
-	if (!this.isBadlyHurt()) {
+	// TO DO
+	if (this.healthState >= Utils.HEALTH_STATES.HURT) {
 		var [enemies, buildings] = this.checkVisualRange()
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
-				L: "recovered, started to wandering around",
+				L: "successfully ran away, recovered, started to walk around",
 				N2: "",
-				T: this.time,
+				T: time,
 			})
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
 			Logger.info({
 				N1: this.charName,
-				L: "recovered, started to wandering around",
+				L: "recovered, started to chase ",
 				N2: randomEnemy.charName,
-				T: this.time,
+				T: time,
 			})
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
 		}
@@ -622,10 +713,11 @@ Alien.prototype.checkVisualRange = function(){
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
 		var characterPos = character.position
-		if (characterPos[0] >= startX && characterPos[0] <= endX 
+		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
+			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.charType != this.charType
-			&& character.state.stateType != Utils.CHARACTER_STATES.DIED) {
+			&& MapManager.checkIsInABuilding(character.position)) {
 				visibleCharacters.push(character)
 				// console.log(this.charName + " saw " + character.charName)
 			}
@@ -649,25 +741,44 @@ Alien.prototype.checkVisualRange = function(){
 
 Alien.prototype.getRunAwayDirection = function(){
 	var oppositDir = []
-	if (this.position[0] - this.state.target.position[0] > 0) {
-		oppositDir.push(Utils.DIRECTION[3])
-	} else if (this.position[0] - this.state.target.position[0] < 0) {
-		oppositDir.push(Utils.DIRECTION[2])
+	if (this.position[0] - this.state.target.position[0] > 0 && this.position[0] + 1 < Utils.MAP_SIZE[0]) {
+		if (this.checkIfPositionAccessible([this.position[0] + 1, this.position[1]])) {
+			oppositDir.push(Utils.DIRECTION[3])
+		}	
+	} else if (this.position[0] - this.state.target.position[0] < 0 && this.position[0] - 1 >= 0) {
+		if (this.checkIfPositionAccessible([this.position[0] - 1, this.position[1]])) {
+			oppositDir.push(Utils.DIRECTION[2])
+		}
 	} else {
 		oppositDir.push(Utils.DIRECTION[2])
 		oppositDir.push(Utils.DIRECTION[3])
 	}
 
-	if (this.position[1] - this.state.target.position[1] > 0) {
-		oppositDir.push(Utils.DIRECTION[1])
-	} else if (this.position[1] - this.state.target.position[0] < 1) {
-		oppositDir.push(Utils.DIRECTION[0])
+	if (this.position[1] - this.state.target.position[1] > 0 && this.position[1] + 1 < Utils.MAP_SIZE[1]) {
+		if (this.checkIfPositionAccessible([this.position[0], this.position[1] + 1])) {
+			oppositDir.push(Utils.DIRECTION[1])
+		}
+		
+	} else if (this.position[1] - this.state.target.position[0] < 1 && this.position[1] - 1 > 0) {
+		if (this.checkIfPositionAccessible([this.position[0], this.position[1] - 1])) {
+			oppositDir.push(Utils.DIRECTION[0])
+		}	
 	} else {
 		oppositDir.push(Utils.DIRECTION[0])
 		oppositDir.push(Utils.DIRECTION[1])
 	}
 
 	return oppositDir
+}
+
+
+Alien.prototype.checkIfPositionAccessible = function(pos){
+	// check if the position is in a building
+	if (MapManager.checkIsInABuilding(pos)[0]) {
+		return false
+	}
+
+	return true
 }
 
 module.exports = {
