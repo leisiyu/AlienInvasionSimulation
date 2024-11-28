@@ -131,23 +131,23 @@ var Soldier = function(name, position){
 
 				soldierThis.chase(this.time)
 
-				// reached attack range after chasing
-				if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					Logger.info({
-						N1: soldierThis.charName,
-						L: "attacked",
-						N2: soldierThis.state.target.charName,
-						T: this.time,
-					})
-					var msg = {
-						msgType: "attacked",
-						atkValue: soldierThis.attackValue,
-						attacker: soldierThis.charName,
-					}
-					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
-				}
+				// // reached attack range after chasing
+				// if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+				// 	Logger.info({
+				// 		N1: soldierThis.charName,
+				// 		L: "attacked",
+				// 		N2: soldierThis.state.target.charName,
+				// 		T: this.time,
+				// 	})
+				// 	var msg = {
+				// 		msgType: "attacked",
+				// 		atkValue: soldierThis.attackValue,
+				// 		attacker: soldierThis.charName,
+				// 	}
+				// 	this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+				// 		content: JSON.stringify(msg)
+				// 	})
+				// }
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				// check visual range first
