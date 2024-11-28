@@ -180,8 +180,8 @@ var Alien = function(name, position){
 }
 
 Alien.prototype.updateHealthStates = function(time){
-	var newState = CharacterBase.updateHealthState(this.hp, this.maxHp)
-	switch(newState){
+	this.healthState = CharacterBase.updateHealthState(this.hp, this.maxHp)
+	switch(this.healthState){
 		case Utils.HEALTH_STATES.NORMAL:
 			this.speed = this.baseSpeed
 			if (this.hp < this.maxHp) {
@@ -212,14 +212,29 @@ Alien.prototype.updateHealthStates = function(time){
 				"N2": "",
 				"T": time,
 			})
+
+			if (this.hp <= 0){
+				this.hp = 0
+				Logger.info({
+					"N1": this.charName,
+					"L": "died from fatal injuries that didn't be treated",
+					"N2": "",
+					"T": time,
+				})
+				Logger.statesInfo(JSON.stringify({
+					N: this.charName,
+					S: this.state.stateType,
+					P: this.position,
+					T: time
+				}))
+				this.healthState = Utils.HEALTH_STATES.DIED
+			}
 			break
 		case Utils.HEALTH_STATES.DIED:
 			this.speed = 0
 			this.hp = 0
 			this.state.setState(Utils.CHARACTER_STATES.DIED, null)
 	}
-
-	this.healthState = newState
 }
 
 Alien.prototype.checkSurrounding = function(time){
@@ -229,7 +244,7 @@ Alien.prototype.checkSurrounding = function(time){
 		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
 		return Utils.CHARACTER_STATES.DIED
 	}
-	else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+	else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED && this.healthState > Utils.HEALTH_STATES.DIED) {
 		this.state.setState(Utils.CHARACTER_STATES.STAY, null)
 		return Utils.CHARACTER_STATES.STAY
 	} else if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
@@ -574,6 +589,7 @@ Alien.prototype.chasePeople = function(time){
 // attacked -> died
 Alien.prototype.attack = function(time){
 	// check if the character died
+	// console.log("hahahah  " + this.charName + " " + this.state.target.state.stateType)
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		// Logger.info({
 		// 	N1: this.charName,
@@ -604,7 +620,7 @@ Alien.prototype.attack = function(time){
 	var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
 	if (distance > this.attackRange) {
 		// incapacitated, can not move
-		if (this.healthState < Utils.HEALTH_STATES.INCAPACITATED) {
+		if (this.healthState < Utils.HEALTH_STATES.INCAPACITATED && this.healthState > Utils.HEALTH_STATES.DIED) {
 			this.state.setState(Utils.CHARACTER_STATES.STAY, null)
 			this.stay(time)
 			return false
@@ -666,7 +682,7 @@ Alien.prototype.runAway = function(time){
 	}))
 	
 	// TO DO
-	if (this.healthState >= Utils.HEALTH_STATES.HURT) {
+	if (this.healthState > Utils.HEALTH_STATES.HURT) {
 		var [enemies, buildings] = this.checkVisualRange()
 		if (enemies.length <= 0) {
 			Logger.info({

@@ -108,7 +108,7 @@ var Soldier = function(name, position){
 				if (soldierThis.checkEnemiesAround(this.time)) {
 					if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 						soldierThis.runAway(this.time)
-					} else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+					} else if (soldierThis.healthState <= Utils.HEALTH_STATES.INCAPACITATED && soldierThis.healthState > Utils.HEALTH_STATES.DIED) {
 						this.state.setState(Utils.CHARACTER_STATES.STAY, null)
 					} else {
 						soldierThis.chase(this.time)
@@ -157,6 +157,7 @@ var Soldier = function(name, position){
 				} else {
 					if (soldierThis.healthState > Utils.HEALTH_STATES.HURT) {
 						soldierThis.chase(this.time)
+						break
 					}
 				}
 				soldierThis.runAway(this.time)
@@ -194,8 +195,8 @@ var Soldier = function(name, position){
 }
 
 Soldier.prototype.updateHealthStates = function(time){
-	var newState = CharacterBase.updateHealthState(this.hp, this.maxHp)
-	switch(newState){
+	this.healthState = CharacterBase.updateHealthState(this.hp, this.maxHp)
+	switch(this.healthState){
 		case Utils.HEALTH_STATES.NORMAL:
 			this.speed = this.baseSpeed
 			if (this.hp < this.maxHp) {
@@ -212,6 +213,7 @@ Soldier.prototype.updateHealthStates = function(time){
 			break
 		case Utils.HEALTH_STATES.HURT:
 			this.speed = Math.floor(this.baseSpeed * 0.5)
+			if (this.speed <= 0) { this.speed = 1 }
 			this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
 			break
 		case Utils.HEALTH_STATES.INCAPACITATED:
@@ -226,14 +228,30 @@ Soldier.prototype.updateHealthStates = function(time){
 				"N2": "",
 				"T": time,
 			})
+
+			if (this.hp <= 0){
+				this.hp = 0
+				Logger.info({
+					"N1": this.charName,
+					"L": "died from fatal injuries that didn't be treated",
+					"N2": "",
+					"T": time,
+				})
+				Logger.statesInfo(JSON.stringify({
+					N: this.charName,
+					S: this.state.stateType,
+					P: this.position,
+					T: time
+				}))
+				this.healthState = Utils.HEALTH_STATES.DIED
+			}
 			break
 		case Utils.HEALTH_STATES.DIED:
 			this.speed = 0
 			this.hp = 0
 			this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+			break
 	}
-
-	this.healthState = newState
 }
 
 Soldier.prototype.createWeapon = function(){
@@ -575,10 +593,10 @@ Soldier.prototype.checkVisualRange = function(){
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
 		var characterPos = character.position
-		if (characterPos[0] >= startX && characterPos[0] <= endX 
+		if (character.state.stateType != Utils.CHARACTER_STATES.DIED
+			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charType == Utils.CHARACTER_TYPE.ALIEN
-			&& character.state.stateType != Utils.CHARACTER_STATES.DIED) {
+			&& character.charType == Utils.CHARACTER_TYPE.ALIEN) {
 				visibleEnemies.push(character)
 			}
 	}

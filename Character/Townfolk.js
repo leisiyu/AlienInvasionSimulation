@@ -19,7 +19,8 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
-	this.speed = Math.floor(Math.random() * 3) + 1
+	this.baseSpeed = Math.floor(Math.random() * 3) + 1
+	this.speed = this.baseSpeed
 	// this.speed = 10 // test
 	this.visualRange = 5
 	this.attackRange = 1
@@ -38,10 +39,7 @@ var Townfolk = function(name, position){
 		// if character died
 		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
 
-		// self healing
-		if (townfolkThis.hp < townfolkThis.maxHp) {
-			townfolkThis.hp ++
-		}
+		townfolkThis.updateHealthStates(this.time)
 
 		// read messages
 		var messages = this.readInBox();
@@ -106,6 +104,67 @@ var Townfolk = function(name, position){
 
 		
 	}
+}
+
+Townfolk.prototype.updateHealthStates = function(time){
+	var newState = CharacterBase.updateHealthState(this.hp, this.maxHp)
+	switch(newState){
+		case Utils.HEALTH_STATES.NORMAL:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 2
+			}
+			// this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.SCRATCHED:
+			this.speed = this.baseSpeed
+			if (this.hp < this.maxHp) {
+				this.hp = this.hp + 1
+			}
+			// this.attackValue = this.baseAttackValue
+			break
+		case Utils.HEALTH_STATES.HURT:
+			this.speed = Math.floor(this.baseSpeed * 0.5)
+			if (this.speed <= 0) { this.speed = 1 }
+			// this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
+			break
+		case Utils.HEALTH_STATES.INCAPACITATED:
+			Logger.info({
+				"N1": this.charName,
+				"L": "was incapacitated, can't move anymore, need cure",
+				"N2": "",
+				"T": time,
+			})
+			this.speed = 0
+			if (this.hp > 0) {
+				this.hp = this.hp - 5
+			}
+			this.attackValue = Math.floor(this.baseAttackValue * 0.4)
+
+			if (this.hp <= 0){
+				this.hp = 0
+				Logger.info({
+					"N1": this.charName,
+					"L": "died from fatal injuries that didn't be treated",
+					"N2": "",
+					"T": time,
+				})
+				Logger.statesInfo(JSON.stringify({
+					N: this.charName,
+					S: this.state.stateType,
+					P: this.position,
+					T: time
+				}))
+			}
+			
+			break
+		case Utils.HEALTH_STATES.DIED:
+			this.speed = 0
+			this.hp = 0
+			this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+	}
+
+	this.healthState = newState
 }
 
 Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
