@@ -33,6 +33,8 @@ var Soldier = function(name, position){
 	var weapon = this.createWeapon()
 	this.inventory.push(weapon)
 	this.healthState = Utils.HEALTH_STATES.NORMAL
+	this.beHealIdx = 0
+	this.healingIdx = 0
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -98,37 +100,16 @@ var Soldier = function(name, position){
 		}
 
 		soldierThis.updateHealthStates(this.time)
+		soldierThis.checkSurrounding(this.time)
 
 		// check the character's state
 		switch(soldierThis.state.stateType){
-			case Utils.CHARACTER_STATES.HIDE:
-				break
+			// case Utils.CHARACTER_STATES.HIDE:
+			// 	break
 			case Utils.CHARACTER_STATES.PATROL:
-				// check visual range first
-				if (soldierThis.checkEnemiesAround(this.time)) {
-					if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
-						soldierThis.runAway(this.time)
-					} else if (soldierThis.healthState <= Utils.HEALTH_STATES.INCAPACITATED && soldierThis.healthState > Utils.HEALTH_STATES.DIED) {
-						this.state.setState(Utils.CHARACTER_STATES.STAY, null)
-					} else {
-						soldierThis.chase(this.time)
-					}
-					
-					break
-				}
 				soldierThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
-				if (!soldierThis.checkEnemiesAround(this.time)) {
-					soldierThis.wander(time)
-					break
-				} else {
-					if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
-						soldierThis.runAway(time)
-						break
-					}
-				}
-
 				soldierThis.chase(this.time)
 
 				// // reached attack range after chasing
@@ -150,16 +131,6 @@ var Soldier = function(name, position){
 				// }
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
-				// check visual range first
-				if (!soldierThis.checkEnemiesAround(this.time)) {
-					soldierThis.wander(this.time)
-					break
-				} else {
-					if (soldierThis.healthState > Utils.HEALTH_STATES.HURT) {
-						soldierThis.chase(this.time)
-						break
-					}
-				}
 				soldierThis.runAway(this.time)
 				break
 			case Utils.CHARACTER_STATES.ATTACK:
@@ -266,11 +237,6 @@ Soldier.prototype.createWeapon = function(){
 	var weapon = new Gear(Utils.GEAR_TYPES[1], randomSubType, randomValue, Utils.WEAPONS[randomSubType].durability)
 
 	return weapon
-}
-
-Soldier.prototype.dropInventory = function(){
-	if (this.inventory.length <= 0) {return}
-
 }
 
 Soldier.prototype.stay = function(time){
@@ -548,14 +514,33 @@ Soldier.prototype.attack = function(time){
 	// return true
 }
 
-Soldier.prototype.checkEnemiesAround = function(){
-	// // if incapacitated, can not move
-	// if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
-	// 	this.state.setState(Utils.CHARACTER_STATES.STAY, null)
-	// 	return 
-	// }
+Soldier.prototype.checkSurrounding = function(){
+	// check health state, if incapacitated, can not move or attack
+	if (this.healthState == Utils.HEALTH_STATES.DIED){
+		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
+		return 
+	}
+	else if (this.healthState <= Utils.HEALTH_STATES.INCAPACITATED && this.healthState > Utils.HEALTH_STATES.DIED) {
+		this.state.setState(Utils.CHARACTER_STATES.STAY, null)
+		return 
+	// } else if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
+	// 	// can walk around
+	// 	// if the original state is stay, keep it
+	// 	if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY){
+	// 		return 
+	// 	} else {
 
-
+	// 	}
+	} else if (this.healthState > Utils.HEALTH_STATES.HURT) {
+		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY) {
+			Logger.info({
+				"N1": this.charName,
+				"L": "recovered, stopped running away from",
+				"N2": this.state.target.charName,
+				"T": time,
+			})
+		}
+	}
 	//// check the visual range
 	//// if there's an enemy around, chase him first
 	//// if already chasing someone, check if he's in the visual range
@@ -565,7 +550,7 @@ Soldier.prototype.checkEnemiesAround = function(){
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
-			return true
+			return 
 		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
 			if (!visibleCharacters.includes(this.state.target)){
@@ -576,11 +561,11 @@ Soldier.prototype.checkEnemiesAround = function(){
 			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
 		}
-		return true
+		return
 	}
 
 	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-	return false
+	return 
 }
 
 Soldier.prototype.checkVisualRange = function(){
