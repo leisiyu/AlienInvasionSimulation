@@ -9,7 +9,7 @@ const CHARACTER_TYPE = {
 
 
 var TOTAL_CHARACTERS = 20
-var CHARACTER_RATIO = [8, 1, 1]
+var CHARACTER_RATIO = [1, 4, 4]
 const TOTAL_STEPS = 10
 var MAP_SIZE = [50, 50]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
@@ -92,8 +92,6 @@ const DIRECTION = [
 // }
 
 const CHARACTER_STATES = {
-	// NORMAL: "normal",
-	// HURT: "hurt",
 	DIED: "DIED",
 	PATROL: 'PATROL',
 	CHASE: 'CHASE',
@@ -104,6 +102,7 @@ const CHARACTER_STATES = {
 	WANDER: "WANDER",
 	MOVE_TO: "MOVE_TO",
 	STAY: "STAY",
+	HEAL: "HEAL",
 }
 
 const GEAR_TYPES = [
@@ -114,11 +113,11 @@ const GEAR_TYPES = [
 const HEALS = {
 	MEDICINE: {
 		value:[5, 20],
-		durability: 3,
+		durability: 1,
 	},
-	BANDAGE: {
+	MEDIKIT: {
 		value: [3, 5],
-		durability: 5,
+		durability: 1,
 	},
 }
 
@@ -155,6 +154,8 @@ const formatString = (template, ...args) => {
 // 	categories: { default: { appenders: ["output"], level: "debug" } },
 // });
 
+const HEAL_STEP = 3
+
 module.exports = {
 	TOTAL_STEPS,
 	MAP_SIZE,
@@ -174,4 +175,5 @@ module.exports = {
 	HEALS,
 	WEAPONS,
 	HEALTH_STATES,
+	HEAL_STEP
 }

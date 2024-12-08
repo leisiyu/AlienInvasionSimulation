@@ -17,9 +17,9 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	this.baseSpeed = Math.floor(Math.random() * 5) + 3
+	// this.baseSpeed = Math.floor(Math.random() * 5) + 3
+	this.baseSpeed = 15 // test
 	this.speed = this.baseSpeed
-	// this.speed = 10  // test
 	this.visualRange = 5
 	this.attackRange = 1
 	this.maxHp = Math.floor(Math.random() * 200) + 200
@@ -33,7 +33,7 @@ var Soldier = function(name, position){
 	var weapon = this.createWeapon()
 	this.inventory.push(weapon)
 	this.healthState = Utils.HEALTH_STATES.NORMAL
-	this.beHealIdx = 0
+	this.beHealedIdx = 0
 	this.healingIdx = 0
 	var soldierThis = this
 
@@ -75,6 +75,14 @@ var Soldier = function(name, position){
 						// console.log("hahah1111   " + soldierThis.charName + " " + messageContent.attacker)
 						CharacterBase.dropInventory(soldierThis.inventory, soldierThis.position)
 					} else {
+						if (soldierThis.state.stateType == Utils.CHARACTER_STATES.HEAL){
+							Logger.info({
+								N1: soldierThis.charName,
+								L: "healing process was interupted by ",
+								N2: messageContent.attacker,
+								T: this.time,
+							})
+						}
 						if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 							Logger.info({
 								N1: soldierThis.charName,
@@ -95,6 +103,13 @@ var Soldier = function(name, position){
 						
 					}
 
+				} else if (messageContent.msgType.valueOf() == "heal".valueOf()){
+					// CharacterBase.heal(soldierThis.beHealedIdx, soldierThis.charName, messageContent.healer, this.time)
+					soldierThis.beHealedIdx ++
+					if (soldierThis.beHealedIdx >= Utils.HEAL_STEP) {
+						soldierThis.hp = soldierThis.maxHp
+						soldierThis.beHealedIdx = 0
+					}
 				}
 			}
 		}
@@ -111,24 +126,6 @@ var Soldier = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				soldierThis.chase(this.time)
-
-				// // reached attack range after chasing
-				// if(soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-				// 	Logger.info({
-				// 		N1: soldierThis.charName,
-				// 		L: "attacked",
-				// 		N2: soldierThis.state.target.charName,
-				// 		T: this.time,
-				// 	})
-				// 	var msg = {
-				// 		msgType: "attacked",
-				// 		atkValue: soldierThis.attackValue,
-				// 		attacker: soldierThis.charName,
-				// 	}
-				// 	this.sendMsg(soldierThis.state.target.simEvent.guid(), {
-				// 		content: JSON.stringify(msg)
-				// 	})
-				// }
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
 				soldierThis.runAway(this.time)
@@ -158,6 +155,20 @@ var Soldier = function(name, position){
 			case Utils.CHARACTER_STATES.STAY:
 				soldierThis.stay(this.time)
 				break
+			case Utils.CHARACTER_STATES.HEAL:
+				var isSuccessfulHeal = soldierThis.heal(this.time)
+				if (isSuccessfulHeal) {
+					soldierThis.healingIdx++
+					var msg = {
+						msgType: "heal",
+						healer: soldierThis.charName,
+					}
+					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+						content: JSON.stringify(msg)
+					})
+				}
+
+				break
 		}
 
 
@@ -186,6 +197,9 @@ Soldier.prototype.updateHealthStates = function(time){
 			this.speed = Math.floor(this.baseSpeed * 0.5)
 			if (this.speed <= 0) { this.speed = 1 }
 			this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
+			if (this.hp > 0) {
+				this.hp = this.hp - 2
+			}
 			break
 		case Utils.HEALTH_STATES.INCAPACITATED:
 			this.speed = 0
@@ -253,6 +267,7 @@ Soldier.prototype.stay = function(time){
 		P: this.position,
 		T: time,
 	}))
+
 }
 
 // step length == 1
@@ -268,6 +283,19 @@ Soldier.prototype.wander = function(time){
 		P: this.position,
 		T: time
 	}))
+}
+
+Soldier.prototype.heal = function(time) {
+	if (this.healingIdx >= Utils.HEAL_STEP) {return [false]}
+
+	var result = CharacterBase.hasMediKit(this.inventory)
+	if (!result[0]) {
+		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		return false
+	}
+
+	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
+	return true
 }
 
 Soldier.prototype.moveOneStep = function(availableDirections, time){
@@ -375,7 +403,7 @@ Soldier.prototype.runAway = function(time){
 	}))
 	
 	if (this.healthState > Utils.HEALTH_STATES.HURT) {
-		var enemies = this.checkVisualRange()
+		var enemies = this.checkVisualRange()[0]
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
@@ -398,7 +426,7 @@ Soldier.prototype.runAway = function(time){
 	}
 
 	// run away succeed
-	if (this.checkVisualRange().length <= 0) {
+	if (this.checkVisualRange()[0].length <= 0) {
 		var characterName = this.state.target.charName
 		Logger.info({
 			N1: this.charName,
@@ -541,28 +569,55 @@ Soldier.prototype.checkSurrounding = function(){
 			})
 		}
 	}
+
+	// healing...3 beats
+	if (this.state.stateType == Utils.CHARACTER_STATES.HEAL){
+		if (this.state.target.beHealedIdx < Utils.HEAL_STEP && this.healingIdx < Utils.HEAL_STEP) {
+			return
+		}
+	}
+
+	//// check other characters
+	var visibleAllies = this.checkVisualRange()[1]
+	if (visibleAllies.length > 0 && CharacterBase.hasMediKit(this.inventory)[0]) {
+		for (let i = 0; i < visibleAllies.length; i++) {
+			var ally = visibleAllies[i]
+			if (ally.healthState < Utils.HEALTH_STATES.NORMAL 
+				&& ally.healthState != Utils.HEALTH_STATES.DIED
+				&& this.healingIdx < Utils.HEAL_STEP 
+				&& ally.beHealedIdx < Utils.HEAL_STEP){
+				this.state.setState(Utils.CHARACTER_STATES.HEAL, ally)
+				return
+			}
+		}
+	}
+
 	//// check the visual range
 	//// if there's an enemy around, chase him first
 	//// if already chasing someone, check if he's in the visual range
 	//// else wander around
-	var visibleCharacters = this.checkVisualRange()
-	if (visibleCharacters.length > 0){
+	var visibleEnemies = this.checkVisualRange()[0]
+	if (visibleEnemies.length > 0){
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
-			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			// TO DO 
+			// the original state is run_away,
+			var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
 			return 
 		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
-			if (!visibleCharacters.includes(this.state.target)){
-				var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			if (!visibleEnemies.includes(this.state.target)){
+				var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
 				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
 			}
 		} else {
-			var randomVisibleCharacter = visibleCharacters[Math.floor(Math.random() * visibleCharacters.length)]
+			var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
 		}
 		return
 	}
+
+	
 
 	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	return 
@@ -575,18 +630,24 @@ Soldier.prototype.checkVisualRange = function(){
 	var endY = this.position[1] + this.visualRange >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.visualRange
 
 	var visibleEnemies = []
+	var visibleFriends = []
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
 		var characterPos = character.position
 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charType == Utils.CHARACTER_TYPE.ALIEN) {
-				visibleEnemies.push(character)
+			&& character.charName != this.charName) {
+				if (character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+					visibleEnemies.push(character)
+				} else {
+					visibleFriends.push(character)
+				}
+				
 			}
 	}
 	
-	return visibleEnemies
+	return [visibleEnemies, visibleFriends]
 }
 module.exports = {
 	Soldier,

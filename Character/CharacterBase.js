@@ -192,6 +192,54 @@ function updateHealthState(hp, baseHp){
 	return healthState
 }
 
+function heal(healIdx, charName, targetName, medikit, inventory, time){
+	healIdx ++
+	if (healIdx >= Utils.HEAL_STEP) {
+
+		var result = medikit.use()
+		if (!result) {
+			removeGearFromInventory(medikit, inventory)
+		}
+		Logger.info({
+            N1: charName,
+            L: "healed",
+            N2: targetName,
+            T: time,
+        })
+		return true
+	} else {
+		Logger.info({
+            N1: charName,
+            L: "is healing",
+            N2: targetName,
+            T: time,
+        })
+		return false
+	}
+}
+
+function removeGearFromInventory(gear, inventory){
+	if (inventory.length <= 0) {return inventory}
+
+	var idx = inventory.indexOf(gear)
+
+    if (idx > -1) { 
+        inventory.splice(idx, 1)
+    }
+	return inventory
+}
+
+function hasMediKit(inventory){
+	if (inventory.length <= 0) {return [false]}
+
+	for (let i = 0; i < inventory.length; i++) {
+		var gear = inventory[i]
+		if (gear.gearType == Utils.GEAR_TYPES[0]) {
+			return [true, gear]
+		}
+	}
+	return [false]
+}
 
 module.exports = {
     moveOneStep,
@@ -199,4 +247,6 @@ module.exports = {
     dropInventory,
     attack,
 	updateHealthState,
+	heal,
+	hasMediKit
 }
