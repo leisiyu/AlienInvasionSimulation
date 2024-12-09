@@ -166,6 +166,8 @@ var Soldier = function(name, position){
 					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
 						content: JSON.stringify(msg)
 					})
+				} else {
+					soldierThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 				}
 
 				break
@@ -366,15 +368,7 @@ Soldier.prototype.getAvailableDirectionsForPatrol = function(){
 		if (tempPos[0] >=0 && tempPos[0] < Utils.MAP_SIZE[0] 
 			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
 
-			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
-			if (isInBuilding[0]) {
-				var building = MapManager.getMap().getBuilding(isInBuilding[1])
-				if (building.isAccessibleTo(Utils.CHARACTER_TYPE.ALIEN)) {
-					availableDirections.push(tempDir)
-				}
-			} else {
-				availableDirections.push(tempDir)
-			}
+			availableDirections.push(tempDir)
 		}
 	}
 
@@ -542,7 +536,7 @@ Soldier.prototype.attack = function(time){
 	// return true
 }
 
-Soldier.prototype.checkSurrounding = function(){
+Soldier.prototype.checkSurrounding = function(time){
 	// check health state, if incapacitated, can not move or attack
 	if (this.healthState == Utils.HEALTH_STATES.DIED){
 		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
