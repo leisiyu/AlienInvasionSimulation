@@ -120,7 +120,7 @@ var Alien = function(name, position){
 				alienThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.CHASE:
-				alienThis.chasePeople(this.time)
+				alienThis.chase(this.time)
 
 				// // reached attack range after chasing
 				// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
@@ -166,9 +166,9 @@ var Alien = function(name, position){
 				}
 				
 				break
-			case Utils.CHARACTER_STATES.MOVE_TO:
-				alienThis.moveTo(this.time)
-				break
+			// case Utils.CHARACTER_STATES.MOVE_TO:
+			// 	alienThis.moveTo(this.time)
+			// 	break
 			case Utils.CHARACTER_STATES.STAY:
 				alienThis.stay(this.time)
 				break
@@ -290,6 +290,7 @@ Alien.prototype.checkSurrounding = function(time){
 		}
 	}
 
+
 	var isRandomChoose = false
 	var randomResult = "enemy"
 	if (visibleBuildings.length > 0 &&  visibleCharacters.length > 0) {
@@ -327,8 +328,8 @@ Alien.prototype.checkSurrounding = function(time){
 		var randomBuilding = visibleBuildings[Math.floor(Math.random() * visibleBuildings.length)]
 		var distance = randomBuilding.calculateDistance(this.position)
 		if (distance > this.visualRange) {
-			this.state.setState(Utils.CHARACTER_STATES.MOVE_TO, randomBuilding)
-			return Utils.CHARACTER_STATES.MOVE_TO
+			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomBuilding)
+			return Utils.CHARACTER_STATES.CHASE
 		} else {
 			if (randomBuilding.checkIsDestroyed()) {
 				this.state.setState(Utils.CHARACTER_STATES.PATROL, "")
@@ -345,72 +346,72 @@ Alien.prototype.checkSurrounding = function(time){
 	return Utils.CHARACTER_STATES.PATROL
 }
 
-Alien.prototype.moveTo = function(time){
-	var building = this.state.target
+// Alien.prototype.moveTo = function(time){
+// 	var building = this.state.target
 
-	// if (this.speed <= 1) {
-	// 	Logger.info({
-	// 		"N1": this.charName,
-	// 		"L": "was baddly injured, can not move",
-	// 		"N2": "",
-	// 		"T": time,
-	// 	})
-	// 	Logger.statesInfo(JSON.stringify({
-	// 		N: this.charName,
-	// 		S: this.state.stateType,
-	// 		P: this.position,
-	// 		T: time
-	// 	}))
-	// 	return
-	// }
+// 	// if (this.speed <= 1) {
+// 	// 	Logger.info({
+// 	// 		"N1": this.charName,
+// 	// 		"L": "was baddly injured, can not move",
+// 	// 		"N2": "",
+// 	// 		"T": time,
+// 	// 	})
+// 	// 	Logger.statesInfo(JSON.stringify({
+// 	// 		N: this.charName,
+// 	// 		S: this.state.stateType,
+// 	// 		P: this.position,
+// 	// 		T: time
+// 	// 	}))
+// 	// 	return
+// 	// }
 
-	for (let i = 0; i < this.speed; i++) {
-		var availableDirections = []
-		var horizontalOffset = this.position[0] - building.position[0]
-		var verticalOffset = this.position[1] - building.position[1]
-		if (horizontalOffset < -1) {
-			availableDirections.push(Utils.DIRECTION[3])
-		} else if (horizontalOffset > building.size[0] + 1) {
-			availableDirections.push(Utils.DIRECTION[2])
-		}
+// 	for (let i = 0; i < this.speed; i++) {
+// 		var availableDirections = []
+// 		var horizontalOffset = this.position[0] - building.position[0]
+// 		var verticalOffset = this.position[1] - building.position[1]
+// 		if (horizontalOffset < -1) {
+// 			availableDirections.push(Utils.DIRECTION[3])
+// 		} else if (horizontalOffset > building.size[0] + 1) {
+// 			availableDirections.push(Utils.DIRECTION[2])
+// 		}
 
-		if (verticalOffset < -1) {
-			availableDirections.push(Utils.DIRECTION[1])
-		} else if (verticalOffset > building.size[1] + 1) {
-			availableDirections.push(Utils.DIRECTION[0])
-		}
-		this.moveOneStep(availableDirections, time)
-	}
+// 		if (verticalOffset < -1) {
+// 			availableDirections.push(Utils.DIRECTION[1])
+// 		} else if (verticalOffset > building.size[1] + 1) {
+// 			availableDirections.push(Utils.DIRECTION[0])
+// 		}
+// 		this.moveOneStep(availableDirections, time)
+// 	}
 
-	Logger.statesInfo(JSON.stringify({
-		N: this.charName,
-		S: this.state.stateType,
-		P: this.position,
-		T: time
-	}))
+// 	Logger.statesInfo(JSON.stringify({
+// 		N: this.charName,
+// 		S: this.state.stateType,
+// 		P: this.position,
+// 		T: time
+// 	}))
 
-	// console.log("hahahahahhahaha " + this.charName + " " + building.calculateDistance(this.position) + " " + this.visualRange)
-	if (building.calculateDistance(this.position) <= this.visualRange) {
-		Logger.statesInfo(JSON.stringify({
-			N: this.charName,
-			S: this.state.stateType,
-			P: this.position,
-			T: time
-		}))
-		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
-	}
+// 	// console.log("hahahahahhahaha " + this.charName + " " + building.calculateDistance(this.position) + " " + this.visualRange)
+// 	if (building.calculateDistance(this.position) <= this.visualRange) {
+// 		Logger.statesInfo(JSON.stringify({
+// 			N: this.charName,
+// 			S: this.state.stateType,
+// 			P: this.position,
+// 			T: time
+// 		}))
+// 		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
+// 	}
 
-	// 基本不可能到这里
-	if (building.checkIsDestroyed()) {
-		Logger.info({
-			"N1": this.charName,
-			"L": "destroyed",
-			"N2": "building" + building.idx,
-			"T": time,
-		})
-		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-	}
-}
+// 	// 基本不可能到这里
+// 	if (building.checkIsDestroyed()) {
+// 		Logger.info({
+// 			"N1": this.charName,
+// 			"L": "destroyed",
+// 			"N2": "building" + building.idx,
+// 			"T": time,
+// 		})
+// 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+// 	}
+// }
 
 Alien.prototype.wander = function(time){
 
@@ -502,12 +503,12 @@ Alien.prototype.getAvailableDirectionsForPatrol = function(){
 			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
 
 			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
-			if (isInBuilding[0]) {
-				var building = MapManager.getMap().getBuilding(isInBuilding[1])
-				if (building.isAccessibleTo(Utils.CHARACTER_TYPE.ALIEN)) {
-					availableDirections.push(tempDir)
-				}
-			} else {
+			if (!isInBuilding[0]) {
+			// 	var building = MapManager.getMap().getBuilding(isInBuilding[1])
+			// 	if (building.isAccessibleTo(Utils.CHARACTER_TYPE.ALIEN)) {
+			// 		availableDirections.push(tempDir)
+			// 	}
+			// } else {
 				availableDirections.push(tempDir)
 			}
 		}
@@ -541,29 +542,42 @@ Alien.prototype.destroy = function(time){
 	}
 }
 
-Alien.prototype.chasePeople = function(time){
+Alien.prototype.chase = function(time){
 
-	// console.log("hahahaha   " + this.charName + " " + this.speed + " " + this.baseSpeed  + " "  + this.hp + " " + this.maxHp + " " + time)
-	Logger.info({
-		N1: this.charName,
-		L: "was chasing",
-		N2: this.state.target.charName,
-		T: time,
-	})
+	var targetWidth = 1
+	var targetHeight = 1
+	if (this.state.target.type == "building") {
+		targetWidth = this.state.target.size[0]
+		targetHeight = this.state.target.size[1]
+		Logger.info({
+			N1: this.charName,
+			L: "was moving to",
+			N2: this.state.target.getName(),
+			T: time,
+		})
+	} else {
+		Logger.info({
+			N1: this.charName,
+			L: "was chasing",
+			N2: this.state.target.charName,
+			T: time,
+		})
+	}
+	
 	var position = this.state.target.position
 	this.lastDirection = ""
 	for (let j = 0; j < this.speed; j++){
 		var availableDirections = []
 		var horizontalOffset = position[0] - this.position[0]
-		if ( horizontalOffset > 1) {
+		if ( horizontalOffset > targetWidth) {
 			availableDirections.push(Utils.DIRECTION[3])
-		} else if (horizontalOffset < -1) {
+		} else if (horizontalOffset < -targetWidth) {
 			availableDirections.push(Utils.DIRECTION[2])
 		}
 		var verticalOffset = position[1] - this.position[1]
-		if (verticalOffset > 1) {
+		if (verticalOffset > targetHeight) {
 			availableDirections.push(Utils.DIRECTION[0])
-		} else if (verticalOffset < -1) {
+		} else if (verticalOffset < -targetHeight) {
 			availableDirections.push(Utils.DIRECTION[1])
 		}
 		if (availableDirections.length > 0) {
@@ -631,7 +645,7 @@ Alien.prototype.attack = function(time){
 			this.wander(time)
 		} else {
 			this.state.setState(Utils.CHARACTER_STATES.CHASE, character)
-			this.chasePeople(time)
+			this.chase(time)
 		}
 		return false
 	}
