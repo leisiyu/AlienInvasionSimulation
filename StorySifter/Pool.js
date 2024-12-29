@@ -16,12 +16,12 @@ var initiatedStories = 0
 
 function matchNew(newEvent){
     for (var eventName in HighLevelEvents) {
-        var currentEvent = HighLevelEvents[eventName]
+        var currentEventModel = HighLevelEvents[eventName]
         var isBelongToOneMatch = false
         for (let i = 0; i < partialMatchPool.length; i++){
             var partialMatch = partialMatchPool[i]
             isBelongToOneMatch = false
-            if (partialMatch.highLevelEventJson["tag"] == currentEvent["tag"]) {
+            if (partialMatch.highLevelEventJson["tag"] == currentEventModel["tag"]) {
                 isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
                 if (isBelongToOneMatch) {
                     break
@@ -30,17 +30,22 @@ function matchNew(newEvent){
         }
 
         if (!isBelongToOneMatch) {
-            if (newEvent["L"] == currentEvent["events"][0]["tag"]) {
-                var newHighEvent = new HighLevelEventModel(eventName, newEvent, currentEvent)
-                partialMatchPool.push(newHighEvent)
-                totalPartialMatchNum = totalPartialMatchNum + 1
-
-                if (currentEvent["type"] == "high-level") {
-                    initiatedHighLevelEvents = initiatedHighLevelEvents + 1
-                } else if (currentEvent["type"] == "story") {
-                    initiatedStories = initiatedStories + 1
+            var currentEventModelFirstEventList = currentEventModel["events"][0]
+            for (let i = 0; i < currentEventModelFirstEventList.length; i++) {
+                var currentModelEvent = currentEventModelFirstEventList[i]
+                if (newEvent["L"] == currentModelEvent["tag"]) {
+                    var newHighEvent = new HighLevelEventModel(eventName, newEvent, i, currentEventModel)
+                    partialMatchPool.push(newHighEvent)
+                    totalPartialMatchNum = totalPartialMatchNum + 1
+    
+                    if (currentEventModel["type"] == "high-level") {
+                        initiatedHighLevelEvents = initiatedHighLevelEvents + 1
+                    } else if (currentEventModel["type"] == "story") {
+                        initiatedStories = initiatedStories + 1
+                    }
                 }
             }
+            
             
         }
     }

@@ -1,18 +1,20 @@
 {
     "almost_kill": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": true
-            },
-            {
+            }
+            ],
+            [{
                 "char1Idx": 1,
                 "tag": "was badly hurt, ran away from",
                 "char2Idx": 0,
                 "repeat": false
             }
+            ]
         ],
         "unless": [
             {
@@ -34,18 +36,18 @@
 
     "escape": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "ran away from",
                 "char2Idx": 1,
                 "repeat": true
-            },
-            {
+            }],
+            [{
                 "char1Idx": 0,
                 "tag": "successfully ran away from",
                 "char2Idx": 1,
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -65,18 +67,18 @@
 
     "defeat": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": true
-            },
-            {
+            }],
+            [{
                 "char1Idx": 1,
                 "tag": "was killed by",
                 "char2Idx": 0,
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -93,24 +95,24 @@
 
     "revenge": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "almost killed",
                 "char2Idx": 1,
                 "repeat": true
-            },
-            {
+            }],
+            [{
                 "char1Idx": 1,
                 "tag": "escaped from",
                 "char2Idx": 0,
                 "repeat": true
-            },
-            {
+            }],
+            [{
                 "char1Idx": 1,
                 "tag": "defeated",
                 "char2Idx": 0,
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -126,16 +128,16 @@
 
     "giant_killer": {
         "events": [
-            {
+            [{
                 "tag": "was killed by",
                 "char2Idx": 1,
                 "repeat": false
-            },
-            {
+            }],
+            [{
                 "tag": "was killed by",
                 "char2Idx": 1,
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -151,16 +153,16 @@
 
     "ace_killer": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "giant killer",
                 "repeat": false
-            },
-            {
+            }],
+            [{
                 "char1Idx": 0,
                 "tag": "giant killer",
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -176,18 +178,18 @@
 
     "lucky_kill": {
         "events": [
-            {
+            [{
                 "char1Idx": 0,
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": false
-            },
-            {
+            }],
+            [{
                 "char1Idx": 1,
                 "tag": "was killed by",
                 "char2Idx": 0,
                 "repeat": false
-            }
+            }]
         ],
         "unless": [
             {
@@ -198,7 +200,13 @@
         "unless_forever": [
             {
                 "char1Idx": 0,
-                "tag": "attacked"
+                "tag": "attacked",
+                "char2Idx": 1
+            },
+            {
+                "char1Idx": 0,
+                "tag": "shot",
+                "char2Idx": 1
             }
         ],
         "tag": "luckily killed",
