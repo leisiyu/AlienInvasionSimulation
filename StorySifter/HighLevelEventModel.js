@@ -19,22 +19,28 @@ class HighLevelEvent {
         this.finishedTime = this.startTime
         this.eventIDs = [newEvent["id"]]
         this.meetUnlessForeverConditionTimes = 0
+
+        this.checkUnlessForever(newEvent)
     }
 
     // check if there's a partial match already in the pool
     // with the same characters and log
     // this function does not check the newest event in the event list
+    // (no need to be repeat, for example: lucky_kill)
     checkIsNewEventBelongsToThisMatch(newEvent){
         for (let i = 0; i < this.index; i++){
-            for (let j = 0; j < this.patternEvents[i].length; j++){
-                var currentEvent = this.patternEvents[i][j]
+            // for (let j = 0; j < this.patternEvents[i].length; j++){
+                // if (this.eventName == "lucky_kill") {
+                //     console.log("hahaha " + )
+                // }
+                
+                var currentEvent = this.patternEvents[i][this.eventIdxs[i]]
                 if (newEvent["L"] == currentEvent["tag"]
-                    && currentEvent["repeat"]
                     && newEvent["N1"] == this.actors[currentEvent["char1Idx"]]
                     && newEvent["N2"] == this.actors[currentEvent["char2Idx"]]){
                         return true
                 }
-            }
+            // }
             
         }
 
@@ -49,7 +55,6 @@ class HighLevelEvent {
         // check the old events
         // if matched and "repeat", then add to the event list
         for (let i = 0; i < this.index; i++){
-            // for (let j = 0; j < this.patternEvents[i].length; j++){
                 var event = this.patternEvents[i][this.eventIdxs[i]]
                 if (event["repeat"]
                     && newEvent["N1"] == this.actors[event["char1Idx"]]
@@ -58,12 +63,10 @@ class HighLevelEvent {
                         this.eventIDs.push(newEvent["id"])
                         return {"isEnd": false, "isSuccessful": false}
                     }
-            // }
-            
         }
 
-        if (this.checkUnlessForever(newEvent)){
-            // console.log("unless forever " + currentEvent["tag"] + this.eventIDs)
+        this.checkUnlessForever(newEvent)
+        if (this.meetUnlessForeverConditionTimes > 1){
             return {"isEnd": false, "isSuccessful": false}
         }
 
@@ -94,7 +97,7 @@ class HighLevelEvent {
         }
 
         // check time limit
-        if (newEvent["T"] > this.startTime + this.timeLimit) {
+        if (newEvent["T"] > this.startTime + this.timeLimit && this.meetUnlessForeverConditionTimes <= 1) {
             return {"isEnd": true, "isSuccessful": false}
         }
 
@@ -167,7 +170,7 @@ class HighLevelEvent {
         if (this.highLevelEventJson["unless_forever"] != undefined){
             for (let i = 0; i < this.highLevelEventJson["unless_forever"].length; i++){
                 var currentEvent = this.highLevelEventJson["unless_forever"][i]
-                // console.log(newEvent["L"] + " " + currentEvent["tag"])
+                
                 if (newEvent["L"] == currentEvent["tag"]){
                     if (currentEvent["char1Idx"] == undefined || this.actors[currentEvent["char1Idx"]] == newEvent["N1"]) {
                         if (currentEvent["char2Idx"] == undefined || this.actors[currentEvent["char2Idx"]] == newEvent["N2"]) {
@@ -178,7 +181,6 @@ class HighLevelEvent {
                 }
             }
         }
-        // console.log("isMeetUnlessForever " + this.isMeetUnlessForeverFirstCondition)
         return false
     }
         
