@@ -31,6 +31,8 @@ var Townfolk = function(name, position){
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
 	this.inventory = []
+	// this.beHealedIdx = 0
+	// this.healingIdx = 0
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
@@ -70,7 +72,6 @@ var Townfolk = function(name, position){
 				townfolkThis.wander(this.time)
 				break
 			case Utils.CHARACTER_STATES.RUN_AWAY:
-
 				townfolkThis.runAway(this.time)
 				break
 			case Utils.CHARACTER_STATES.ATTACK:
@@ -96,6 +97,7 @@ var Townfolk = function(name, position){
 				}
 				break
 			case Utils.CHARACTER_STATES.CHASE:
+				townfolkThis.chase(this.time)
 				break
 			case Utils.CHARACTER_STATES.DIED:
 				break
@@ -320,8 +322,6 @@ Townfolk.prototype.runAway = function(time){
 		P: this.position,
 		T: time,
 	}))
-	
-	// this.checkEnemiesAround(time)
 }
 
 Townfolk.prototype.getRunAwayDirection = function(){
@@ -547,9 +547,43 @@ Townfolk.prototype.hasWeapon = function(){
 
 Townfolk.prototype.attack = function(time){
 	var result = CharacterBase.attack(this, time)
-	// this.checkEnemiesAround(time)
 
 	return result
+}
+
+Townfolk.prototype.chase = function(time){
+	Logger.info({
+		N1: this.charName,
+		L: "was chasing",
+		N2: this.state.target.charName,
+		T: time,
+	})
+
+	var position = this.state.target.position
+	for (let j = 0; j < this.speed; j++){
+		if (position[0] != this.position[0] && position[1] != this.position[1]) {
+			var randomDir = Math.floor(Math.random() * 2)
+			this.position[randomDir] = this.position[randomDir] > position[randomDir] ? this.position[randomDir] - 1 : this.position[randomDir] + 1
+		} else if (position[0] != this.position[0]) {
+			this.position[0] = this.position[0] > position[0] ? this.position[0] - 1 : this.position[0] + 1
+		} else if (position[1] != this.position[1]) {
+			this.position[1] = this.position[1] > position[1] ? this.position[1] - 1 : this.position[1] + 1
+		} else {
+			break
+		}
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+	}))
+
+	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
+		var character = this.state.target	
+		this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
+	}
 }
 
 module.exports = {
