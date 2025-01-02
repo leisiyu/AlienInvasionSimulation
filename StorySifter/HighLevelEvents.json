@@ -6,6 +6,12 @@
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": true
+            },
+            {
+                "char1Idx": 0,
+                "tag": "shot",
+                "char2Idx": 1,
+                "repeat": true
             }
             ],
             [{
@@ -72,7 +78,14 @@
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": true
-            }],
+            },
+            {
+                "char1Idx": 0,
+                "tag": "shot",
+                "char2Idx": 1,
+                "repeat": true
+            }
+            ],
             [{
                 "char1Idx": 1,
                 "tag": "was killed by",
@@ -183,7 +196,14 @@
                 "tag": "attacked",
                 "char2Idx": 1,
                 "repeat": false
-            }],
+            },
+            {
+                "char1Idx": 0,
+                "tag": "shot",
+                "char2Idx": 1,
+                "repeat": false
+            }
+            ],
             [{
                 "char1Idx": 1,
                 "tag": "was killed by",
