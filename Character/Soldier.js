@@ -17,8 +17,8 @@ var Soldier = function(name, position){
 	this.charName = name
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.SOLDIER
-	// this.baseSpeed = Math.floor(Math.random() * 5) + 3
-	this.baseSpeed = 15 // test
+	this.baseSpeed = Math.floor(Math.random() * 5) + 3
+	// this.baseSpeed = 15 // test
 	this.speed = this.baseSpeed
 	this.visualRange = 5
 	this.attackRange = 1
@@ -82,6 +82,7 @@ var Soldier = function(name, position){
 								N2: messageContent.attacker,
 								T: this.time,
 							})
+							soldierThis.healingIdx = 0
 						}
 						if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 							Logger.info({
@@ -103,12 +104,20 @@ var Soldier = function(name, position){
 						
 					}
 
-				} else if (messageContent.msgType.valueOf() == "heal".valueOf()){
-					// CharacterBase.heal(soldierThis.beHealedIdx, soldierThis.charName, messageContent.healer, this.time)
-					soldierThis.beHealedIdx ++
-					if (soldierThis.beHealedIdx >= Utils.HEAL_STEP) {
-						soldierThis.hp = soldierThis.maxHp
-						soldierThis.beHealedIdx = 0
+				} else if (messageContent.msgType.valueOf() == "heal".valueOf()){		
+					if (soldierThis.beHealedIdx < Utils.HEAL_STEP) {
+						soldierThis.beHealedIdx ++
+						if (soldierThis.beHealedIdx >= Utils.HEAL_STEP) {
+							soldierThis.hp = soldierThis.maxHp
+							// soldierThis.beHealedIdx = 0
+							Logger.info({
+								N1: soldierThis.charName,
+								L: "was healed by",
+								N2: messageContent.healer,
+								T: time,
+							})
+						}
+						
 					}
 				}
 			}
@@ -179,6 +188,7 @@ var Soldier = function(name, position){
 }
 
 Soldier.prototype.updateHealthStates = function(time){
+	// var previousHealthState = this.healthState
 	this.healthState = CharacterBase.updateHealthState(this.hp, this.maxHp)
 	switch(this.healthState){
 		case Utils.HEALTH_STATES.NORMAL:
@@ -209,12 +219,21 @@ Soldier.prototype.updateHealthStates = function(time){
 				this.hp = this.hp - 5
 			}
 			this.attackValue = Math.floor(this.baseAttackValue * 0.4)
-			Logger.info({
-				"N1": this.charName,
-				"L": "was incapacitated, can't move anymore, need cure",
-				"N2": "",
-				"T": time,
-			})
+			// if (previousHealthState == Utils.HEALTH_STATES.HURT) {
+			// 	Logger.info({
+			// 		"N1": this.charName,
+			// 		"L": "the injury worsened",
+			// 		"N2": "",
+			// 		"T": time,
+			// 	})
+			// } else {
+				Logger.info({
+					"N1": this.charName,
+					"L": "was incapacitated, can't move anymore, need cure",
+					"N2": "",
+					"T": time,
+				})
+			// }
 
 			if (this.hp <= 0){
 				this.hp = 0
@@ -288,11 +307,15 @@ Soldier.prototype.wander = function(time){
 }
 
 Soldier.prototype.heal = function(time) {
-	if (this.healingIdx >= Utils.HEAL_STEP) {return [false]}
+	if (this.healingIdx >= Utils.HEAL_STEP) {
+		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		return false
+	}
 
 	var result = CharacterBase.hasMediKit(this.inventory)
 	if (!result[0]) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		this.healingIdx = 0
 		return false
 	}
 
@@ -572,19 +595,6 @@ Soldier.prototype.checkSurrounding = function(time){
 	}
 
 	//// check other characters
-	var visibleAllies = this.checkVisualRange()[1]
-	if (visibleAllies.length > 0 && CharacterBase.hasMediKit(this.inventory)[0]) {
-		for (let i = 0; i < visibleAllies.length; i++) {
-			var ally = visibleAllies[i]
-			if (ally.healthState < Utils.HEALTH_STATES.NORMAL 
-				&& ally.healthState != Utils.HEALTH_STATES.DIED
-				&& this.healingIdx < Utils.HEAL_STEP 
-				&& ally.beHealedIdx < Utils.HEAL_STEP){
-				this.state.setState(Utils.CHARACTER_STATES.HEAL, ally)
-				return
-			}
-		}
-	}
 
 	//// check the visual range
 	//// if there's an enemy around, chase him first
@@ -611,7 +621,20 @@ Soldier.prototype.checkSurrounding = function(time){
 		return
 	}
 
-	
+	// check allies
+	var visibleAllies = this.checkVisualRange()[1]
+	if (visibleAllies.length > 0 && CharacterBase.hasMediKit(this.inventory)[0]) {
+		for (let i = 0; i < visibleAllies.length; i++) {
+			var ally = visibleAllies[i]
+			if (ally.healthState < Utils.HEALTH_STATES.NORMAL 
+				&& ally.healthState != Utils.HEALTH_STATES.DIED
+				&& this.healingIdx < Utils.HEAL_STEP 
+				&& ally.beHealedIdx < Utils.HEAL_STEP){
+				this.state.setState(Utils.CHARACTER_STATES.HEAL, ally)
+				return
+			}
+		}
+	}
 
 	this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	return 
