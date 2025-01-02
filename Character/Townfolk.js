@@ -68,7 +68,7 @@ var Townfolk = function(name, position){
 							townfolkThis.beHealedIdx = 0
 							Logger.info({
 								N1: townfolkThis.charName,
-								L: "was healed by",
+								L: "is healed by",
 								N2: messageContent.healer,
 								T: time,
 							})
@@ -164,7 +164,7 @@ Townfolk.prototype.updateHealthStates = function(time){
 		case Utils.HEALTH_STATES.INCAPACITATED:
 			Logger.info({
 				"N1": this.charName,
-				"L": "was incapacitated, can't move anymore, need cure",
+				"L": "is incapacitated, can't move anymore, need cure",
 				"N2": "",
 				"T": time,
 			})
@@ -218,7 +218,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		}))
 		Logger.info({
 			N1: this.charName,
-			L: "was killed by",
+			L: "is killed by",
 			N2: attacker,
 			T: time,
 		})
@@ -228,7 +228,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		if (this.state.stateType == Utils.CHARACTER_STATES.HEAL){
 			Logger.info({
 				N1: this.charName,
-				L: "healing process was interupted by ",
+				L: "healing process is interupted by ",
 				N2: attacker,
 				T: this.time,
 			})
@@ -237,7 +237,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 			Logger.info({
 				N1: soldierThis.charName,
-				L: "was badly hurt, ran away from",
+				L: "is badly hurt, runs away from",
 				N2: messageContent.attacker,
 				T: time,
 			})
@@ -246,19 +246,21 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			if (this.hasWeapon()) {
 				Logger.info({
 					N1: soldierThis.charName,
-					L: "was attacked, and fighted back",
+					L: "is attacked, and fight back",
 					N2: messageContent.attacker,
 					T: time,
 				})
 				this.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(attacker))
 			
 			}
-			}
+		}
+		//To do
+		// return
 	}
 
 	Logger.info({
 		N1: this.charName,
-		L: "was attacked, and ran away from",
+		L: "is attacked, and runs away from",
 		N2: attacker,
 		T: this.time,
 	})
@@ -279,7 +281,7 @@ Townfolk.prototype.hideOrWander = function(time){
 		if (isInBuilding[0]){
 			Logger.info({
 				N1: this.charName,
-				L: "was hiding in",
+				L: "is hiding in",
 				N2: "building" + isInBuilding[1],
 				T: time,
 			})
@@ -291,7 +293,7 @@ Townfolk.prototype.hideOrWander = function(time){
 
 		Logger.info({
 			N1: this.charName,
-			L: "was wandering around",
+			L: "is wandering around",
 			N2: "",
 			T: time,
 		})
@@ -383,7 +385,7 @@ Townfolk.prototype.hide = function(time){
 Townfolk.prototype.runAway = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "ran away from",
+		L: "runs away from",
 		N2: this.state.target.charName,
 		T: time,
 	})
@@ -637,7 +639,7 @@ Townfolk.prototype.attack = function(time){
 Townfolk.prototype.chase = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "was chasing",
+		L: "is chasing",
 		N2: this.state.target.charName,
 		T: time,
 	})

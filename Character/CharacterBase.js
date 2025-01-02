@@ -66,7 +66,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
         pickUpGear(gear, inventory)
         Logger.info({
 			"N1": charName,
-			"L": "picked up",
+			"L": "picks up",
 			"N2": gear.name,
 			"T": time,
 		})
@@ -113,7 +113,7 @@ function attack(character, time){
 		if (distance > character.visualRange) {
 			Logger.info({
 				N1: character.charName,
-				L: "target ran away, started to patrol",
+				L: "target ran away, start to patrol",
 				N2: target.charName,
 				T: time,
 			})
@@ -122,7 +122,7 @@ function attack(character, time){
 		} else {
 			Logger.info({
 				N1: character.charName,
-				L: "target is out of attack range, started to chase",
+				L: "target is out of attack range, start to chase",
 				N2: target.charName,
 				T: time,
 			})
@@ -138,7 +138,7 @@ function attack(character, time){
             if (weapon.gearType == Utils.GEAR_TYPES[1]) {
                 Logger.info({
                     N1: character.charName,
-                    L: "shot",
+                    L: "shoots",
                     N2: target.charName,
                     T: time,
                 })
@@ -147,7 +147,7 @@ function attack(character, time){
                     character.inventory.splice(i, 1)
                     Logger.info({
                         "N1": weapon.name,
-                        "L": "was broken",
+                        "L": "is broken",
                         "N2": "",
                         "T": time,
                     })
@@ -157,7 +157,7 @@ function attack(character, time){
         }
 		Logger.info({
             N1: character.charName,
-            L: "attacked",
+            L: "attacks",
             N2: target.charName,
             T: time,
         })
@@ -165,7 +165,7 @@ function attack(character, time){
     } else {
         Logger.info({
             N1: character.charName,
-            L: "attacked",
+            L: "attacks",
             N2: target.charName,
             T: time,
         })

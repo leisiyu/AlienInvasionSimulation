@@ -3,20 +3,20 @@
         "events": [
             [{
                 "char1Idx": 0,
-                "tag": "attacked",
+                "tag": "attacks",
                 "char2Idx": 1,
                 "repeat": true
             },
             {
                 "char1Idx": 0,
-                "tag": "shot",
+                "tag": "shoots",
                 "char2Idx": 1,
                 "repeat": true
             }
             ],
             [{
                 "char1Idx": 1,
-                "tag": "was badly hurt, ran away from",
+                "tag": "is badly hurt, run away from",
                 "char2Idx": 0,
                 "repeat": false
             }
@@ -25,16 +25,16 @@
         "unless": [
             {
                 "char1Idx": 0,
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 1
             },
             {
                 "char1Idx": 1,
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 0
             }
         ],
-        "tag": "almost killed",
+        "tag": "almost kills",
         "type": "high-level",
         "main_characters": [0, 1],
         "time_limit": 20000
@@ -44,7 +44,7 @@
         "events": [
             [{
                 "char1Idx": 0,
-                "tag": "ran away from",
+                "tag": "runs away from",
                 "char2Idx": 1,
                 "repeat": true
             }],
@@ -58,11 +58,11 @@
         "unless": [
             {
                 "char1Idx": 0,
-                "tag": "was killed by"
+                "tag": "is killed by"
             },
             {
                 "char1Idx": 1,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
         "tag": "escaped from",
@@ -75,20 +75,20 @@
         "events": [
             [{
                 "char1Idx": 0,
-                "tag": "attacked",
+                "tag": "attacks",
                 "char2Idx": 1,
                 "repeat": true
             },
             {
                 "char1Idx": 0,
-                "tag": "shot",
+                "tag": "shoots",
                 "char2Idx": 1,
                 "repeat": true
             }
             ],
             [{
                 "char1Idx": 1,
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 0,
                 "repeat": false
             }]
@@ -96,21 +96,23 @@
         "unless": [
             {
                 "char1Idx": 0,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
-        "tag": "defeated",
+        "tag": "defeats",
         "type": "high-level",
         "main_characters": [0, 1],
         "time_limit": 20000
 
     },
 
+    
+
     "revenge": {
         "events": [
             [{
                 "char1Idx": 0,
-                "tag": "almost killed",
+                "tag": "almost kills",
                 "char2Idx": 1,
                 "repeat": true
             }],
@@ -122,7 +124,7 @@
             }],
             [{
                 "char1Idx": 1,
-                "tag": "defeated",
+                "tag": "defeats",
                 "char2Idx": 0,
                 "repeat": false
             }]
@@ -130,10 +132,10 @@
         "unless": [
             {
                 "char1Idx": 1,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
-        "tag": "took revenge on",
+        "tag": "takes revenge on",
         "type": "story",
         "main_characters": [1, 0],
         "time_limit": 20000
@@ -142,12 +144,12 @@
     "giant_killer": {
         "events": [
             [{
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 1,
                 "repeat": false
             }],
             [{
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 1,
                 "repeat": false
             }]
@@ -155,7 +157,7 @@
         "unless": [
             {
                 "char1Idx": 1,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
         "tag": "giant killer",
@@ -180,7 +182,7 @@
         "unless": [
             {
                 "char1Idx": 0,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
         "tag": "ace killer",
@@ -193,20 +195,20 @@
         "events": [
             [{
                 "char1Idx": 0,
-                "tag": "attacked",
+                "tag": "attacks",
                 "char2Idx": 1,
                 "repeat": false
             },
             {
                 "char1Idx": 0,
-                "tag": "shot",
+                "tag": "shoots",
                 "char2Idx": 1,
                 "repeat": false
             }
             ],
             [{
                 "char1Idx": 1,
-                "tag": "was killed by",
+                "tag": "is killed by",
                 "char2Idx": 0,
                 "repeat": false
             }]
@@ -214,22 +216,22 @@
         "unless": [
             {
                 "char1Idx": 0,
-                "tag": "was killed by"
+                "tag": "is killed by"
             }
         ],
         "unless_forever": [
             {
                 "char1Idx": 0,
-                "tag": "attacked",
+                "tag": "attacks",
                 "char2Idx": 1
             },
             {
                 "char1Idx": 0,
-                "tag": "shot",
+                "tag": "shoots",
                 "char2Idx": 1
             }
         ],
-        "tag": "luckily killed",
+        "tag": "luckily kills",
         "type": "high-level",
         "main_characters": [0, 1],
         "time_limit": 20000

@@ -62,7 +62,7 @@ var Soldier = function(name, position){
 						soldierThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
 						Logger.info({
 							N1: soldierThis.charName,
-							L: "was killed by",
+							L: "is killed by",
 							N2: messageContent.attacker,
 							T: this.time,
 						})
@@ -78,7 +78,7 @@ var Soldier = function(name, position){
 						if (soldierThis.state.stateType == Utils.CHARACTER_STATES.HEAL){
 							Logger.info({
 								N1: soldierThis.charName,
-								L: "healing process was interupted by ",
+								L: "healing process is interupted by ",
 								N2: messageContent.attacker,
 								T: this.time,
 							})
@@ -87,7 +87,7 @@ var Soldier = function(name, position){
 						if (soldierThis.healthState <= Utils.HEALTH_STATES.HURT && soldierThis.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 							Logger.info({
 								N1: soldierThis.charName,
-								L: "was badly hurt, ran away from",
+								L: "is badly hurt, runs away from",
 								N2: messageContent.attacker,
 								T: time,
 							})
@@ -95,7 +95,7 @@ var Soldier = function(name, position){
 						} else {
 							Logger.info({
 								N1: soldierThis.charName,
-								L: "was attacked, and fighted back",
+								L: "is attacked, fight back",
 								N2: messageContent.attacker,
 								T: time,
 							})
@@ -112,7 +112,7 @@ var Soldier = function(name, position){
 							// soldierThis.beHealedIdx = 0
 							Logger.info({
 								N1: soldierThis.charName,
-								L: "was healed by",
+								L: "is healed by",
 								N2: messageContent.healer,
 								T: time,
 							})
@@ -229,7 +229,7 @@ Soldier.prototype.updateHealthStates = function(time){
 			// } else {
 				Logger.info({
 					"N1": this.charName,
-					"L": "was incapacitated, can't move anymore, need cure",
+					"L": "is incapacitated, can't move anymore, need cure",
 					"N2": "",
 					"T": time,
 				})
@@ -277,7 +277,7 @@ Soldier.prototype.createWeapon = function(){
 Soldier.prototype.stay = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "stayed in place",
+		L: "stay in place",
 		N2: "",
 		T: time,
 	})
@@ -401,7 +401,7 @@ Soldier.prototype.getAvailableDirectionsForPatrol = function(){
 Soldier.prototype.runAway = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "ran away from",
+		L: "runs away from",
 		N2: this.state.target.charName,
 		T: time,
 	})
@@ -424,7 +424,7 @@ Soldier.prototype.runAway = function(time){
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
-				L: "recovered, and started to partrol",
+				L: "recovered, start to partrol",
 				N2: "",
 				T: time,
 			})
@@ -433,7 +433,7 @@ Soldier.prototype.runAway = function(time){
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
 			Logger.info({
 				N1: this.charName,
-				L: "recovered, and started to chase",
+				L: "recovered, start to chase",
 				N2: randomEnemy.charName,
 				T: time,
 			})
@@ -443,6 +443,7 @@ Soldier.prototype.runAway = function(time){
 	}
 
 	// run away succeed
+	// TO DO
 	if (this.checkVisualRange()[0].length <= 0) {
 		var characterName = this.state.target.charName
 		Logger.info({
@@ -481,7 +482,7 @@ Soldier.prototype.getRunAwayDirection = function(){
 Soldier.prototype.chase = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "was chasing",
+		L: "is chasing",
 		N2: this.state.target.charName,
 		T: time,
 	})
@@ -580,7 +581,7 @@ Soldier.prototype.checkSurrounding = function(time){
 		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY) {
 			Logger.info({
 				"N1": this.charName,
-				"L": "recovered, stopped running away from",
+				"L": "recovered, stop running away from",
 				"N2": this.state.target.charName,
 				"T": time,
 			})

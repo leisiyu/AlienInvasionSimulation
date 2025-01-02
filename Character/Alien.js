@@ -60,7 +60,7 @@ var Alien = function(name, position){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
 						Logger.info({
 							"N1": alienThis.charName,
-							"L": "was killed by",
+							"L": "is killed by",
 							"N2": msgContent.attacker,
 							"T": this.time,
 						})
@@ -74,7 +74,7 @@ var Alien = function(name, position){
 						if (alienThis.healthState <= Utils.HEALTH_STATES.HURT && alienThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 							Logger.info({
 								"N1": alienThis.charName,
-								"L": "was badly hurt, ran away from",
+								"L": "is badly hurt, runs away from",
 								"N2": msgContent.attacker,
 								"T": this.time,
 							})
@@ -86,14 +86,14 @@ var Alien = function(name, position){
 							if (alienThis.healthState > Utils.HEALTH_STATES.HURT) {
 								Logger.info({
 									"N1": alienThis.charName,
-									"L": "was attacked. Fighted back",
+									"L": "is attacked, fight back",
 									"N2": msgContent.attacker,
 									"T": this.time,
 								})
 							} else {
 								Logger.info({
 									"N1": alienThis.charName,
-									"L": "was incapacitated, can not move",
+									"L": "is incapacitated, can not move",
 									"N2": msgContent.attacker,
 									"T": this.time,
 								})
@@ -207,7 +207,7 @@ Alien.prototype.updateHealthStates = function(time){
 			this.attackValue = Math.floor(this.baseAttackValue * 0.4)
 			Logger.info({
 				"N1": this.charName,
-				"L": "was incapacitated, can't move anymore, need cure",
+				"L": "is incapacitated, can't move anymore, need cure",
 				"N2": "",
 				"T": time,
 			})
@@ -256,7 +256,7 @@ Alien.prototype.checkSurrounding = function(time){
 		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY) {
 			Logger.info({
 				"N1": this.charName,
-				"L": "recovered, stopped running away from",
+				"L": "recovered, stop running away from",
 				"N2": this.state.target.charName,
 				"T": time,
 			})
@@ -522,7 +522,7 @@ Alien.prototype.destroy = function(time){
 	building.isAttacked(this.attackValue)
 	Logger.info({
 		"N1": this.charName,
-		"L": "was destroying",
+		"L": "is destroying",
 		"N2": "building" + building.idx,
 		"T": time,
 	})
@@ -550,14 +550,14 @@ Alien.prototype.chase = function(time){
 		targetHeight = this.state.target.size[1]
 		Logger.info({
 			N1: this.charName,
-			L: "was moving to",
+			L: "is moving to",
 			N2: this.state.target.getName(),
 			T: time,
 		})
 	} else {
 		Logger.info({
 			N1: this.charName,
-			L: "was chasing",
+			L: "is chasing",
 			N2: this.state.target.charName,
 			T: time,
 		})
@@ -619,7 +619,7 @@ Alien.prototype.attack = function(time){
 	if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 		Logger.info({
 			N1: this.charName,
-			L: "was badly hurt, ran away from",
+			L: "is badly hurt, runs away from",
 			N2: this.state.target.charName,
 			T: this.time,
 		})
@@ -660,7 +660,7 @@ Alien.prototype.attack = function(time){
 Alien.prototype.stay = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "stayed in place",
+		L: "stay in place",
 		N2: "",
 		T: time,
 	})
@@ -677,7 +677,7 @@ Alien.prototype.runAway = function(time){
 	// console.log("hahahaha   " + this.charName + " " + this.speed + " " + this.baseSpeed  + " "  + this.hp + " " + this.maxHp + " " + time)
 	Logger.info({
 		N1: this.charName,
-		L: "ran away from",
+		L: "runs away from",
 		N2: this.state.target.charName,
 		T: time,
 	})
@@ -700,7 +700,7 @@ Alien.prototype.runAway = function(time){
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
-				L: "successfully ran away, recovered, started to walk around",
+				L: "successfully ran away, recovered, start to walk around",
 				N2: "",
 				T: time,
 			})
@@ -709,7 +709,7 @@ Alien.prototype.runAway = function(time){
 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
 			Logger.info({
 				N1: this.charName,
-				L: "recovered, started to chase ",
+				L: "recovered, start to chase ",
 				N2: randomEnemy.charName,
 				T: time,
 			})
@@ -719,6 +719,7 @@ Alien.prototype.runAway = function(time){
 	}
 
 	// run away succeed
+	// TO DO
 	if (this.checkVisualRange()[0].length <= 0) {
 		var target = this.state.target
 
