@@ -31,8 +31,8 @@ var Townfolk = function(name, position){
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
 	this.inventory = []
-	// this.beHealedIdx = 0
-	// this.healingIdx = 0
+	this.beHealedIdx = 0
+	this.healingIdx = 0
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
@@ -59,6 +59,22 @@ var Townfolk = function(name, position){
 
 				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
 					townfolkThis.getAttacked(this.time, messageContent.attacker, messageContent.atkValue)
+				}else if (messageContent.msgType.valueOf() == "heal".valueOf()){
+					// CharacterBase.heal(soldierThis.beHealedIdx, soldierThis.charName, messageContent.healer, this.time)
+					if (townfolkThis.beHealedIdx < Utils.HEAL_STEP) {
+						townfolkThis.beHealedIdx ++
+						if (townfolkThis.beHealedIdx >= Utils.HEAL_STEP) {
+							townfolkThis.hp = townfolkThis.maxHp
+							townfolkThis.beHealedIdx = 0
+							Logger.info({
+								N1: townfolkThis.charName,
+								L: "was healed by",
+								N2: messageContent.healer,
+								T: time,
+							})
+						}
+					}
+					
 				}
 			}
 		}
@@ -98,6 +114,21 @@ var Townfolk = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.CHASE:
 				townfolkThis.chase(this.time)
+				break
+			case Utils.CHARACTER_STATES.HEAL:
+				var isSuccessfulHeal = townfolkThis.heal(this.time)
+				if (isSuccessfulHeal) {
+					townfolkThis.healingIdx++
+					var msg = {
+						msgType: "heal",
+						healer: townfolkThis.charName,
+					}
+					this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+						content: JSON.stringify(msg)
+					})
+				} else {
+					townfolkThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+				}
 				break
 			case Utils.CHARACTER_STATES.DIED:
 				break
@@ -193,6 +224,36 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		})
 		CharacterBase.dropInventory(this.inventory, this.position)
 		return
+	} else {
+		if (this.state.stateType == Utils.CHARACTER_STATES.HEAL){
+			Logger.info({
+				N1: this.charName,
+				L: "healing process was interupted by ",
+				N2: attacker,
+				T: this.time,
+			})
+			this.healingIdx = 0
+		}
+		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
+			Logger.info({
+				N1: soldierThis.charName,
+				L: "was badly hurt, ran away from",
+				N2: messageContent.attacker,
+				T: time,
+			})
+			soldierThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
+		} else {
+			if (this.hasWeapon()) {
+				Logger.info({
+					N1: soldierThis.charName,
+					L: "was attacked, and fighted back",
+					N2: messageContent.attacker,
+					T: time,
+				})
+				this.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(attacker))
+			
+			}
+			}
 	}
 
 	Logger.info({
@@ -251,10 +312,15 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 	var isInBuilding = MapManager.checkIsInABuilding(this.position)
 	
 	if (isInBuilding[0]) {
-		var newState = this.hideProbability.randomlyPick()
-		this.state.setState(newState, null)
+		if (this.hasWeapon()) {
+			 this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		} else {
+			var newState = this.hideProbability.randomlyPick()
+			this.state.setState(newState, null)
+		}
+		return
 	} else {
-		var enemies = this.checkVisualRange()
+		var enemies = this.checkVisualRange()[0]
 		if (enemies.length > 0) {
 			if (this.hasWeapon()) {
 				var enemy = enemies[Math.floor(Math.random() * enemies.length)]
@@ -282,13 +348,26 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 					}
 				}
 			}
-			
-			return true
+			return 
 		}
-		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
-		return false
+		
+		// check allies
+		var visibleAllies = this.checkVisualRange()[1]
+		if (visibleAllies.length > 0 && CharacterBase.hasMediKit(this.inventory)[0]) {
+			for (let i = 0; i < visibleAllies.length; i++) {
+				var ally = visibleAllies[i]
+				if (ally.healthState < Utils.HEALTH_STATES.NORMAL 
+					&& ally.healthState != Utils.HEALTH_STATES.DIED
+					&& this.healingIdx < Utils.HEAL_STEP 
+					&& ally.beHealedIdx < Utils.HEAL_STEP){
+					this.state.setState(Utils.CHARACTER_STATES.HEAL, ally)
+					return
+				}
+			}
+		}
 	}
-	
+	this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		return 
 }
 
 Townfolk.prototype.hide = function(time){
@@ -519,19 +598,23 @@ Townfolk.prototype.checkVisualRange = function(){
 	var endY = this.position[1] + this.visualRange >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + this.visualRange
 
 	var visibleEnemies = []
+	var visibleAllies = []
 	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
 		var character = CharactersData.charactersArray[i]
 		var characterPos = character.position
 		if (characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charType == Utils.CHARACTER_TYPE.ALIEN
 			&& character.state.stateType != Utils.CHARACTER_STATES.DIED) {
-				visibleEnemies.push(character)
-				// console.log(this.charName + " saw " + character.charName)
+				if (character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+					visibleEnemies.push(character)
+				} else {
+					visibleAllies.push(character)
+				}
+				
 			}
 	}
 	
-	return visibleEnemies
+	return [visibleEnemies, visibleAllies]
 }
 
 Townfolk.prototype.hasWeapon = function(){
@@ -584,6 +667,23 @@ Townfolk.prototype.chase = function(time){
 		var character = this.state.target	
 		this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
 	}
+}
+
+Townfolk.prototype.heal = function(time) {
+	if (this.healingIdx >= Utils.HEAL_STEP) {
+		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		return false
+	}
+
+	var result = CharacterBase.hasMediKit(this.inventory)
+	if (!result[0]) {
+		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		this.healingIdx = 0
+		return false
+	}
+
+	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
+	return true
 }
 
 module.exports = {
