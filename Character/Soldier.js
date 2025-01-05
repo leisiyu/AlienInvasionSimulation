@@ -95,7 +95,7 @@ var Soldier = function(name, position){
 						} else {
 							Logger.info({
 								N1: soldierThis.charName,
-								L: "is attacked, fight back",
+								L: "is attacked by",
 								N2: messageContent.attacker,
 								T: time,
 							})
@@ -614,6 +614,10 @@ Soldier.prototype.checkSurrounding = function(time){
 			if (!visibleEnemies.includes(this.state.target)){
 				var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
 				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+			} else {
+				if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
+					this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+				}
 			}
 		} else {
 			var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
