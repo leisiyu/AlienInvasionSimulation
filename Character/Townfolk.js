@@ -246,7 +246,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			if (this.hasWeapon()) {
 				Logger.info({
 					N1: soldierThis.charName,
-					L: "is attacked, and fight back",
+					L: "is attacked by",
 					N2: messageContent.attacker,
 					T: time,
 				})
@@ -331,7 +331,8 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 				} 
 
 				var enemyPos = enemy.position
-				if (Math.abs(this.position[0] - enemyPos[0]) + Math.abs(this.position[1] - enemyPos[1]) <= this.attackRange) {
+				// if (Math.abs(this.position[0] - enemyPos[0]) + Math.abs(this.position[1] - enemyPos[1]) <= this.attackRange) {
+					if (CharacterBase.calDistanceOfCharacters(this, enemy) <= this.attackRange) {
 					this.state.setState(Utils.CHARACTER_STATES.ATTACK, enemy)
 				} else {
 					this.state.setState(Utils.CHARACTER_STATES.CHASE, enemy)
