@@ -610,18 +610,28 @@ Soldier.prototype.checkSurrounding = function(time){
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
 			return 
 		}
-		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE){
+		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE || this.state.stateType == Utils.CHARACTER_STATES.ATTACK){
 			if (!visibleEnemies.includes(this.state.target)){
 				var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
-				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+				if (CharacterBase.calDistanceOfCharacters(this, randomVisibleCharacter) <= this.attackRange) {
+					this.state.setState(Utils.CHARACTER_STATES.ATTACK, randomVisibleCharacter)
+				} else {
+					this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+				}
 			} else {
 				if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
 					this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+				} else {
+					this.state.updateState(Utils.CHARACTER_STATES.CHASE)
 				}
 			}
 		} else {
-			var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+				var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
+				if (CharacterBase.calDistanceOfCharacters(this, randomVisibleCharacter) <= this.attackRange) {
+					this.state.setState(Utils.CHARACTER_STATES.ATTACK, randomVisibleCharacter)
+				} else {
+					this.state.setState(Utils.CHARACTER_STATES.CHASE, randomVisibleCharacter)
+				}
 		}
 		return
 	}
