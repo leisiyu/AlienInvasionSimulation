@@ -107,7 +107,8 @@ function attack(character, time){
 
 	// check attack range
 	var target = character.state.target
-	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
+	// var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
+	var distance = calDistanceOfCharacters(character, target)
 	if (distance > character.attackRange) {
 		// this frame still need to move
 		if (distance > character.visualRange) {
@@ -241,6 +242,14 @@ function hasMediKit(inventory){
 	return [false]
 }
 
+function calDistanceOfCharacters(char1, char2) {
+	return Math.abs(char1.position[0] - char2.position[0]) + Math.abs(char1.position[1] - char2.position[1])
+}
+
+function checkIsDied(character) {
+	return character.state.stateType == Utils.CHARACTER_STATES.DIED
+}
+
 module.exports = {
     moveOneStep,
     pickUpGear,
@@ -248,5 +257,7 @@ module.exports = {
     attack,
 	updateHealthState,
 	heal,
-	hasMediKit
+	hasMediKit,
+	calDistanceOfCharacters, 
+	checkIsDied
 }

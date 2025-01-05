@@ -86,7 +86,7 @@ var Alien = function(name, position){
 							if (alienThis.healthState > Utils.HEALTH_STATES.HURT) {
 								Logger.info({
 									"N1": alienThis.charName,
-									"L": "is attacked, fight back",
+									"L": "is attacked by",
 									"N2": msgContent.attacker,
 									"T": this.time,
 								})
@@ -278,8 +278,9 @@ Alien.prototype.checkSurrounding = function(time){
 	// if original state is attack
 	if (this.state.stateType == Utils.CHARACTER_STATES.ATTACK) {
 		if (visibleCharacters.includes(this.state.target)) {
-			var targetPosition = this.state.target.position
-			var positionDistance = Math.abs(this.position[0] - targetPosition[0]) + Math.abs(this.position[1] - targetPosition[1])
+			// var targetPosition = this.state.target.position
+			var positionDistance = CharacterBase.calDistanceOfCharacters(this, this.state.target)
+			// Math.abs(this.position[0] - targetPosition[0]) + Math.abs(this.position[1] - targetPosition[1])
 			if ( positionDistance <= this.attackRange){
 				return Utils.CHARACTER_STATES.ATTACK
 			} else if (positionDistance > this.attackRange && positionDistance <= this.visualRange) {
@@ -289,6 +290,16 @@ Alien.prototype.checkSurrounding = function(time){
 		}
 	}
 
+	// TO DO: chase 的检查应该在随机前面
+	// if the original state is chase
+	if (this.state.stateType == Utils.CHARACTER_STATES.CHASE) {
+		if (this.state.target.type != "building" && !CharacterBase.checkIsDied(this.state.target)) {
+			if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
+				this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+			}
+			return
+		}
+	}
 
 	var isRandomChoose = false
 	var randomResult = "enemy"
@@ -674,7 +685,6 @@ Alien.prototype.stay = function(time){
 }
 
 Alien.prototype.runAway = function(time){
-	// console.log("hahahaha   " + this.charName + " " + this.speed + " " + this.baseSpeed  + " "  + this.hp + " " + this.maxHp + " " + time)
 	Logger.info({
 		N1: this.charName,
 		L: "runs away from",
