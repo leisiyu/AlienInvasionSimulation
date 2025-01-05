@@ -685,6 +685,13 @@ Townfolk.prototype.heal = function(time) {
 		return false
 	}
 
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType,
+		P: this.position,
+		T: time,
+	}))
+
 	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
 	return true
 }
