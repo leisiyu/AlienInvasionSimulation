@@ -2,36 +2,36 @@
     "almost_kill": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "attacks",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             },
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "shoots",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             }
             ],
             [{
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is badly hurt, run away from",
-                "char2Idx": 0,
+                "char2Idx": {"index": 0},
                 "repeat": false
             }
             ]
         ],
         "unless": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "is killed by",
-                "char2Idx": 1
+                "char2Idx": {"index": 1}
             },
             {
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by",
-                "char2Idx": 0
+                "char2Idx": {"index": 0}
             }
         ],
         "tag": "almost kills",
@@ -43,25 +43,25 @@
     "escape": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "runs away from",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             }],
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "successfully ran away from",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "is killed by"
             },
             {
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by"
             }
         ],
@@ -74,28 +74,28 @@
     "defeat": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "attacks",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             },
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "shoots",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             }
             ],
             [{
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by",
-                "char2Idx": 0,
+                "char2Idx": {"index": 0},
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "is killed by"
             }
         ],
@@ -106,32 +106,69 @@
 
     },
 
-    
+    "Interrupt_the_treatment": {
+        "events": [
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is healing",
+                "char2Idx": {"index": 0},
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {"index": 2},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            },
+            {
+                "char1Idx": {"index": 2},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "died from fatal injuries that didn't be treated"
+            }
+        ],
+        "tag": "the treatment is interrupted by",
+        "type": "high-level",
+        "main_characters": [0, 2],
+        "time_limit": 20000
+
+    },
 
     "revenge": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "almost kills",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": true
             }],
             [{
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "escaped from",
-                "char2Idx": 0,
+                "char2Idx": {"index": 0},
                 "repeat": true
             }],
             [{
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "defeats",
-                "char2Idx": 0,
+                "char2Idx": {"index": 0},
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by"
             }
         ],
@@ -145,18 +182,18 @@
         "events": [
             [{
                 "tag": "is killed by",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": false
             }],
             [{
                 "tag": "is killed by",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by"
             }
         ],
@@ -169,19 +206,19 @@
     "ace_killer": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "giant killer",
                 "repeat": false
             }],
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "giant killer",
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "is killed by"
             }
         ],
@@ -194,46 +231,93 @@
     "lucky_kill": {
         "events": [
             [{
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "attacks",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": false
             },
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "shoots",
-                "char2Idx": 1,
+                "char2Idx": {"index": 1},
                 "repeat": false
             }
             ],
             [{
-                "char1Idx": 1,
+                "char1Idx": {"index": 1},
                 "tag": "is killed by",
-                "char2Idx": 0,
+                "char2Idx": {"index": 0},
                 "repeat": false
             }]
         ],
         "unless": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "is killed by"
             }
         ],
         "unless_forever": [
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "attacks",
-                "char2Idx": 1
+                "char2Idx": {"index": 1}
             },
             {
-                "char1Idx": 0,
+                "char1Idx": {"index": 0},
                 "tag": "shoots",
-                "char2Idx": 1
+                "char2Idx": {"index": 1}
             }
         ],
         "tag": "luckily kills",
         "type": "high-level",
         "main_characters": [0, 1],
+        "time_limit": 20000
+    },
+
+    "rescue": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is chasing",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is incapacitated, can't move anymore, need cure",
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "is attacked by",
+                "char2Idx": {"index": 2},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "is rescuing",
+        "type": "high-level",
+        "main_characters": [2, 1],
         "time_limit": 20000
     }
 }

@@ -29,19 +29,16 @@ class HighLevelEvent {
     // (no need to be repeat, for example: lucky_kill)
     checkIsNewEventBelongsToThisMatch(newEvent){
         for (let i = 0; i < this.index; i++){
-            // for (let j = 0; j < this.patternEvents[i].length; j++){
-                // if (this.eventName == "lucky_kill") {
-                //     console.log("hahaha " + )
-                // }
-                
-                var currentEvent = this.patternEvents[i][this.eventIdxs[i]]
+            var possibleEventList = this.patternEvents[i]
+            for (let j = 0; j < possibleEventList.length; j++) {
+                var currentEvent = possibleEventList[j]
                 if (newEvent["L"] == currentEvent["tag"]
-                    && newEvent["N1"] == this.actors[currentEvent["char1Idx"]]
-                    && newEvent["N2"] == this.actors[currentEvent["char2Idx"]]){
+                    && (currentEvent["char1Idx"] == undefined || newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]])
+                    && (currentEvent["char2Idx"] == undefined || newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]])){
                         return true
                 }
-            // }
-            
+            }
+                
         }
 
         return false
@@ -55,14 +52,19 @@ class HighLevelEvent {
         // check the old events
         // if matched and "repeat", then add to the event list
         for (let i = 0; i < this.index; i++){
-                var event = this.patternEvents[i][this.eventIdxs[i]]
-                if (event["repeat"]
-                    && newEvent["N1"] == this.actors[event["char1Idx"]]
-                    && newEvent["N2"] == this.actors[event["char2Idx"]]
+                // var event = this.patternEvents[i][this.eventIdxs[i]]
+                var possibleEventList = this.patternEvents[i]
+                for (let j = 0; j < possibleEventList.length; j++) {
+                    var event = possibleEventList[j]
+                    if (event["repeat"]
+                    && (event["char1Idx"] == undefined || newEvent["N1"] == this.actors[event["char1Idx"]["index"]])
+                    && (event["char2Idx"] == undefined || newEvent["N2"] == this.actors[event["char2Idx"]["index"]])
                     && newEvent["L"] == event["tag"]) {
                         this.eventIDs.push(newEvent["id"])
                         return {"isEnd": false, "isSuccessful": false}
                     }
+                }
+                
         }
 
         this.checkUnlessForever(newEvent)
@@ -71,7 +73,9 @@ class HighLevelEvent {
         }
 
         // check the next event
-
+        // if (this.eventName == "Interrupt_the_treatment") {
+        //     console.log("hahaha " + newEvent["N1"]  + newEvent["L"] + newEvent["N2"] + " " + this.actors)
+        // }
         var currentEvents = this.patternEvents[this.index]
         for (let i = 0; i < currentEvents.length; i++) {
             var currentEvent = currentEvents[i]
@@ -112,11 +116,11 @@ class HighLevelEvent {
 
         /////TO DO : character 怎么确认是同个event？？？？？？？如果有新的character involve进来呢？
 
-        if (currentEvent["char1Idx"] != undefined && this.actors[currentEvent["char1Idx"]] != newEvent["N1"]) {
+        if (currentEvent["char1Idx"] != undefined && this.actors[currentEvent["char1Idx"]["index"]] != null && this.actors[currentEvent["char1Idx"]["index"]] != newEvent["N1"]) {
             return {"isMatch": false, "isEnd": false, "isSuccessful": false}
-        }
+        } 
 
-        if (currentEvent["char2Idx"] != undefined && this.actors[currentEvent["char2Idx"]] != newEvent["N2"]) {
+        if (currentEvent["char2Idx"] != undefined && this.actors[currentEvent["char2Idx"]["index"]] != null && this.actors[currentEvent["char2Idx"]["index"]] != newEvent["N2"]) {
             return {"isMatch": false, "isEnd": false, "isSuccessful": false}
         }
 
@@ -135,10 +139,10 @@ class HighLevelEvent {
             // console.log("update time to " + newEvent["T"])
 
             // check if there's a new character involved
-            if (currentEvent["char1Idx"] != undefined && typeof this.actors[currentEvent["char1Idx"]] === "undefined") {
+            if (currentEvent["char1Idx"] != undefined && typeof this.actors[currentEvent["char1Idx"]["index"]] === "undefined" && newEvent["N1"] != "") {
                 this.actors.push(newEvent["N1"])
             }
-            if (currentEvent["char2Idx"] != undefined && typeof this.actors[currentEvent["char2Idx"]] === "undefined" && newEvent["N2"] != "") {
+            if (currentEvent["char2Idx"] != undefined && typeof this.actors[currentEvent["char2Idx"]["index"]] === "undefined" && newEvent["N2"] != "") {
                 this.actors.push(newEvent["N2"])
             }
 
@@ -153,8 +157,8 @@ class HighLevelEvent {
             // characters in this part should be involved in earlier events,
             // so no need to check if this character in the actors array
             if (newEvent["L"] == this.unlessEvents[i]["tag"]) {
-                if (currentUnlessEvent["char1Idx"] == undefined || this.actors[currentUnlessEvent["char1Idx"]] == newEvent["N1"]) {
-                    if (currentUnlessEvent["char2Idx"] == undefined || this.actors[currentUnlessEvent["char2Idx"]] == newEvent["N2"]) {
+                if (currentUnlessEvent["char1Idx"] == undefined || this.actors[currentUnlessEvent["char1Idx"]["index"]] == newEvent["N1"]) {
+                    if (currentUnlessEvent["char2Idx"] == undefined || this.actors[currentUnlessEvent["char2Idx"]["index"]] == newEvent["N2"]) {
                         return true
                     }
                 }
@@ -172,8 +176,8 @@ class HighLevelEvent {
                 var currentEvent = this.highLevelEventJson["unless_forever"][i]
                 
                 if (newEvent["L"] == currentEvent["tag"]){
-                    if (currentEvent["char1Idx"] == undefined || this.actors[currentEvent["char1Idx"]] == newEvent["N1"]) {
-                        if (currentEvent["char2Idx"] == undefined || this.actors[currentEvent["char2Idx"]] == newEvent["N2"]) {
+                    if (currentEvent["char1Idx"] == undefined || this.actors[currentEvent["char1Idx"]["index"]] == newEvent["N1"]) {
+                        if (currentEvent["char2Idx"] == undefined || this.actors[currentEvent["char2Idx"]["index"]] == newEvent["N2"]) {
                             this.meetUnlessForeverConditionTimes ++
                             return this.meetUnlessForeverConditionTimes > 1                           
                         }
