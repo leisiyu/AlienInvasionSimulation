@@ -319,5 +319,64 @@
         "type": "high-level",
         "main_characters": [2, 1],
         "time_limit": 20000
+    },
+
+    "vigilante": {
+        "events": [
+            [{
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "picks up",
+                "char2Idx": {
+                    "index": 1,
+                    "type": "WEAPON"
+                },
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "shoots",
+                "char2Idx": {"index": 2},
+                "repeat": true
+            },
+            {
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "attacks",
+                "char2Idx": {"index": 2},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "defeats",
+                "char2Idx": {"index": 2},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "vigilante",
+        "type": "story",
+        "main_characters": [0],
+        "time_limit": 20000
     }
 }

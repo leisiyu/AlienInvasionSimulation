@@ -2,6 +2,7 @@ const fs = require('node:fs')
 const HighLevelEvents = require("./HighLevelEvents.json")
 // const Logger = require('../Logger').Logger
 const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
+const SifterUtil = require("./SifterUtil")
 
 var partialMatchPool = []
 const poolSize = 5000
@@ -20,7 +21,7 @@ function matchNew(newEvent){
         var isBelongToOneMatch = false
         for (let i = 0; i < partialMatchPool.length; i++){
             var partialMatch = partialMatchPool[i]
-            isBelongToOneMatch = false
+            // isBelongToOneMatch = false
             if (partialMatch.highLevelEventJson["tag"] == currentEventModel["tag"]) {
                 isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
                 if (isBelongToOneMatch) {
@@ -31,9 +32,14 @@ function matchNew(newEvent){
 
         if (!isBelongToOneMatch) {
             var currentEventModelFirstEventList = currentEventModel["events"][0]
+
             for (let i = 0; i < currentEventModelFirstEventList.length; i++) {
-                var currentModelEvent = currentEventModelFirstEventList[i]
-                if (newEvent["L"] == currentModelEvent["tag"]) {
+                var currentEvent = currentEventModelFirstEventList[i]
+                
+                if (newEvent["L"] == currentEvent["tag"]
+                    && (currentEvent["char1Idx"] == undefined || SifterUtil.checkCharacterType(newEvent["N1"], currentEvent["char1Idx"]["type"]))
+                    && (currentEvent["char2Idx"] == undefined || SifterUtil.checkCharacterType(newEvent["N2"], currentEvent["char2Idx"]["type"]))
+                ) {
                     var newHighEvent = new HighLevelEventModel(eventName, newEvent, i, currentEventModel)
                     partialMatchPool.push(newHighEvent)
                     totalPartialMatchNum = totalPartialMatchNum + 1
@@ -57,7 +63,7 @@ function updatePool(newEvent){
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
         var result = obj.checkNewEvent(newEvent)
-        
+
         if (result["isEnd"]) {
             if (obj.unlessForever) {
                 console.log("wrong here")

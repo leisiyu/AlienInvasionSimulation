@@ -1,4 +1,5 @@
 const HighLevelEventsPatterns = require("./HighLevelEvents.json")
+const SifterUtil = require("./SifterUtil")
 
 class HighLevelEvent {
     constructor(eventName,newEvent, firstEventIdx, highLevelEventJson){
@@ -33,8 +34,13 @@ class HighLevelEvent {
             for (let j = 0; j < possibleEventList.length; j++) {
                 var currentEvent = possibleEventList[j]
                 if (newEvent["L"] == currentEvent["tag"]
-                    && (currentEvent["char1Idx"] == undefined || newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]])
-                    && (currentEvent["char2Idx"] == undefined || newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]])){
+                    && (currentEvent["char1Idx"] == undefined 
+                        || (newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]]
+                            && SifterUtil.checkCharacterType(this.actors[currentEvent["char1Idx"]["index"]], currentEvent["char1Idx"]["type"])))
+                    && (currentEvent["char2Idx"] == undefined 
+                        || (newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]]
+                            && SifterUtil.checkCharacterType(this.actors[currentEvent["char2Idx"]["index"]], currentEvent["char2Idx"]["type"])))
+                    ){
                         return true
                 }
             }
@@ -57,9 +63,13 @@ class HighLevelEvent {
                 for (let j = 0; j < possibleEventList.length; j++) {
                     var event = possibleEventList[j]
                     if (event["repeat"]
-                    && (event["char1Idx"] == undefined || newEvent["N1"] == this.actors[event["char1Idx"]["index"]])
-                    && (event["char2Idx"] == undefined || newEvent["N2"] == this.actors[event["char2Idx"]["index"]])
-                    && newEvent["L"] == event["tag"]) {
+                    && (event["char1Idx"] == undefined 
+                        || (newEvent["N1"] == this.actors[event["char1Idx"]["index"]]
+                            && SifterUtil.checkCharacterType(this.actors[event["char1Idx"]["index"]], event["char1Idx"]["type"]))
+                    && (event["char2Idx"] == undefined 
+                        || (newEvent["N2"] == this.actors[event["char2Idx"]["index"]])
+                            && SifterUtil.checkCharacterType(this.actors[event["char2Idx"]["index"]], event["char2Idx"]["type"]))
+                    && newEvent["L"] == event["tag"])) {
                         this.eventIDs.push(newEvent["id"])
                         return {"isEnd": false, "isSuccessful": false}
                     }
@@ -77,10 +87,10 @@ class HighLevelEvent {
         //     console.log("hahaha " + newEvent["N1"]  + newEvent["L"] + newEvent["N2"] + " " + this.actors)
         // }
         var currentEvents = this.patternEvents[this.index]
+        var isMatchOneEventOption = false
         for (let i = 0; i < currentEvents.length; i++) {
             var currentEvent = currentEvents[i]
             var result = this.checkOneEventOption(newEvent, currentEvent)
-            var isMatchOneEventOption = false
             if (result["isMatch"]) {
                 // match all the conditions: character, log, time limit, unless
                 // match the new event
@@ -95,7 +105,9 @@ class HighLevelEvent {
                 break
             }
         }
-
+        // if (this.eventName == "vigilante") {
+        //     console.log("hahaha222 " + this.eventIDs + " " + this.index + " " + this.totalEventsNum)
+        // }
         if (!isMatchOneEventOption) {
             return {"isEnd": false, "isSuccessful": false}
         }
@@ -116,11 +128,20 @@ class HighLevelEvent {
 
         /////TO DO : character 怎么确认是同个event？？？？？？？如果有新的character involve进来呢？
 
-        if (currentEvent["char1Idx"] != undefined && this.actors[currentEvent["char1Idx"]["index"]] != null && this.actors[currentEvent["char1Idx"]["index"]] != newEvent["N1"]) {
+        if (currentEvent["char1Idx"] != undefined 
+            && this.actors[currentEvent["char1Idx"]["index"]] != null 
+            && (this.actors[currentEvent["char1Idx"]["index"]] != newEvent["N1"]
+                || !SifterUtil.checkCharacterType(this.actors[currentEvent["char1Idx"]["index"]], currentEvent["char1Idx"]["type"]))) {
+        // if (currentEvent["char1Idx"] != undefined && this.actors[currentEvent["char1Idx"]["index"]] != newEvent["N1"]) {
             return {"isMatch": false, "isEnd": false, "isSuccessful": false}
         } 
 
-        if (currentEvent["char2Idx"] != undefined && this.actors[currentEvent["char2Idx"]["index"]] != null && this.actors[currentEvent["char2Idx"]["index"]] != newEvent["N2"]) {
+        // if (currentEvent["char2Idx"] != undefined && this.actors[currentEvent["char2Idx"]["index"]] != newEvent["N2"]) {
+        if (currentEvent["char2Idx"] != undefined 
+            && this.actors[currentEvent["char2Idx"]["index"]] != null 
+            && (this.actors[currentEvent["char2Idx"]["index"]] != newEvent["N2"]
+                || !SifterUtil.checkCharacterType(this.actors[currentEvent["char2Idx"]["index"]], currentEvent["char2Idx"]["type"]))
+            ) {
             return {"isMatch": false, "isEnd": false, "isSuccessful": false}
         }
 
@@ -139,10 +160,16 @@ class HighLevelEvent {
             // console.log("update time to " + newEvent["T"])
 
             // check if there's a new character involved
-            if (currentEvent["char1Idx"] != undefined && typeof this.actors[currentEvent["char1Idx"]["index"]] === "undefined" && newEvent["N1"] != "") {
+            if (currentEvent["char1Idx"] != undefined 
+                && typeof this.actors[currentEvent["char1Idx"]["index"]] === "undefined" 
+                && newEvent["N1"] != ""
+                && SifterUtil.checkCharacterType(newEvent["N1"], currentEvent["char1Idx"]["type"])) {
                 this.actors.push(newEvent["N1"])
             }
-            if (currentEvent["char2Idx"] != undefined && typeof this.actors[currentEvent["char2Idx"]["index"]] === "undefined" && newEvent["N2"] != "") {
+            if (currentEvent["char2Idx"] != undefined 
+                && typeof this.actors[currentEvent["char2Idx"]["index"]] === "undefined" 
+                && newEvent["N2"] != ""
+                && SifterUtil.checkCharacterType(newEvent["N2"], currentEvent["char2Idx"]["type"])) {
                 this.actors.push(newEvent["N2"])
             }
 
@@ -201,6 +228,8 @@ class HighLevelEvent {
             "type": this.highLevelEventJson['type']
         }
     }
+
+    
 }
 
 module.exports = {
