@@ -16,7 +16,7 @@ var Alien = function(name, position){
 	this.position = position
 	this.charType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
-	this.baseSpeed = Math.floor(Math.random() * 5) + 1
+	this.baseSpeed = Math.floor(Math.random() * 5) + 3//1
 	this.speed = this.baseSpeed
 	this.visualRange = 6
 	this.attackRange = 2
@@ -443,7 +443,6 @@ Alien.prototype.moveOneStep = function(availableDirections, time){
 	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, null, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
-	// console.log("hahaha222222 " + this.lastDirection)
 	// var direction
 	// if (this.lastDirection == "") {
 	// 	direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
@@ -586,9 +585,9 @@ Alien.prototype.chase = function(time){
 		}
 		var verticalOffset = position[1] - this.position[1]
 		if (verticalOffset > targetHeight) {
-			availableDirections.push(Utils.DIRECTION[0])
-		} else if (verticalOffset < -targetHeight) {
 			availableDirections.push(Utils.DIRECTION[1])
+		} else if (verticalOffset < -targetHeight) {
+			availableDirections.push(Utils.DIRECTION[0])
 		}
 		if (availableDirections.length > 0) {
 			this.moveOneStep(availableDirections, time)
@@ -605,7 +604,8 @@ Alien.prototype.chase = function(time){
 
 	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
 		var characterName = this.state.target.charName
-		this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(characterName))
+		// this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(characterName))
+		this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
 	}
 
 }
