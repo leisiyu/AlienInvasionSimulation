@@ -18,7 +18,7 @@ var Townfolk = function(name, position){
 	// jssim.SimEvent.call(this, 10)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE.TOWNFOLK
+	this.charType = Utils.CHARACTER_TYPE.TOWNSFOLK
 	this.baseSpeed = Math.floor(Math.random() * 3) + 1
 	this.speed = this.baseSpeed
 	// this.speed = 10 // test
@@ -236,12 +236,12 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		}
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 			Logger.info({
-				N1: soldierThis.charName,
+				N1: this.charName,
 				L: "is badly hurt, runs away from",
 				N2: messageContent.attacker,
 				T: time,
 			})
-			soldierThis.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 		} else {
 			if (this.hasWeapon()) {
 				Logger.info({
@@ -322,6 +322,9 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 		}
 		return
 	} else {
+		if (this.state.stateType == Utils.CHARACTER_STATES.HEAL) {
+			return
+		}
 		var enemies = this.checkVisualRange()[0]
 		if (enemies.length > 0) {
 			if (this.hasWeapon()) {

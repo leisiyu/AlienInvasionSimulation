@@ -2,17 +2,17 @@
 
 
 const CHARACTER_TYPE = {
-	TOWNFOLK: 'TOWNFOLK',
+	TOWNSFOLK: 'TOWNSFOLK',
 	ALIEN: 'ALIEN',
 	SOLDIER: 'SOLDIER',
 }
 
 
-var TOTAL_CHARACTERS = 20
-var CHARACTER_RATIO = [1, 4, 4]
+var TOTAL_CHARACTERS = 60
+var CHARACTER_RATIO = [2, 1, 1]   // alien:soldier:townsfolk
 const TOTAL_STEPS = 10
 var MAP_SIZE = [50, 50]
-var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
+var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
 var TIME_STEPS = 10000
@@ -25,7 +25,7 @@ function initParameters(totalCharacters, characterRatio, mapSize, timeSteps){
 	TIME_STEPS = timeSteps != undefined ? Number(timeSteps) : TIME_STEPS
 	this.TIME_STEPS = TIME_STEPS
 
-	this.TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNFOLK)
+	this.TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
 	this.ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 	this.SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
 
@@ -40,7 +40,7 @@ function getNumberByRatio(characterType){
 	}
 	var ratio = 0
 	switch (characterType) {
-		case CHARACTER_TYPE.TOWNFOLK:
+		case CHARACTER_TYPE.TOWNSFOLK:
 			ratio = CHARACTER_RATIO[2] / totalRatioSum
 			break
 		case CHARACTER_TYPE.ALIEN:
@@ -106,15 +106,15 @@ const CHARACTER_STATES = {
 }
 
 const GEAR_TYPES = [
-	"HEAL",
+	"MEDIKIT",
 	"WEAPON",
 ]
 
 const HEALS = {
-	MEDICINE: {
-		value:[5, 20],
-		durability: 1,
-	},
+	// MEDICINE: {
+	// 	value:[5, 20],
+	// 	durability: 1,
+	// },
 	MEDIKIT: {
 		value: [3, 5],
 		durability: 1,

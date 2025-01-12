@@ -35,8 +35,8 @@ class Building{
             return characterType == Utils.CHARACTER_TYPE.ALIEN
         }
 
-        if (this.ownerType == Utils.CHARACTER_TYPE.SOLDIER || this.ownerType == Utils.CHARACTER_TYPE.TOWNFOLK) {
-            return characterType == Utils.CHARACTER_TYPE.SOLDIER || characterType == Utils.CHARACTER_TYPE.TOWNFOLK
+        if (this.ownerType == Utils.CHARACTER_TYPE.SOLDIER || this.ownerType == Utils.CHARACTER_TYPE.TOWNSFOLK) {
+            return characterType == Utils.CHARACTER_TYPE.SOLDIER || characterType == Utils.CHARACTER_TYPE.TOWNSFOLK
         }
     }
 
