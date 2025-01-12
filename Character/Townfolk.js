@@ -238,7 +238,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 			Logger.info({
 				N1: this.charName,
 				L: "is badly hurt, runs away from",
-				N2: messageContent.attacker,
+				N2: attacker,
 				T: time,
 			})
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
@@ -247,7 +247,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 				Logger.info({
 					N1: soldierThis.charName,
 					L: "is attacked by",
-					N2: messageContent.attacker,
+					N2: attacker,
 					T: time,
 				})
 				this.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(attacker))
