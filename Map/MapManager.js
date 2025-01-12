@@ -12,11 +12,12 @@ function generateMap(){
 	map.createRandomMap()
     gearsOnMap = []
     
-    ////////test//////
-    for (let i = 0; i < 5; i++){
+    //generate random gear
+    var randomNum = Math.floor(Math.random() * Utils.TOTAL_CHARACTERS * 0.3) + 1
+    console.log("haha random gear num " + randomNum)
+    for (let i = 0; i < randomNum; i++){
         randomGearInRandomPos(0)
     }
-    /////////////////
 }
 
 function getMap(){
@@ -104,6 +105,7 @@ function removeGearFromGearMap(gear){
 
 function createRandomGear(){
     var randomType = Utils.GEAR_TYPES[Math.floor(Math.random() * Utils.GEAR_TYPES.length)]
+    // var randomType = Utils.GEAR_TYPES[0]
     var gearSubtypes = {}
     switch (randomType) {
         case Utils.GEAR_TYPES[0]:

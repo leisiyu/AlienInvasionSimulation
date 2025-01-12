@@ -141,7 +141,8 @@ class TempMap{
 		var building = new Building(size, [posX, posY], buildingType, [])
 		// check road overlapping
 		if (!this.isValid(building)) { return false }
-		building.idx = this.buildings.length
+		// building.idx = this.buildings.length
+		building.setIdx(this.buildings.length)
 		this.buildings.push(building)
 	}
 
@@ -180,6 +181,10 @@ class TempMap{
 
 	getBuilding(idx){
 		return this.buildings[idx]
+	}
+
+	getBuildingNum(){
+		return this.buildings.length
 	}
 }
 
