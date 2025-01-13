@@ -315,7 +315,7 @@
                 "tag": "is killed by"
             }
         ],
-        "tag": "is rescuing",
+        "tag": "rescued",
         "type": "high-level",
         "main_characters": [2, 1],
         "time_limit": 20000
@@ -377,6 +377,49 @@
         "tag": "vigilante",
         "type": "story",
         "main_characters": [0],
+        "time_limit": 20000
+    },
+
+    "guardian_angel": {
+        "events": [
+            [{
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "rescued",
+                "char2Idx": {
+                    "index": 1
+                },
+                "repeat": false
+            }],
+            [{
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "rescued",
+                "char2Idx": {
+                    "index": 1
+                },
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {
+                    "index": 1
+                },
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "is the guardian angel of",
+        "type": "story",
+        "main_characters": [0, 1],
         "time_limit": 20000
     }
 }
