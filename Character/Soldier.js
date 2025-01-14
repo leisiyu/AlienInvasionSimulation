@@ -21,11 +21,12 @@ var Soldier = function(name, position){
 	// this.baseSpeed = 15 // test
 	this.speed = this.baseSpeed
 	this.visualRange = 5
-	this.attackRange = 1
+	this.attackRange = Math.floor(Math.random() * 2) + 1
 	this.maxHp = Math.floor(Math.random() * 200) + 200
 	this.hp = this.maxHp
 	this.baseAttackValue = Math.floor(Math.random() * 100) + 10
 	this.attackValue = this.baseAttackValue
+	this.criticalHitProbability = new Probability(Utils.ATTACK_TYPE, [80, 20])
 	this.state = new CharacterState()
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.lastDirection = ""
@@ -146,9 +147,12 @@ var Soldier = function(name, position){
 					// notify the attacked character
 					// state type maybe changed in the attack function
 					if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-						var atkValue = soldierThis.attackValue
+						var attackType = soldierThis.criticalHitProbability.randomlyPick()
+						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+						var atkValue = Math.floor(soldierThis.attackValue * attackRatio)
+
 						if (isSuccessfulAttack[1] != null) {
-							atkValue = isSuccessfulAttack[1].value
+							atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
 						}
 						var msg = {
 							msgType: "attacked",
@@ -309,6 +313,7 @@ Soldier.prototype.wander = function(time){
 Soldier.prototype.heal = function(time) {
 	if (this.healingIdx >= Utils.HEAL_STEP) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+		this.healingIdx = 0
 		return false
 	}
 

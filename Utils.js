@@ -9,7 +9,7 @@ const CHARACTER_TYPE = {
 
 
 var TOTAL_CHARACTERS = 60
-var CHARACTER_RATIO = [2, 1, 1]   // alien:soldier:townsfolk
+var CHARACTER_RATIO = [1, 1, 1]   // alien:soldier:townsfolk
 const TOTAL_STEPS = 10
 var MAP_SIZE = [50, 50]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
@@ -156,6 +156,12 @@ const formatString = (template, ...args) => {
 
 const HEAL_STEP = 3
 
+const ATTACK_TYPE = [
+	"NORMAL",
+	"CRITICAL_HIT"
+]
+const CRITICAL_HIT = 1.2
+
 module.exports = {
 	TOTAL_STEPS,
 	MAP_SIZE,
@@ -175,5 +181,7 @@ module.exports = {
 	HEALS,
 	WEAPONS,
 	HEALTH_STATES,
-	HEAL_STEP
+	HEAL_STEP,
+	ATTACK_TYPE,
+	CRITICAL_HIT
 }

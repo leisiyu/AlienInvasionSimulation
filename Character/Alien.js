@@ -19,13 +19,14 @@ var Alien = function(name, position){
 	this.baseSpeed = Math.floor(Math.random() * 5) + 3//1
 	this.speed = this.baseSpeed
 	this.visualRange = 6
-	this.attackRange = 2
+	this.attackRange = Math.floor(Math.random() * 2) + 1
 	this.maxHp = Math.floor(Math.random() * 400) + 200
 	// this.maxHp = 200  // test
 	this.hp = this.maxHp
 	// this.inventory = []
-	this.baseAttackValue = Math.floor(Math.random() * 200) + 100
+	this.baseAttackValue = Math.floor(Math.random() * 200) + 10
 	this.attackValue = this.baseAttackValue
+	this.criticalHitProbability = new Probability(Utils.ATTACK_TYPE, [90, 10])
 	this.lastDirection = ""
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
 	this.TARGET = ["enemy", "building"]
@@ -152,10 +153,11 @@ var Alien = function(name, position){
 					// notify the attacked character
 					// state type maybe changed in the attack function
 					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-						
+						var attackType = alienThis.criticalHitProbability.randomlyPick()
+						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
 						var msg = {
 							msgType: "attacked",
-							atkValue: alienThis.attackValue,
+							atkValue: Math.floor(alienThis.attackValue * attackRatio),
 							attacker: alienThis.charName,
 						}
 						this.sendMsg(alienThis.state.target.simEvent.guid(), {
@@ -529,7 +531,9 @@ Alien.prototype.getAvailableDirectionsForPatrol = function(){
 Alien.prototype.destroy = function(time){
 	var building = this.state.target
 
-	building.isAttacked(this.attackValue)
+	var attackType = this.criticalHitProbability.randomlyPick()
+	var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+	building.isAttacked(Math.floor(this.attackValue * attackRatio))
 	Logger.info({
 		"N1": this.charName,
 		"L": "is destroying",

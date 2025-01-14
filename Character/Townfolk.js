@@ -25,6 +25,7 @@ var Townfolk = function(name, position){
 	this.visualRange = 5
 	this.attackRange = 1
 	this.attackValue = 10
+	this.criticalHitProbability = new Probability(Utils.ATTACK_TYPE, [95, 5])
 	this.maxHp = Math.floor(Math.random() * 50) + 50
 	this.hp = this.maxHp
 	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [30, 70])
@@ -96,9 +97,11 @@ var Townfolk = function(name, position){
 				if (isSuccessfulAttack[0]) {
 					// notify the attacked character
 					// state type maybe changed in the attack function
+					var attackType = townfolkThis.criticalHitProbability.randomlyPick()
+					var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
 					var atkValue = 0
 					if (isSuccessfulAttack[1] != null) {
-						atkValue = isSuccessfulAttack[1].value
+						atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
 					} else {
 						break
 					}
@@ -147,19 +150,19 @@ Townfolk.prototype.updateHealthStates = function(time){
 			if (this.hp < this.maxHp) {
 				this.hp = this.hp + 2
 			}
-			// this.attackValue = this.baseAttackValue
+			this.attackValue = this.baseAttackValue
 			break
 		case Utils.HEALTH_STATES.SCRATCHED:
 			this.speed = this.baseSpeed
 			if (this.hp < this.maxHp) {
 				this.hp = this.hp + 1
 			}
-			// this.attackValue = this.baseAttackValue
+			this.attackValue = this.baseAttackValue
 			break
 		case Utils.HEALTH_STATES.HURT:
 			this.speed = Math.floor(this.baseSpeed * 0.5)
 			if (this.speed <= 0) { this.speed = 1 }
-			// this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
+			this.attackValue =  Math.floor(this.baseAttackValue * 0.8)
 			break
 		case Utils.HEALTH_STATES.INCAPACITATED:
 			Logger.info({
