@@ -61,7 +61,6 @@ var Townfolk = function(name, position){
 				if (messageContent.msgType.valueOf() == "attacked".valueOf()) {
 					townfolkThis.getAttacked(this.time, messageContent.attacker, messageContent.atkValue)
 				}else if (messageContent.msgType.valueOf() == "heal".valueOf()){
-					// CharacterBase.heal(soldierThis.beHealedIdx, soldierThis.charName, messageContent.healer, this.time)
 					if (townfolkThis.beHealedIdx < Utils.HEAL_STEP) {
 						townfolkThis.beHealedIdx ++
 						if (townfolkThis.beHealedIdx >= Utils.HEAL_STEP) {
@@ -248,7 +247,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 		} else {
 			if (this.hasWeapon()) {
 				Logger.info({
-					N1: soldierThis.charName,
+					N1: this.charName,
 					L: "is attacked by",
 					N2: attacker,
 					T: time,
