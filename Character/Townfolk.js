@@ -391,7 +391,7 @@ Townfolk.prototype.hide = function(time){
 Townfolk.prototype.runAway = function(time){
 	Logger.info({
 		N1: this.charName,
-		L: "runs away from",
+		L: "is badly hurt, runs away from",
 		N2: this.state.target.charName,
 		T: time,
 	})
