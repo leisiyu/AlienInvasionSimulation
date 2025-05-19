@@ -1,3 +1,6 @@
+const Utils = require('../Utils.js') 
+const Logger = require('../Logger.js').Logger
+
 var idx = 0
 
 class Gear{
@@ -8,6 +11,7 @@ class Gear{
         this.durability = durability
         this.name = this.subType + idx
         this.mapPosition = [0, 0]
+        this.state = Utils.GEAR_STATE.NORMAL
         idx ++
     }
 
@@ -16,10 +20,18 @@ class Gear{
     }
 
     // reduce durability every time use this gear
-    use() {
+    use(time) {
         this.durability = this.durability - 1
         // console.log("hahahahah    " + this.name + " " + this.durability)
         if (this.durability <= 0) {
+            console.log("hahah   the gear is broken")
+            this.state = Utils.GEAR_STATE.BROKEN
+            Logger.statesInfo(JSON.stringify({
+                N: this.name,
+                S: this.state,
+                P: "",
+                T: time,
+            }))
             return false
         }
         return true

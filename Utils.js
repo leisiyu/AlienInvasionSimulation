@@ -112,12 +112,12 @@ const GEAR_TYPES = [
 
 const HEALS = {
 	// MEDICINE: {
-	// 	value:[5, 20],
-	// 	durability: 1,
+	// 	value:[10, 20],
+	// 	durability: 3,
 	// },
 	MEDIKIT: {
-		value: [3, 5],
-		durability: 1,
+		value: [10, 30],
+		durability: 2,
 	},
 }
 
@@ -162,6 +162,11 @@ const ATTACK_TYPE = [
 ]
 const CRITICAL_HIT = 1.2
 
+const GEAR_STATE = {
+	NORMAL: "NORMAL",
+	BROKEN: "BROKEN"
+}
+
 module.exports = {
 	TOTAL_STEPS,
 	MAP_SIZE,
@@ -183,5 +188,6 @@ module.exports = {
 	HEALTH_STATES,
 	HEAL_STEP,
 	ATTACK_TYPE,
-	CRITICAL_HIT
+	CRITICAL_HIT,
+	GEAR_STATE
 }
