@@ -108,8 +108,13 @@ var Soldier = function(name, position){
 				} else if (messageContent.msgType.valueOf() == "heal".valueOf()){		
 					if (soldierThis.beHealedIdx < Utils.HEAL_STEP) {
 						soldierThis.beHealedIdx ++
-						if (soldierThis.beHealedIdx >= Utils.HEAL_STEP) {
+						soldierThis.hp = soldierThis.hp + messageContent.value 
+						if (soldierThis.hp > soldierThis.maxHp) {
 							soldierThis.hp = soldierThis.maxHp
+							soldierThis.beHealedIdx = Utils.HEAL_STEP
+						}
+						if (soldierThis.beHealedIdx >= Utils.HEAL_STEP) {
+							// soldierThis.hp = soldierThis.maxHp
 							// soldierThis.beHealedIdx = 0
 							Logger.info({
 								N1: soldierThis.charName,
@@ -125,7 +130,7 @@ var Soldier = function(name, position){
 		}
 
 		soldierThis.updateHealthStates(this.time)
-		soldierThis.checkSurrounding(this.time)
+		soldierThis.updateStates(this.time)
 
 		// check the character's state
 		switch(soldierThis.state.stateType){
@@ -175,6 +180,7 @@ var Soldier = function(name, position){
 					var msg = {
 						msgType: "heal",
 						healer: soldierThis.charName,
+						value: isSuccessfulHeal[1],
 					}
 					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
 						content: JSON.stringify(msg)
@@ -314,18 +320,18 @@ Soldier.prototype.heal = function(time) {
 	if (this.healingIdx >= Utils.HEAL_STEP) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
 		this.healingIdx = 0
-		return false
+		return [false]
 	}
 
 	var result = CharacterBase.hasMediKit(this.inventory)
 	if (!result[0]) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
 		this.healingIdx = 0
-		return false
+		return [false]
 	}
 
 	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
-	return true
+	return [true, result[1].value]
 }
 
 Soldier.prototype.moveOneStep = function(availableDirections, time){
@@ -565,7 +571,7 @@ Soldier.prototype.attack = function(time){
 	// return true
 }
 
-Soldier.prototype.checkSurrounding = function(time){
+Soldier.prototype.updateStates = function(time){
 	// check health state, if incapacitated, can not move or attack
 	if (this.healthState == Utils.HEALTH_STATES.DIED){
 		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
@@ -597,6 +603,16 @@ Soldier.prototype.checkSurrounding = function(time){
 	if (this.state.stateType == Utils.CHARACTER_STATES.HEAL){
 		if (this.state.target.beHealedIdx < Utils.HEAL_STEP && this.healingIdx < Utils.HEAL_STEP) {
 			return
+		}
+
+		// previous state is HEAL
+		// check target's hp, if full, switch to other state
+		// check healing index, if more than heal step, switch to other state
+		if (this.healingIdx >= Utils.HEAL_STEP
+			|| this.state.target.hp >= this.state.target.maxHp) {
+			this.state.target.beHealedIdx = 0
+			this.healingIdx = 0
+			this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
 		}
 	}
 

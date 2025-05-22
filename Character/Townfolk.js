@@ -63,8 +63,13 @@ var Townfolk = function(name, position){
 				}else if (messageContent.msgType.valueOf() == "heal".valueOf()){
 					if (townfolkThis.beHealedIdx < Utils.HEAL_STEP) {
 						townfolkThis.beHealedIdx ++
-						if (townfolkThis.beHealedIdx >= Utils.HEAL_STEP) {
+						townfolkThis.hp = townfolkThis.hp + messageContent.value 
+						if (townfolkThis.hp > townfolkThis.maxHp) {
 							townfolkThis.hp = townfolkThis.maxHp
+							townfolkThis.beHealedIdx = Utils.HEAL_STEP
+						}
+						if (townfolkThis.beHealedIdx >= Utils.HEAL_STEP) {
+							// townfolkThis.hp = townfolkThis.maxHp
 							townfolkThis.beHealedIdx = 0
 							Logger.info({
 								N1: townfolkThis.charName,
@@ -79,7 +84,7 @@ var Townfolk = function(name, position){
 			}
 		}
 		// check the character's state
-		townfolkThis.checkEnemiesAround(time)
+		townfolkThis.updateStates(time)
 		switch(townfolkThis.state.stateType){
 			case Utils.CHARACTER_STATES.HIDE:
 				townfolkThis.hideOrWander(this.time)
@@ -119,11 +124,12 @@ var Townfolk = function(name, position){
 				break
 			case Utils.CHARACTER_STATES.HEAL:
 				var isSuccessfulHeal = townfolkThis.heal(this.time)
-				if (isSuccessfulHeal) {
+				if (isSuccessfulHeal[0]) {
 					townfolkThis.healingIdx++
 					var msg = {
 						msgType: "heal",
 						healer: townfolkThis.charName,
+						value: isSuccessfulHeal[1],
 					}
 					this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
 						content: JSON.stringify(msg)
@@ -306,7 +312,7 @@ Townfolk.prototype.hideOrWander = function(time){
 // if there's a enemy, then runAway
 // if has weapon, attack or chase
 // change state only
-Townfolk.prototype.checkEnemiesAround = function(time){
+Townfolk.prototype.updateStates = function(time){
 
 	if (this.hp <= 0) {
 		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
@@ -325,7 +331,21 @@ Townfolk.prototype.checkEnemiesAround = function(time){
 		return
 	} else {
 		if (this.state.stateType == Utils.CHARACTER_STATES.HEAL) {
-			return
+
+			if (this.state.target.beHealedIdx < Utils.HEAL_STEP && this.healingIdx < Utils.HEAL_STEP) {
+				// stay in the healing or be healed state
+				return
+			}
+
+			// previous state is HEAL
+			// check target's hp, if full, switch to other state
+			// check healing index, if more than heal step, switch to other state
+			if (this.healingIdx >= Utils.HEAL_STEP
+				|| this.state.target.hp >= this.state.target.maxHp) {
+				this.state.target.beHealedIdx = 0
+				this.healingIdx = 0
+				this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+			}
 		}
 		var enemies = this.checkVisualRange()[0]
 		if (enemies.length > 0) {
@@ -680,14 +700,15 @@ Townfolk.prototype.chase = function(time){
 Townfolk.prototype.heal = function(time) {
 	if (this.healingIdx >= Utils.HEAL_STEP) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
-		return false
+		this.healingIdx = 0
+		return [false]
 	}
 
 	var result = CharacterBase.hasMediKit(this.inventory)
 	if (!result[0]) {
 		this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
 		this.healingIdx = 0
-		return false
+		return [false]
 	}
 
 	Logger.statesInfo(JSON.stringify({
@@ -698,7 +719,8 @@ Townfolk.prototype.heal = function(time) {
 	}))
 
 	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
-	return true
+	console.log("hahahahah  " + result[1].durability)
+	return [true, result[1].value]
 }
 
 module.exports = {

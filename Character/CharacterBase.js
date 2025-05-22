@@ -143,7 +143,7 @@ function attack(character, time){
                     N2: target.charName,
                     T: time,
                 })
-                var isAvailable = weapon.use()
+                var isAvailable = weapon.use(time)
                 if (!isAvailable) {
                     character.inventory.splice(i, 1)
                     Logger.info({
@@ -195,15 +195,24 @@ function updateHealthState(hp, baseHp){
 
 function heal(healIdx, charName, targetName, medikit, inventory, time){
 	healIdx ++
-	if (healIdx >= Utils.HEAL_STEP) {
-
-		var result = medikit.use()
-		if (!result) {
-			removeGearFromInventory(medikit, inventory)
-		}
+	var result = medikit.use(time)
+	if (!result) {
+		removeGearFromInventory(medikit, inventory)
+		// if medikit is used up, healing finished, return
+		healIdx = Utils.HEAL_STEP
 		Logger.info({
             N1: charName,
-            L: "healed",
+            L: "finished healing",
+            N2: targetName,
+            T: time,
+        })
+		return true
+	}
+
+	if (healIdx >= Utils.HEAL_STEP) {
+		Logger.info({
+            N1: charName,
+            L: "finished healing",
             N2: targetName,
             T: time,
         })

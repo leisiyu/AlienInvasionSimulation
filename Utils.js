@@ -111,13 +111,13 @@ const GEAR_TYPES = [
 ]
 
 const HEALS = {
-	// MEDICINE: {
-	// 	value:[10, 20],
-	// 	durability: 3,
-	// },
+	MEDICINE: {
+		value:[10, 30],
+		durability: 30,
+	},
 	MEDIKIT: {
-		value: [10, 30],
-		durability: 2,
+		value: [20, 70],
+		durability: 20,
 	},
 }
 
