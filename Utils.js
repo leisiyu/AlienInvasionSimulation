@@ -131,11 +131,11 @@ const HEALTH_STATES = {
 
 const WEAPONS = {
 	GUN: {
-		value: [100, 150],
+		value: [50, 70],
 		durability: 25,
 	},
 	RIFLE: {
-		value: [150, 200],
+		value: [80, 100],
 		durability: 25,
 	}
 }
