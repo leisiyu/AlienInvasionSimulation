@@ -259,6 +259,38 @@ function checkIsDied(character) {
 	return character.state.stateType == Utils.CHARACTER_STATES.DIED
 }
 
+function getAvailableDirectionsForPatrol(position, characterType){
+	var availableDirections = []
+	for (let i = 0; i < Utils.DIRECTION.length; i++) {
+		var tempDir = Utils.DIRECTION[i]
+		var tempPos = JSON.parse(JSON.stringify(position))
+		switch (tempDir) {
+			case Utils.DIRECTION[0]:
+				tempPos[1]--
+				break
+			case Utils.DIRECTION[1]:
+				tempPos[1]++
+				break
+			case Utils.DIRECTION[2]:
+				tempPos[0]--
+				break
+			case Utils.DIRECTION[3]:
+				tempPos[0]++
+				break
+		}
+		if (tempPos[0] >=0 && tempPos[0] < Utils.MAP_SIZE[0] 
+			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
+			
+			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
+			console.log("hahahaha    " + characterType + " " + isInBuilding[0])
+			if (!(isInBuilding[0] && characterType == Utils.CHARACTER_TYPE.ALIEN)){
+				availableDirections.push(tempDir)
+			}
+		}
+	}
+	return availableDirections
+}
+
 module.exports = {
     moveOneStep,
     pickUpGear,
@@ -268,5 +300,6 @@ module.exports = {
 	heal,
 	hasMediKit,
 	calDistanceOfCharacters, 
-	checkIsDied
+	checkIsDied,
+	getAvailableDirectionsForPatrol
 }
