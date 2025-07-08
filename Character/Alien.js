@@ -445,50 +445,6 @@ Alien.prototype.moveOneStep = function(availableDirections, time){
 	var result = CharacterBase.moveOneStep(this.lastDirection, availableDirections, this.directionProbability, this.position, null, time, this.charName)
 	this.lastDirection = result[0]
 	this.position = result[1]
-	// var direction
-	// if (this.lastDirection == "") {
-	// 	direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-	// } else {
-	// 	var idx = availableDirections.indexOf(this.lastDirection)
-
-	// 	if (idx < 0) {
-	// 		direction = availableDirections[Math.floor(Math.random() * availableDirections.length)]
-	// 	} else {
-	// 		var newWeights = []
-	// 		for (let i = 0; i < Utils.DIRECTION.length; i++) {
-	// 			if (i == idx) {
-	// 				newWeights.push(30)
-	// 			} else (
-	// 				newWeights.push(10)
-	// 			)
-	// 		}
-	// 		this.directionProbability.updateWeights(newWeights)
-	// 		direction = this.directionProbability.randomlyPick()
-	// 	}
-	// }
-
-	// this.lastDirection = direction
-
-	// var step = 1
-	// // check is on a road
-	// // speed will be higher when on a road
-	// if (MapManager.checkIsOnARoad(this.position)) {
-	// 	step = step + 1
-	// }
-	// switch(direction){
-	// 	case Utils.DIRECTION[0]:
-	// 		this.position[1] = this.position[1] - step < 0 ? 0 : this.position[1] - step
-	// 		break
-	// 	case Utils.DIRECTION[1]:
-	// 		this.position[1] = this.position[1] + step >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : this.position[1] + step
-	// 		break
-	// 	case Utils.DIRECTION[2]:
-	// 		this.position[0] = this.position[0] - step < 0 ? 0 : this.position[0] - step
-	// 		break;
-	// 	case Utils.DIRECTION[3]:
-	// 		this.position[0] = this.position[0] + step >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : this.position[0] + step
-	// 		break
-	// }
 }
 
 Alien.prototype.getAvailableDirectionsForPatrol = function(){
@@ -587,14 +543,7 @@ Alien.prototype.chase = function(time){
 // attacked -> died
 Alien.prototype.attack = function(time){
 	// check if the character died
-	// console.log("hahahah  " + this.charName + " " + this.state.target.state.stateType)
 	if (this.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		// Logger.info({
-		// 	N1: this.charName,
-		// 	L: "killed",
-		// 	N2: this.state.target.charName,
-		// 	T: time,
-		// })
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		this.wander(time)
 		return false
