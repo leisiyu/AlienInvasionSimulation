@@ -471,26 +471,28 @@ Soldier.prototype.runAway = function(time){
 }
 
 Soldier.prototype.getRunAwayDirection = function(){
-	var oppositDir = []
-	if (this.position[0] - this.state.target.position[0] > 0) {
-		oppositDir.push(Utils.DIRECTION[3])
-	} else if (this.position[0] - this.state.target.position[0] < 0) {
-		oppositDir.push(Utils.DIRECTION[2])
-	} else {
-		oppositDir.push(Utils.DIRECTION[2])
-		oppositDir.push(Utils.DIRECTION[3])
-	}
-
-	if (this.position[1] - this.state.target.position[1] > 0) {
-		oppositDir.push(Utils.DIRECTION[1])
-	} else if (this.position[1] - this.state.target.position[0] < 1) {
-		oppositDir.push(Utils.DIRECTION[0])
-	} else {
-		oppositDir.push(Utils.DIRECTION[0])
-		oppositDir.push(Utils.DIRECTION[1])
-	}
-
+	var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
 	return oppositDir
+	// var oppositDir = []
+	// if (this.position[0] - this.state.target.position[0] > 0) {
+	// 	oppositDir.push(Utils.DIRECTION[3])
+	// } else if (this.position[0] - this.state.target.position[0] < 0) {
+	// 	oppositDir.push(Utils.DIRECTION[2])
+	// } else {
+	// 	oppositDir.push(Utils.DIRECTION[2])
+	// 	oppositDir.push(Utils.DIRECTION[3])
+	// }
+
+	// if (this.position[1] - this.state.target.position[1] > 0) {
+	// 	oppositDir.push(Utils.DIRECTION[1])
+	// } else if (this.position[1] - this.state.target.position[0] < 1) {
+	// 	oppositDir.push(Utils.DIRECTION[0])
+	// } else {
+	// 	oppositDir.push(Utils.DIRECTION[0])
+	// 	oppositDir.push(Utils.DIRECTION[1])
+	// }
+
+	// return oppositDir
 }
 
 Soldier.prototype.chase = function(time){

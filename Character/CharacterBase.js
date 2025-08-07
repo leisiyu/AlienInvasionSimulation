@@ -17,11 +17,6 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 		} else {
 			var newWeights = []
 			for (let i = 0; i < Utils.DIRECTION.length; i++) {
-				// if (i == idx) {
-				// 	newWeights.push(30)
-				// } else (
-				// 	newWeights.push(10)
-				// )
                 if (availableDirections.includes(Utils.DIRECTION[i])) {
                     if (Utils.DIRECTION[i] == lastDirection) {
                         newWeights.push(100)
@@ -43,7 +38,6 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
 	// check is on a road
 	// speed will be higher when on a road
 	if (MapManager.checkIsOnARoad(position)) {
-        // console.log("hahahahahahhahahahahahhahaha    ")
 		step = step + 1
 	}
 	switch(direction){
@@ -282,13 +276,51 @@ function getAvailableDirectionsForPatrol(position, characterType){
 			&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
 			
 			var isInBuilding = MapManager.getMap().checkIsInABuilding(tempPos)
-			console.log("hahahaha    " + characterType + " " + isInBuilding[0])
+			// console.log("hahahaha    " + characterType + " " + isInBuilding[0])
 			if (!(isInBuilding[0] && characterType == Utils.CHARACTER_TYPE.ALIEN)){
 				availableDirections.push(tempDir)
 			}
 		}
 	}
 	return availableDirections
+}
+
+function getAwayTargetDirection(characterType, position, target){
+	var oppositDir = []
+	if (position[0] - target.position[0] > 0) {
+		oppositDir.push(Utils.DIRECTION[3])
+	} else if (position[0] - target.position[0] < 0) {
+		oppositDir.push(Utils.DIRECTION[2])
+	} else {
+		oppositDir.push(Utils.DIRECTION[2])
+		oppositDir.push(Utils.DIRECTION[3])
+	}
+
+	if (position[1] - target.position[1] > 0) {
+		oppositDir.push(Utils.DIRECTION[1])
+	} else if (position[1] - target.position[0] < 1) {
+		oppositDir.push(Utils.DIRECTION[0])
+	} else {
+		oppositDir.push(Utils.DIRECTION[0])
+		oppositDir.push(Utils.DIRECTION[1])
+	}
+
+	return oppositDir
+}
+
+function getApproachTargetDirection(characterType, position, target){
+
+}
+
+function checkPositionAccessible(characterType){
+	var isInBuilding = MapManager.checkIsInABuilding(pos)
+	if (isInBuilding[0]) {
+		if (characterType == Utils.CHARACTER_TYPE.ALIEN) { return false}
+		var buildingId = isInBuilding[1]
+		var building = MapManager.getBuilding(buildingId)
+		if (building.checkIsDestroyed()) {return false}
+	}
+	return true
 }
 
 module.exports = {
@@ -301,5 +333,6 @@ module.exports = {
 	hasMediKit,
 	calDistanceOfCharacters, 
 	checkIsDied,
-	getAvailableDirectionsForPatrol
+	getAvailableDirectionsForPatrol,
+	getAwayTargetDirection
 }
