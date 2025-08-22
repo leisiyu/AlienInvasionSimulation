@@ -2,7 +2,7 @@ const HighLevelEventsPatterns = require("./HighLevelEvents.json")
 const SifterUtil = require("./SifterUtil")
 
 class HighLevelEvent {
-    constructor(eventName,newEvent, firstEventIdx, highLevelEventJson){
+    constructor(eventName, newEvent, firstEventIdx, highLevelEventJson){
         this.eventName = eventName
         this.actors = [newEvent["N1"]]
         if (newEvent["N2"] != "") {
@@ -20,6 +20,7 @@ class HighLevelEvent {
         this.finishedTime = this.startTime
         this.eventIDs = [newEvent["id"]]
         this.meetUnlessForeverConditionTimes = 0
+        this.type = highLevelEventJson["type"]
 
         this.checkUnlessForever(newEvent)
     }
@@ -229,7 +230,13 @@ class HighLevelEvent {
         }
     }
 
-    
+    getNextEvent(){
+        if (this.index >= this.totalEventsNum) {
+            return null
+        } else {
+            return this.patternEvents[this.index][0]
+        }
+    }
 }
 
 module.exports = {
