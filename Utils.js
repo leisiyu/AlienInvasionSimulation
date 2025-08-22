@@ -16,6 +16,7 @@ var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
 var TIME_STEPS = 10000
+var DOES_INTERVENTE = true
 
 function initParameters(totalCharacters, characterRatio, mapSize, timeSteps){
 	TOTAL_CHARACTERS = totalCharacters != undefined ?  Number(totalCharacters) : TOTAL_CHARACTERS
@@ -174,6 +175,7 @@ module.exports = {
 	ALIENS_NUM,
 	SOLIDERS_NUM,
 	TOWNFOLK_NAMES,
+	DOES_INTERVENTE,
 	CHARACTER_TYPE,
 	DIRECTION,
 	formatString,
