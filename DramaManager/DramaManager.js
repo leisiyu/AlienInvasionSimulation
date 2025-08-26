@@ -10,22 +10,18 @@ function checkPartialMatchPool(pool){
         if (partialMatch.type == "story") {
             tobeIntervenedEvent = findNextLowestEvent(partialMatch)
             if (tobeIntervenedEvent) {
-                intervene(tobeIntervenedEvent)
+                intervene(tobeIntervenedEvent, partialMatch)
             }
         }
     }
 }
 
-function interveneEvent(nextEvent){
+function intervene(nextEvent, partialMatch){
     if (nextEvent) {
-        intervene(nextLowestEvent)
+        console.log("Intervening in the story... " + partialMatch.highLevelEventJson["tag"])
     } else {
         console.log("No next lowest event found for intervention.")
     }
-}
-
-function intervene(tobeIntervenedEvent){
-    console.log("Intervening in the story... " + tobeIntervenedEvent["tag"])
 }
 
 function findLowerLevelEventJson(nextEvent){
