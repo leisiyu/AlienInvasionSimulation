@@ -230,13 +230,20 @@ class HighLevelEvent {
         }
     }
 
-    getNextEvent(){
+    getNextEvents(){
         if (this.index >= this.totalEventsNum) {
             return null
         } else {
-            return this.patternEvents[this.index][0]
+            var eventList = []
+            for (let i = 0; i < this.patternEvents[this.index].length; i++) {
+                eventList.push({"N1": this.actors[this.patternEvents[this.index][i]["char1Idx"] != undefined ? this.patternEvents[this.index][i]["char1Idx"]["index"] : ""],
+                                "N2": this.actors[this.patternEvents[this.index][i]["char2Idx"] != undefined ? this.patternEvents[this.index][i]["char2Idx"]["index"] : ""],
+                                "L": this.patternEvents[this.index][i]["tag"],})
+            }
+            return eventList
         }
     }
+
 }
 
 module.exports = {
