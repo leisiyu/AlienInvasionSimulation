@@ -9,6 +9,7 @@ const Sifter = require('./StorySifter/Sifter')
 var Logger = {
     logQueue: [],
     statesLogQueue: [],
+    neutralCountLogQueue: [],
     index: 0,
 }
 
@@ -72,6 +73,34 @@ Logger.setKeyFrame = function(){
     return JSON.stringify(keyFrame)
 }
 
+Logger.countNeutralAgents = function(currentTime){
+    var characters = CharactersData.charactersArray
+    var neutralCount = 0
+    var aliveCount = 0
+    
+    for (let i = 0; i < characters.length; i++){
+        // Count alive agents (not in DIED state)
+        if (characters[i].state.stateType !== Utils.CHARACTER_STATES.DIED){
+            aliveCount++
+        }
+        
+        // Count neutral agents among alive agents
+        if (Utils.NEUTRAL_STATES.includes(characters[i].state.stateType)){
+            neutralCount++
+        }
+    }
+    
+    var neutralStateInfo = {
+        T: currentTime,
+        neutralCount: neutralCount,
+        aliveCount: aliveCount,
+        totalAgents: characters.length
+    }
+    
+    this.neutralCountLogQueue.push(JSON.stringify(neutralStateInfo))
+    return neutralCount
+}
+
 Logger.writeToFile = function(){
     var dirName = this.getDirName()
 
@@ -102,6 +131,21 @@ Logger.writeToFile = function(){
             console.log('successful')
             // Logger.clearQueue()
             Logger.statesLogQueue = []
+        }
+    })
+
+    var neutralCountContent = ""
+    for (let i = 0; i < Logger.neutralCountLogQueue.length; i++){
+        neutralCountContent = neutralCountContent + Logger.neutralCountLogQueue[i] + "\n"
+    }
+
+    fs.writeFileSync(dirName + '/NeutralCountLog.txt', neutralCountContent, (err) => { 
+        // In case of a error throw err. 
+        if (err) throw err;
+        else {
+            console.log('successful')
+            // Logger.clearQueue()
+            Logger.neutralCountLogQueue = []
         }
     }) 
 }
@@ -146,6 +190,7 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
 Logger.clearQueue = function(){
     Logger.logQueue = []
     Logger.statesLogQueue = []
+    Logger.neutralCountLogQueue = []
 }
 
 var dirNameIdx = ""

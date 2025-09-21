@@ -16,6 +16,9 @@ function updateEvents(totalTimeSteps){
             Logger.writeToFile()
         }
 		scheduler.update()
+		
+		// TEST: Count neutral agents each beat
+		Logger.countNeutralAgents(scheduler.current_time)
         
         if (scheduler.current_time == timeSteps){
             var endTime = Date.now()

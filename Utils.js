@@ -106,6 +106,13 @@ const CHARACTER_STATES = {
 	HEAL: "HEAL",
 }
 
+const NEUTRAL_STATES = [
+	"PATROL",
+	"WANDER",
+	"STAY",
+	"HIDE",
+]
+
 const GEAR_TYPES = [
 	"MEDIKIT",
 	"WEAPON",
@@ -180,6 +187,7 @@ module.exports = {
 	DIRECTION,
 	formatString,
 	CHARACTER_STATES,
+	NEUTRAL_STATES,
 	initParameters,
 	CHARACTER_RATIO,
 	TOTAL_CHARACTERS,
