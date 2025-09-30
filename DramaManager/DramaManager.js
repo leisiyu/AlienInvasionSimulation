@@ -1,6 +1,7 @@
 // Drama manager
 // Weak action based intra-manifold
 const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
+const intervention = require("./Intervention.js")
 
 // check in every beat
 function checkPartialMatchPool(pool){

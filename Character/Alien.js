@@ -33,6 +33,7 @@ var Alien = function(name, position){
 	this.enemyOrBuildingProbability = new Probability(this.TARGET, [4, 1])
 	this.state = new CharacterState()
 	this.healthState = Utils.HEALTH_STATES.NORMAL
+	this.order = null
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
 
@@ -114,69 +115,76 @@ var Alien = function(name, position){
 
 		alienThis.checkSurrounding(this.time)
 
-		// check the character's state
-		switch(alienThis.state.stateType){
-			case Utils.CHARACTER_STATES.PATROL:
-				alienThis.wander(this.time)
-				break
-			case Utils.CHARACTER_STATES.CHASE:
-				alienThis.chase(this.time)
+		if (alienThis.order != null & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
+			consolog("hahahahah order " + alienThis.order.orderType)
+			alienThis.order.excute()
+		} else {
+			// check the character's state
+			switch(alienThis.state.stateType){
+				case Utils.CHARACTER_STATES.PATROL:
+					alienThis.wander(this.time)
+					break
+				case Utils.CHARACTER_STATES.CHASE:
+					alienThis.chase(this.time)
 
-				// // reached attack range after chasing
-				// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-				// 	var isSuccessfulAttack = alienThis.attack(this.time)
-				// 	if (isSuccessfulAttack) {
-				// 		var msg = {
-				// 			msgType: "attacked",
-				// 			atkValue: alienThis.attackValue,
-				// 			attacker: alienThis.charName,
-				// 		}
-						
-				// 		this.sendMsg(alienThis.state.target.simEvent.guid(), {
-				// 			content: JSON.stringify(msg)
-				// 		})
-				// 	}
-					
-				// }
-				break
-			case Utils.CHARACTER_STATES.DESTROY:
-				alienThis.destroy(this.time)
-				break
-			case Utils.CHARACTER_STATES.RUN_AWAY:
-				alienThis.runAway(this.time)
-				break
-			case Utils.CHARACTER_STATES.ATTACK:		
-				
-				var isSuccessfulAttack = alienThis.attack(this.time)
-
-				if (isSuccessfulAttack) {
-					// notify the attacked character
-					// state type maybe changed in the attack function
+					// // reached attack range after chasing
 					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-						var attackType = alienThis.criticalHitProbability.randomlyPick()
-						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
-						var msg = {
-							msgType: "attacked",
-							atkValue: Math.floor(alienThis.attackValue * attackRatio),
-							attacker: alienThis.charName,
-						}
-						this.sendMsg(alienThis.state.target.simEvent.guid(), {
-							content: JSON.stringify(msg)
-						})
-				// }
-				}
-				
-				break
-			// case Utils.CHARACTER_STATES.MOVE_TO:
-			// 	alienThis.moveTo(this.time)
-			// 	break
-			case Utils.CHARACTER_STATES.STAY:
-				alienThis.stay(this.time)
-				break
-			case Utils.CHARACTER_STATES.DIED:
-				break
-		}
+					// 	var isSuccessfulAttack = alienThis.attack(this.time)
+					// 	if (isSuccessfulAttack) {
+					// 		var msg = {
+					// 			msgType: "attacked",
+					// 			atkValue: alienThis.attackValue,
+					// 			attacker: alienThis.charName,
+					// 		}
+							
+					// 		this.sendMsg(alienThis.state.target.simEvent.guid(), {
+					// 			content: JSON.stringify(msg)
+					// 		})
+					// 	}
+						
+					// }
+					break
+				case Utils.CHARACTER_STATES.DESTROY:
+					alienThis.destroy(this.time)
+					break
+				case Utils.CHARACTER_STATES.RUN_AWAY:
+					alienThis.runAway(this.time)
+					break
+				case Utils.CHARACTER_STATES.ATTACK:		
+					
+					var isSuccessfulAttack = alienThis.attack(this.time)
 
+					if (isSuccessfulAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+							var attackType = alienThis.criticalHitProbability.randomlyPick()
+							var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+							var msg = {
+								msgType: "attacked",
+								atkValue: Math.floor(alienThis.attackValue * attackRatio),
+								attacker: alienThis.charName,
+							}
+							this.sendMsg(alienThis.state.target.simEvent.guid(), {
+								content: JSON.stringify(msg)
+							})
+					// }
+					}
+					
+					break
+				// case Utils.CHARACTER_STATES.MOVE_TO:
+				// 	alienThis.moveTo(this.time)
+				// 	break
+				case Utils.CHARACTER_STATES.STAY:
+					alienThis.stay(this.time)
+					break
+				case Utils.CHARACTER_STATES.DIED:
+					break
+			}
+		}
+		
+
+		CharacterBase.checkOrder(alienThis)
 	}
 }
 
@@ -704,6 +712,8 @@ Alien.prototype.checkVisualRange = function(){
 }
 
 Alien.prototype.getRunAwayDirection = function(){
+	// var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
+	// return oppositDir
 	var oppositDir = []
 	if (this.position[0] - this.state.target.position[0] > 0 && this.position[0] + 1 < Utils.MAP_SIZE[0]) {
 		if (this.checkIfPositionAccessible([this.position[0] + 1, this.position[1]])) {

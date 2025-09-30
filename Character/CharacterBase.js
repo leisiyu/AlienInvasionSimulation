@@ -1,6 +1,6 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
-const Logger = require('../Logger.js').Logger
+// Lazy require Logger where used to avoid circular dependency load order issues
 
 
 //availableDirections can not be null
@@ -58,6 +58,7 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
     var gear = MapManager.checkHasGearOnPos(position)
     if (inventory != null && gear != false) {
         pickUpGear(gear, inventory)
+		const Logger = require('../Logger.js').Logger
         Logger.info({
 			"N1": charName,
 			"L": "picks up",
@@ -91,6 +92,7 @@ function dropInventory(inventory, pos){
 
 
 function attack(character, time){
+	const Logger = require('../Logger.js').Logger
     // check if the character died
 	if (character.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		
@@ -131,6 +133,7 @@ function attack(character, time){
         for (let i = 0; i < character.inventory.length; i++){
             var weapon = character.inventory[i]
             if (weapon.gearType == Utils.GEAR_TYPES[1]) {
+                // const Logger = require('../Logger.js').Logger
                 Logger.info({
                     N1: character.charName,
                     L: "shoots",
@@ -150,6 +153,7 @@ function attack(character, time){
                 return [true, weapon]
             }
         }
+		// const Logger = require('../Logger.js').Logger
 		Logger.info({
             N1: character.charName,
             L: "attacks",
@@ -188,6 +192,7 @@ function updateHealthState(hp, baseHp){
 }
 
 function heal(healIdx, charName, targetName, medikit, inventory, time){
+	const Logger = require('../Logger.js').Logger
 	healIdx ++
 	var result = medikit.use(time)
 	if (!result) {
@@ -323,6 +328,30 @@ function checkPositionAccessible(characterType){
 	return true
 }
 
+//--------- Intervene----------
+
+// add a new order
+// if this agent has already got an order, then don't give the order
+// first come first serve
+
+function addOrder(character, order){
+	if (character.order == null) {
+		character.order = order
+	}
+} 
+
+function checkOrder(character){
+	if (character.order != null && character.order.isExecuted()){
+		removeOrder(character)
+	}
+}
+
+function removeOrder(character){
+	character.order = null
+}
+//--------- Intervene----------
+
+
 module.exports = {
     moveOneStep,
     pickUpGear,
@@ -334,5 +363,8 @@ module.exports = {
 	calDistanceOfCharacters, 
 	checkIsDied,
 	getAvailableDirectionsForPatrol,
-	getAwayTargetDirection
+	getAwayTargetDirection,
+	addOrder,
+	checkOrder,
+	removeOrder,
 }
