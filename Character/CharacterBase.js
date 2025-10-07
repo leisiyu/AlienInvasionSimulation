@@ -336,7 +336,9 @@ function checkPositionAccessible(characterType){
 
 function addOrder(character, order){
 	if (character.order == null) {
+
 		character.order = order
+		console.log("add order " + order.orderType + " " + order.target.charName + " to " + character.charName)
 	}
 } 
 
@@ -348,6 +350,7 @@ function checkOrder(character){
 
 function removeOrder(character){
 	character.order = null
+	console.log("ORDER REMOVED: " + character.charName)
 }
 //--------- Intervene----------
 

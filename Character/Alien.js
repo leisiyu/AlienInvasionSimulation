@@ -9,6 +9,7 @@ const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
 const MapManager = require("../Map/MapManager.js")
 const CharacterBase = require('./CharacterBase.js')
+const { ORDER_TYPE } = require('../DramaManager/Order.js')
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -116,8 +117,34 @@ var Alien = function(name, position){
 		alienThis.checkSurrounding(this.time)
 
 		if (alienThis.order != null & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
-			consolog("hahahahah order " + alienThis.order.orderType)
+			// has order
+			// in neutral state
+			console.log("hahahahah ORDER " + alienThis.order.orderType)
 			alienThis.order.excute()
+			switch(alienThis.order.orderType){
+				case ORDER_TYPE.MOVE:
+					
+					break
+				case ORDER_TYPE.ATTACK:
+					alienThis.state.updateTarget(alienThis.order.target)
+					var isSuccessfulAttack = alienThis.attack(this.time)
+
+					if (isSuccessfulAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var attackType = alienThis.criticalHitProbability.randomlyPick()
+						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+						var msg = {
+							msgType: "attacked",
+							atkValue: Math.floor(alienThis.attackValue * attackRatio),
+							attacker: alienThis.charName,
+						}
+						this.sendMsg(alienThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					
+					}
+			}
 		} else {
 			// check the character's state
 			switch(alienThis.state.stateType){
@@ -369,13 +396,6 @@ Alien.prototype.checkSurrounding = function(time){
 // Alien.prototype.moveTo = function(time){
 // 	var building = this.state.target
 
-// 	// if (this.speed <= 1) {
-// 	// 	Logger.info({
-// 	// 		"N1": this.charName,
-// 	// 		"L": "was baddly injured, can not move",
-// 	// 		"N2": "",
-// 	// 		"T": time,
-// 	// 	})
 // 	// 	Logger.statesInfo(JSON.stringify({
 // 	// 		N: this.charName,
 // 	// 		S: this.state.stateType,
@@ -421,16 +441,6 @@ Alien.prototype.checkSurrounding = function(time){
 // 		this.state.setState(Utils.CHARACTER_STATES.DESTROY, building)
 // 	}
 
-// 	// 基本不可能到这里
-// 	if (building.checkIsDestroyed()) {
-// 		Logger.info({
-// 			"N1": this.charName,
-// 			"L": "destroyed",
-// 			"N2": "building" + building.idx,
-// 			"T": time,
-// 		})
-// 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-// 	}
 // }
 
 Alien.prototype.wander = function(time){

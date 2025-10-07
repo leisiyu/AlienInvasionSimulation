@@ -1,4 +1,6 @@
 /// the order given to the agents
+/// The order won't change characters' states
+/// Only if the agent is in free states, the order will be executed
 
 const ORDER_TYPE = {
     ATTACK: "ATTACK",

@@ -1,7 +1,7 @@
 // Drama manager
 // Weak action based intra-manifold
 const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
-const intervention = require("./Intervention.js")
+const Intervention = require("./Intervention.js")
 
 // check in every beat
 function checkPartialMatchPool(pool){
@@ -19,8 +19,7 @@ function checkPartialMatchPool(pool){
 
 function intervene(nextEvents, partialMatch){
     if (nextEvents.length != 0) {
-        console.log("Intervening in the story... " + partialMatch.highLevelEventJson["tag"])
-        console.log("hahaha  test nextEvents: " + JSON.stringify(nextEvents))
+        Intervention.intervene(nextEvents[0])
     } else {
         console.log("No next lowest event found for intervention.")
     }
