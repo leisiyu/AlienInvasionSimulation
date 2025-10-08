@@ -8,6 +8,7 @@ const CharactersData = require("../Character/CharactersData.js")
 const Utils = require('../Utils.js') 
 
 function intervene(event){
+    console.log("event log: " + event["L"] + event["N1"] + event["N2"])
     var agent = null
     if (event["N1"] != undefined) {
         agent = CharactersData.getCharacterByName(event["N1"])
@@ -20,16 +21,20 @@ function intervene(event){
     switch (event["L"]){
         case "attacks":
         case "shoots":
-            console.log("intervening: attack/shoot ")
+            // console.log("intervening: attack/shoot ")
             // find target first
             if (target == null){
                 target = findEnemy(agent)
 
-                console.log("attack/shoot: find a target ")
+                // console.log("attack/shoot: find a target ")
             }
-            if (target == null){
+            if (agent == null) {
+                agent = findEnemy(target)
+            }
+            if (target == null || agent == null){
                 //abandon it in this run
             } else {
+                // console.log("target  " + target.charName + agent.charName)
                 var distance = CharacterBase.calDistanceOfCharacters(agent, target)
                 if (distance > agent.attackRange) {
                     orderMoveTo(agent, target)
@@ -93,14 +98,14 @@ function findEnemy(agent){
                 if ((agent.charType == Utils.CHARACTER_TYPE.SOLDIER || agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
                     && character.charType == Utils.CHARACTER_TYPE.ALIEN) {
                         enemies.push(character)
-                } else if (agent.charType == Utils.CHARACTER_TYPE.ALIEN) {
+                }
+                if (agent.charType == Utils.CHARACTER_TYPE.ALIEN) {
                     enemies.push(character)
                 }
                 
                 
             }
 	}
-
     return enemies[Math.floor(Math.random() * enemies.length)]
 }
 
