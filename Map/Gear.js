@@ -1,5 +1,4 @@
 const Utils = require('../Utils.js') 
-const Logger = require('../Logger.js').Logger
 
 var idx = 0
 
@@ -26,6 +25,8 @@ class Gear{
         if (this.durability <= 0) {
             console.log("hahah   the gear is broken")
             this.state = Utils.GEAR_STATE.BROKEN
+            // Lazy require to avoid circular dependency
+            const Logger = require('../Logger.js').Logger
             Logger.statesInfo(JSON.stringify({
                 N: this.name,
                 S: this.state,

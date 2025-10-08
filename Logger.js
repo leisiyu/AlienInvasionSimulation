@@ -1,10 +1,8 @@
 const fs = require('node:fs')
 const CharactersData = require('./Character/CharactersData')
-const StorySifter = require("./StorySifter/Sifter")
 const { info } = require('node:console')
 // const Config = require('./Config')
 const Utils = require('./Utils')
-const Sifter = require('./StorySifter/Sifter')
 
 var Logger = {
     logQueue: [],
@@ -27,7 +25,9 @@ var Logger = {
 // T for Time
 Logger.info = function(infoJson){
     infoJson["id"] = Logger.generateUniqueID()
-    StorySifter.sift(infoJson)
+    // Lazy require to avoid circular dependency during initialization
+    const Sifter = require('./StorySifter/Sifter')
+    Sifter.sift(infoJson)
     this.logQueue.push(JSON.stringify(infoJson))
 }
 
@@ -158,6 +158,8 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
         })
     }
     var finalResults = "Total events number: " + (this.generateUniqueID() - 1) + '\n'
+    // Lazy require to avoid circular dependency
+    const Sifter = require('./StorySifter/Sifter')
     finalResults = finalResults + Sifter.getFinalResults()
     finalResults = finalResults + "Excution time: " + excutionTime + '\n'
     finalResults = finalResults + "Simulation time: " + timeSteps + '\n'
@@ -171,6 +173,8 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
 }
 
 Logger.outputStableTestResults = function(excutionTime, timeSteps){
+    // Lazy require to avoid circular dependency
+    const Sifter = require('./StorySifter/Sifter')
     var results = Sifter.getFinalResultsJson()
     results["excutionTime"] = excutionTime
     results["total"] = (this.generateUniqueID() - 1)

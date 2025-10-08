@@ -1,4 +1,3 @@
-const { Logger } = require('../Logger.js')
 const Utils = require('../Utils.js')
 const MapUtil = require("./MapUtil.js")
 const Building = require('./Building.js').Building
@@ -57,6 +56,8 @@ class TempMap{
 	}
 
     createRandomMap(){
+		// Lazy require to avoid circular dependency during module initialization
+		const Logger = require('../Logger.js').Logger
 		//////random roads
 		this.roads = RoadManager.generateRoads([Math.floor(Utils.MAP_SIZE[0] / 2), Math.floor(Utils.MAP_SIZE[1] / 2)])
 		for (let i = 0; i < this.roads.length; i++){

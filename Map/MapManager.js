@@ -2,7 +2,6 @@
 const TempMap = require('./TempMap.js').TempMap
 const Utils = require('../Utils.js')
 const Gear = require('./Gear.js').Gear
-const Logger = require('../Logger.js').Logger
 
 var map
 var gearsOnMap
@@ -85,6 +84,8 @@ function randomGearInRandomPos(time){
     }
     gear.updateMapPosition(randomPos)
 
+    // Lazy require Logger to avoid circular dependency
+    const Logger = require('../Logger.js').Logger
     Logger.statesInfo(JSON.stringify({
 		N: gear.name,
 		S: "was generated in",
