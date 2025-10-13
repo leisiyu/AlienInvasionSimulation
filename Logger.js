@@ -25,10 +25,12 @@ var Logger = {
 // T for Time
 Logger.info = function(infoJson){
     infoJson["id"] = Logger.generateUniqueID()
+    
+    this.logQueue.push(JSON.stringify(infoJson))
+
     // Lazy require to avoid circular dependency during initialization
     const Sifter = require('./StorySifter/Sifter')
     Sifter.sift(infoJson)
-    this.logQueue.push(JSON.stringify(infoJson))
 }
 
 var id = 0
