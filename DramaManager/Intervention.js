@@ -31,36 +31,24 @@ function intervene(event){
             // if agent is null, abandon this order 
             break;
         case "is chasing":
-            // if (target == null){
-            //     target = findEnemy(agent)
 
-            //     // console.log("attack/shoot: find a target ")
-            // }
-            // if (agent == null) {
-            //     agent = findEnemy(target)
-            // }
-            // if (target == null || agent == null){
-            //     //abandon it in this run
-            // } else {
+            if (agent == null) {
+                agent = findEnemy(target)
+            }
+            if (agent != null){
                 orderChase(agent, target)
-            // }
+            }
             break;
         case "is healing":
             break;
         case "kills":
-            // if (target == null){
-            //     target = findEnemy(agent)
 
-            //     // console.log("attack/shoot: find a target ")
-            // }
-            // if (agent == null) {
-            //     agent = findEnemy(target)
-            // }
-            // if (target == null || agent == null){
-            //     //abandon it in this run
-            // } else {
-                criticalHit(agent, target)
-            // }
+            if (agent == null) {
+                agent = findEnemy(target)
+            }
+            if (agent != null){
+                orderCriticalHit(agent, target)
+            }
             
             break;
     }
@@ -75,7 +63,7 @@ function orderChase(agent, target){
 }
 
 /// Attack target with critical hit
-function criticalHit(agent, target){
+function orderCriticalHit(agent, target){
     /// attack the target with critical hit
     var order = new Order(ORDER_TYPE.KILL, target)
     CharacterBase.addOrder(agent, target, order)
@@ -87,57 +75,12 @@ function orderAttack(agent, target){
     CharacterBase.addOrder(agent, target, order)
 }
 
-// /// Find an enemy nearby
-// function findEnemy(agent){
-//     /// enemies nearby (check the map)
-//     /// if target is an alien, find solders and armed civilians
-//     /// if target is a human, find aliens
-
-//     var range = 15
-// 	var startX = agent.position[0] - range < 0 ? 0 : agent.position[0] - range
-// 	var endX = agent.position[0] + range >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : agent.position[0] + range
-// 	var startY = agent.position[1] - range < 0 ? 0 : agent.position[1] - range
-// 	var endY = agent.position[1] + range >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : agent.position[1] + range
-
-//     var enemies = []
-//     for (let i = 0; i < CharactersData.charactersArray.length; i++) {
-// 		var character = CharactersData.charactersArray[i]
-// 		var characterPos = character.position
-// 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
-// 			&& characterPos[0] >= startX && characterPos[0] <= endX 
-// 			&& characterPos[1] >= startY && characterPos[1] <= endY
-// 			&& character.charType != agent.charType){
-// 			// && ((agent.charType == Utils.CHARACTER_TYPE.ALIEN && (character.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.charType == Utils.CHARACTER_TYPE.SOLDIER))
-//                 // || ((agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.charType == Utils.CHARACTER_TYPE.SOLDIER) && character.charType == Utils.CHARACTER_TYPE.ALIEN))){
-//                 if ((agent.charType == Utils.CHARACTER_TYPE.SOLDIER || agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
-//                     && character.charType == Utils.CHARACTER_TYPE.ALIEN) {
-//                         enemies.push(character)
-//                 }
-//                 if (agent.charType == Utils.CHARACTER_TYPE.ALIEN) {
-//                     enemies.push(character)
-//                 }
-                
-                
-//             }
-// 	}
-//     return enemies[Math.floor(Math.random() * enemies.length)]
-// }
-
-// function findAlly(target){
-//     /// free states allies nearby (check the map)
-//     /// if target is an alien, find aliens
-//     /// if target is a human, find solders and armed civilians
-
-//     return ally
-// }
-
-// function findMediKit(agent){
-//     /// medi kit nearby (check the map)
-// }
-
 function orderHeal(agent, target){
     /// heal the target
+    var order = new Order(ORDER_TYPE.HEAL, target)
+    CharacterBase.addOrder(agent, target, order)
 }
+
 
 
 module.exports = {

@@ -9,7 +9,7 @@ const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
 const MapManager = require("../Map/MapManager.js")
 const CharacterBase = require('./CharacterBase.js')
-const { ORDER_TYPE } = require('../DramaManager/Order.js')
+const ORDER_TYPE = require('../DramaManager/Order.js').ORDER_TYPE
 
 var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
@@ -116,20 +116,21 @@ var Alien = function(name, position){
 
 		alienThis.checkSurrounding(this.time)
 
+		// console.log("alien state " + alienThis.charName + " " + alienThis.state.stateType)
 		if (alienThis.order != null & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
 			// has order
 			// in neutral state
-			console.log("ORDER!!!!!!! " + alienThis.charName + " " + alienThis.order.orderType)
+			console.log("ORDER!!!!!!! " + alienThis.charName + " " + alienThis.order.orderType + " " + alienThis.order.target.charName + this.time)
 			
-			alienThis.state.updateTarget(alienThis.order.target)
+			// alienThis.state.updateTarget(alienThis.order.target)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
 				case ORDER_TYPE.MOVE:
-					alienThis.chase(this.time)
+					// alienThis.chase(this.time)
 					break
 				case ORDER_TYPE.ATTACK:
 					var isSuccessfulAttack = alienThis.orderAttack(this.time)
-
+					console.log("order attack " + isSuccessfulAttack)
 					if (isSuccessfulAttack) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
@@ -648,6 +649,47 @@ Alien.prototype.orderAttack = function(time) {
 }
 Alien.prototype.orderChase = function(time){
 
+	var targetWidth = 1
+	var targetHeight = 1
+	
+	Logger.info({
+		N1: this.charName,
+		L: "is chasing",
+		N2: this.order.target.charName,
+		T: time,
+		Note: "order"
+	})
+	
+	
+	var position = this.order.target.position
+	this.lastDirection = ""
+	for (let j = 0; j < this.speed; j++){
+		var availableDirections = []
+		var horizontalOffset = position[0] - this.position[0]
+		if ( horizontalOffset > targetWidth) {
+			availableDirections.push(Utils.DIRECTION[3])
+		} else if (horizontalOffset < -targetWidth) {
+			availableDirections.push(Utils.DIRECTION[2])
+		}
+		var verticalOffset = position[1] - this.position[1]
+		if (verticalOffset > targetHeight) {
+			availableDirections.push(Utils.DIRECTION[1])
+		} else if (verticalOffset < -targetHeight) {
+			availableDirections.push(Utils.DIRECTION[0])
+		}
+		if (availableDirections.length > 0) {
+			this.moveOneStep(availableDirections, time)
+		}
+		
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: this.charName,
+		S: this.state.stateType, 
+		P: this.position,
+		T: time,
+		Note:"order"
+	}))
 }
 
 Alien.prototype.stay = function(time){

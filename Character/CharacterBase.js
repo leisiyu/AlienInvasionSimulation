@@ -351,14 +351,14 @@ function addOrder(character, target, order){
 				break
 		}
 	}
-	if (character == null || target == null) {
+	if (target == null) {
 		// abandon this turn
 		return
 	}
 
 	if (character.order == null) {
 		character.order = order
-		console.log("add order " + order.orderType + " " + order.target.charName + " to " + character.charName)
+		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 	}
 } 
 
@@ -370,7 +370,7 @@ function checkOrder(character){
 
 function removeOrder(character){
 	character.order = null
-	console.log("ORDER REMOVED: " + character.charName)
+	console.log("ORDER REMOVED: " + character.charName + character.order == null)
 }
 
 /// Find an enemy nearby
@@ -416,13 +416,14 @@ function orderAttack(character, time){
 	if (character.order.target == null) {
 		var target = findEnemy(character)
 		if (target == null) {
-			return
+			return false
 		} else {
 			character.order.updateTarget(target)
 		}
 	}
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		console.log("order target died " + character.order.target.charName + character.order.target.state.stateType + time)
 		return false
 	}		
 
@@ -435,14 +436,15 @@ function orderAttack(character, time){
 	if (distance > character.attackRange) {
 		// incapacitated, can not move
 		if (character.healthState < Utils.HEALTH_STATES.INCAPACITATED && character.healthState > Utils.HEALTH_STATES.DIED) {
+			console.log("order agent incapacitated")
 			return false
 		}
 		// this frame still need to move
-		if (distance > character.visualRange) {
-			character.orderChase(time)
-		}
+		console.log("order -> chase")
+		character.orderChase(time)
 		return false
 	}
+	const Logger = require('../Logger.js').Logger
 	Logger.info({
 		N1: character.charName,
 		L: "attacked",

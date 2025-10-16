@@ -11,6 +11,7 @@ const Probability = require('./Probability.js').Probability
 const CharacterBase = require('./CharacterBase.js')
 const MapManager = require("../Map/MapManager.js")
 const Gear = require('../Map/Gear.js').Gear
+const ORDER_TYPE = require('../DramaManager/Order.js').ORDER_TYPE
 
 var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
@@ -36,6 +37,7 @@ var Soldier = function(name, position){
 	this.healthState = Utils.HEALTH_STATES.NORMAL
 	this.beHealedIdx = 0
 	this.healingIdx = 0
+	this.order = null
 	var soldierThis = this
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -132,68 +134,103 @@ var Soldier = function(name, position){
 		soldierThis.updateHealthStates(this.time)
 		soldierThis.updateStates(this.time)
 
-		// check the character's state
-		switch(soldierThis.state.stateType){
-			// case Utils.CHARACTER_STATES.HIDE:
-			// 	break
-			case Utils.CHARACTER_STATES.PATROL:
-				soldierThis.wander(this.time)
-				break
-			case Utils.CHARACTER_STATES.CHASE:
-				soldierThis.chase(this.time)
-				break
-			case Utils.CHARACTER_STATES.RUN_AWAY:
-				soldierThis.runAway(this.time)
-				break
-			case Utils.CHARACTER_STATES.ATTACK:
-				var isSuccessfulAttack = soldierThis.attack(this.time)
+		// has order
+		// in neutral state
+		// console.log("soldier state " + soldierThis.charName + " " + soldierThis.state.stateType)
+		if (soldierThis.order != null && Utils.NEUTRAL_STATES.includes(soldierThis.state.stateType)) {
+			console.log("hahaha   soldier order" + soldierThis.charName + " " + soldierThis.order.orderType + this.time)
+			
+			soldierThis.order.excute()
+			switch(soldierThis.order.orderType){
+				case ORDER_TYPE.MOVE:
+					// soldierThis.chase(this.time)
+					break
+				case ORDER_TYPE.ATTACK:
+					var isSuccessfulAttack = soldierThis.orderAttack(this.time)
 
-				if (isSuccessfulAttack[0]) {
-					// notify the attacked character
-					// state type maybe changed in the attack function
-					if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+					if (isSuccessfulAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
 						var attackType = soldierThis.criticalHitProbability.randomlyPick()
 						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
-						var atkValue = Math.floor(soldierThis.attackValue * attackRatio)
-
-						if (isSuccessfulAttack[1] != null) {
-							atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
-						}
 						var msg = {
 							msgType: "attacked",
-							atkValue: atkValue,
+							atkValue: Math.floor(soldierThis.attackValue * attackRatio),
 							attacker: soldierThis.charName,
 						}
 						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
 							content: JSON.stringify(msg)
 						})
+					
 					}
-				}
-				break
-			case Utils.CHARACTER_STATES.STAY:
-				soldierThis.stay(this.time)
-				break
-			case Utils.CHARACTER_STATES.HEAL:
-				var isSuccessfulHeal = soldierThis.heal(this.time)
-				if (isSuccessfulHeal) {
-					soldierThis.healingIdx++
-					var msg = {
-						msgType: "heal",
-						healer: soldierThis.charName,
-						value: isSuccessfulHeal[1],
-					}
-					this.sendMsg(soldierThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
-				} else {
-					soldierThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-				}
+					break
+					
+			}
+		} else {
+			// check the character's state
+			switch(soldierThis.state.stateType){
+				// case Utils.CHARACTER_STATES.HIDE:
+				// 	break
+				case Utils.CHARACTER_STATES.PATROL:
+					soldierThis.wander(this.time)
+					break
+				case Utils.CHARACTER_STATES.CHASE:
+					soldierThis.chase(this.time)
+					break
+				case Utils.CHARACTER_STATES.RUN_AWAY:
+					soldierThis.runAway(this.time)
+					break
+				case Utils.CHARACTER_STATES.ATTACK:
+					var isSuccessfulAttack = soldierThis.attack(this.time)
 
-				break
+					if (isSuccessfulAttack[0]) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
+							var attackType = soldierThis.criticalHitProbability.randomlyPick()
+							var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+							var atkValue = Math.floor(soldierThis.attackValue * attackRatio)
+
+							if (isSuccessfulAttack[1] != null) {
+								atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
+							}
+							var msg = {
+								msgType: "attacked",
+								atkValue: atkValue,
+								attacker: soldierThis.charName,
+							}
+							this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+								content: JSON.stringify(msg)
+							})
+						}
+					}
+					break
+				case Utils.CHARACTER_STATES.STAY:
+					soldierThis.stay(this.time)
+					break
+				case Utils.CHARACTER_STATES.HEAL:
+					var isSuccessfulHeal = soldierThis.heal(this.time)
+					if (isSuccessfulHeal) {
+						soldierThis.healingIdx++
+						var msg = {
+							msgType: "heal",
+							healer: soldierThis.charName,
+							value: isSuccessfulHeal[1],
+						}
+						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					} else {
+						soldierThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+					}
+
+					break
+			}
 		}
-
-
 		
+
+
+		CharacterBase.checkOrder(soldierThis)
 	}
 }
 
@@ -707,6 +744,19 @@ Soldier.prototype.checkVisualRange = function(){
 	
 	return [visibleEnemies, visibleFriends]
 }
+//------order-------
+Soldier.prototype.orderAttack = function(time){
+	var result = CharacterBase.orderAttack(this, time)
+	return result
+}
+Soldier.prototype.orderChase = function(time){
+
+}
+//------order-------
+
+
+
+
 module.exports = {
 	Soldier,
 }
