@@ -119,15 +119,16 @@ var Alien = function(name, position){
 		if (alienThis.order != null & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
 			// has order
 			// in neutral state
-			console.log("hahahahah ORDER " + alienThis.order.orderType)
+			console.log("ORDER!!!!!!! " + alienThis.charName + " " + alienThis.order.orderType)
+			
+			alienThis.state.updateTarget(alienThis.order.target)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
 				case ORDER_TYPE.MOVE:
-					
+					alienThis.chase(this.time)
 					break
 				case ORDER_TYPE.ATTACK:
-					alienThis.state.updateTarget(alienThis.order.target)
-					var isSuccessfulAttack = alienThis.attack(this.time)
+					var isSuccessfulAttack = alienThis.orderAttack(this.time)
 
 					if (isSuccessfulAttack) {
 						// notify the attacked character
@@ -144,6 +145,8 @@ var Alien = function(name, position){
 						})
 					
 					}
+					break
+					
 			}
 		} else {
 			// check the character's state
@@ -573,7 +576,7 @@ Alien.prototype.attack = function(time){
 			N1: this.charName,
 			L: "is badly hurt, runs away from",
 			N2: this.state.target.charName,
-			T: this.time,
+			T: this.time
 		})
 		this.state.updateState(Utils.CHARACTER_STATES.RUN_AWAY)
 		this.runAway(time)
@@ -607,6 +610,44 @@ Alien.prototype.attack = function(time){
 		T: time,
 	})
 	return true
+}
+
+Alien.prototype.orderAttack = function(time) {
+	// // check if the character died
+	// if (this.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+	// 	return false
+	// }		
+
+	// // no need to check self hp
+	// // just do what the order ask
+
+	// // check attack range
+	// var character = this.order.target
+	// var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
+	// if (distance > this.attackRange) {
+	// 	// incapacitated, can not move
+	// 	if (this.healthState < Utils.HEALTH_STATES.INCAPACITATED && this.healthState > Utils.HEALTH_STATES.DIED) {
+	// 		return false
+	// 	}
+	// 	// this frame still need to move
+	// 	if (distance > this.visualRange) {
+	// 		this.orderChase(time)
+	// 	}
+	// 	return false
+	// }
+	// Logger.info({
+	// 	N1: this.charName,
+	// 	L: "attacked",
+	// 	N2: character.charName,
+	// 	T: time,
+	// 	Note: "order"
+	// })
+	// return true
+	var result = CharacterBase.orderAttack(this, time)
+	return result
+}
+Alien.prototype.orderChase = function(time){
+
 }
 
 Alien.prototype.stay = function(time){

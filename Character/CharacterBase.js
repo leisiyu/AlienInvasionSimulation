@@ -1,7 +1,6 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
-// Lazy require Logger where used to avoid circular dependency load order issues
-
+const CharactersData = require("./CharactersData.js")
 
 //availableDirections can not be null
 function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
@@ -334,9 +333,30 @@ function checkPositionAccessible(characterType){
 // if this agent has already got an order, then don't give the order
 // first come first serve
 
-function addOrder(character, order){
-	if (character.order == null) {
+function addOrder(character, target, order){
+	const ORDER_TYPE = require("../DramaManager/Order.js").ORDER_TYPE
+	if (target == null) {
+		switch(order.orderType){
+			case ORDER_TYPE.ATTACK:
+			case ORDER_TYPE.CHASE:
+			case ORDER_TYPE.KILL:
+				target = findEnemy(character)
+				order.updateTarget(target)
+				break
+			case ORDER_TYPE.MOVE:
+				// TO DO: find????
+				break
+			case ORDER_TYPE.HEAL:
+				//TO DO: find ally
+				break
+		}
+	}
+	if (character == null || target == null) {
+		// abandon this turn
+		return
+	}
 
+	if (character.order == null) {
 		character.order = order
 		console.log("add order " + order.orderType + " " + order.target.charName + " to " + character.charName)
 	}
@@ -351,6 +371,86 @@ function checkOrder(character){
 function removeOrder(character){
 	character.order = null
 	console.log("ORDER REMOVED: " + character.charName)
+}
+
+/// Find an enemy nearby
+function findEnemy(agent){
+	if (agent == null) {
+		return null
+	}
+    /// enemies nearby (check the map)
+    /// if target is an alien, find solders and armed civilians
+    /// if target is a human, find aliens
+
+    var range = 15
+	var startX = agent.position[0] - range < 0 ? 0 : agent.position[0] - range
+	var endX = agent.position[0] + range >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : agent.position[0] + range
+	var startY = agent.position[1] - range < 0 ? 0 : agent.position[1] - range
+	var endY = agent.position[1] + range >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : agent.position[1] + range
+
+    var enemies = []
+    for (let i = 0; i < CharactersData.charactersArray.length; i++) {
+		var character = CharactersData.charactersArray[i]
+		var characterPos = character.position
+		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
+			&& characterPos[0] >= startX && characterPos[0] <= endX 
+			&& characterPos[1] >= startY && characterPos[1] <= endY
+			&& character.charType != agent.charType){
+			// && ((agent.charType == Utils.CHARACTER_TYPE.ALIEN && (character.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.charType == Utils.CHARACTER_TYPE.SOLDIER))
+                // || ((agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.charType == Utils.CHARACTER_TYPE.SOLDIER) && character.charType == Utils.CHARACTER_TYPE.ALIEN))){
+                if ((agent.charType == Utils.CHARACTER_TYPE.SOLDIER || agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
+                    && character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+                        enemies.push(character)
+                }
+                if (agent.charType == Utils.CHARACTER_TYPE.ALIEN) {
+                    enemies.push(character)
+                }
+                
+                
+            }
+	}
+    return enemies[Math.floor(Math.random() * enemies.length)]
+}
+
+function orderAttack(character, time){
+	if (character.order.target == null) {
+		var target = findEnemy(character)
+		if (target == null) {
+			return
+		} else {
+			character.order.updateTarget(target)
+		}
+	}
+	// check if the character died
+	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		return false
+	}		
+
+	// no need to check self hp
+	// just do what the order ask
+
+	// check attack range
+	var target = character.order.target
+	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
+	if (distance > character.attackRange) {
+		// incapacitated, can not move
+		if (character.healthState < Utils.HEALTH_STATES.INCAPACITATED && character.healthState > Utils.HEALTH_STATES.DIED) {
+			return false
+		}
+		// this frame still need to move
+		if (distance > character.visualRange) {
+			character.orderChase(time)
+		}
+		return false
+	}
+	Logger.info({
+		N1: character.charName,
+		L: "attacked",
+		N2: target.charName,
+		T: time,
+		Note: "order"
+	})
+	return true
 }
 //--------- Intervene----------
 
@@ -370,4 +470,6 @@ module.exports = {
 	addOrder,
 	checkOrder,
 	removeOrder,
+	findEnemy,
+	orderAttack
 }

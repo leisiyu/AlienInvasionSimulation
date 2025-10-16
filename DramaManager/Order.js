@@ -5,6 +5,9 @@
 const ORDER_TYPE = {
     ATTACK: "ATTACK",
     MOVE: "MOVE",
+    CHASE: "CHASE",
+    HEAL: "HEAL",
+    KILL: "KILL"
 }
 
 class Order {
@@ -13,6 +16,10 @@ class Order {
         this.orderType = orderType
         this.target = target
         this.count = 1
+    }
+
+    updateTarget(newTarget){
+        this.target = newTarget
     }
 
     isExecuted() {
