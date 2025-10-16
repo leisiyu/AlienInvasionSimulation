@@ -20,7 +20,7 @@ function checkPartialMatchPool(pool){
 
 function intervene(nextEvents, partialMatch){
     if (nextEvents.length != 0) {
-        console.log("next events[0]: " + nextEvents[0]["L"] + nextEvents[0]["N1"] + nextEvents[0]["N2"])
+        // console.log("next events[0]: " + nextEvents[0]["L"] + nextEvents[0]["N1"] + nextEvents[0]["N2"])
         Intervention.intervene(nextEvents[0])
     } else {
         console.log("No next lowest event found for intervention.")
@@ -46,7 +46,7 @@ function findLowerLevelEventJson(nextEvents){
                     if (eventJson["events"][0][j]["char1Idx"] != undefined) {
                         if (mainCharacters[0] == eventJson["events"][0][j]["char1Idx"]["index"]) {
                             tempJson["N1"] = nextEvent["N1"]
-                            console.log("haha N1 " + nextEvent["N1"])
+                            // console.log("haha N1 " + nextEvent["N1"])
                         // } else {
                         //     tempJson["N1"] = nextEvent["N2"]
                         }
@@ -54,7 +54,7 @@ function findLowerLevelEventJson(nextEvents){
                     if (eventJson["events"][0][j]["char2Idx"] != undefined) {
                         if (mainCharacters[1] == eventJson["events"][0][j]["char2Idx"]["index"]) {
                             tempJson["N2"] = nextEvent["N2"]
-                            console.log("haha N2 " + nextEvent["N2"])
+                            // console.log("haha N2 " + nextEvent["N2"])
                         // } else {
                         //     tempJson["N2"] = nextEvent["N1"]
                         }
