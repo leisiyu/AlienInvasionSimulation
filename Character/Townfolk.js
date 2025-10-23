@@ -11,6 +11,7 @@ const CharacterState = require('./CharacterState.js').CharacterState
 const Probability = require('./Probability.js').Probability
 const MapManager = require("../Map/MapManager.js")
 const CharacterBase = require('./CharacterBase.js')
+const ORDER_TYPE = require('../DramaManager/Order.js').ORDER_TYPE
 
 
 var Townfolk = function(name, position){
@@ -35,6 +36,8 @@ var Townfolk = function(name, position){
 	this.beHealedIdx = 0
 	this.healingIdx = 0
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
+	this.order = null
+
 	this.simEvent = new jssim.SimEvent(10);
 	this.simEvent.update = async function(deltaTime){
 
@@ -85,65 +88,97 @@ var Townfolk = function(name, position){
 		}
 		// check the character's state
 		townfolkThis.updateStates(time)
-		switch(townfolkThis.state.stateType){
-			case Utils.CHARACTER_STATES.HIDE:
-				townfolkThis.hideOrWander(this.time)
-				break
-			case Utils.CHARACTER_STATES.WANDER:
-				townfolkThis.wander(this.time)
-				break
-			case Utils.CHARACTER_STATES.RUN_AWAY:
-				townfolkThis.runAway(this.time)
-				break
-			case Utils.CHARACTER_STATES.ATTACK:
-				var isSuccessfulAttack = townfolkThis.attack(this.time)
+		if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
+			console.log("hahaha   soldier order" + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
+			
+			townfolkThis.order.excute()
+			switch(townfolkThis.order.orderType){
+				case ORDER_TYPE.MOVE:
+					
+					break
+				case ORDER_TYPE.ATTACK:
+					var isSuccessfulAttack = townfolkThis.orderAttack(this.time)
 
-				if (isSuccessfulAttack[0]) {
-					// notify the attacked character
-					// state type maybe changed in the attack function
-					var attackType = townfolkThis.criticalHitProbability.randomlyPick()
-					var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
-					var atkValue = 0
-					if (isSuccessfulAttack[1] != null) {
-						atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
+					if (isSuccessfulAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var attackType = townfolkThis.criticalHitProbability.randomlyPick()
+						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+						var msg = {
+							msgType: "attacked",
+							atkValue: Math.floor(townfolkThis.attackValue * attackRatio),
+							attacker: townfolkThis.charName,
+						}
+						this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					
+					}
+					break
+					
+			}
+		} else {
+			switch(townfolkThis.state.stateType){
+				case Utils.CHARACTER_STATES.HIDE:
+					townfolkThis.hideOrWander(this.time)
+					break
+				case Utils.CHARACTER_STATES.WANDER:
+					townfolkThis.wander(this.time)
+					break
+				case Utils.CHARACTER_STATES.RUN_AWAY:
+					townfolkThis.runAway(this.time)
+					break
+				case Utils.CHARACTER_STATES.ATTACK:
+					var isSuccessfulAttack = townfolkThis.attack(this.time)
+	
+					if (isSuccessfulAttack[0]) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var attackType = townfolkThis.criticalHitProbability.randomlyPick()
+						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+						var atkValue = 0
+						if (isSuccessfulAttack[1] != null) {
+							atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
+						} else {
+							break
+						}
+						var msg = {
+							msgType: "attacked",
+							atkValue: atkValue,
+							attacker: townfolkThis.charName,
+						}
+						this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					}
+					break
+				case Utils.CHARACTER_STATES.CHASE:
+					townfolkThis.chase(this.time)
+					break
+				case Utils.CHARACTER_STATES.HEAL:
+					var isSuccessfulHeal = townfolkThis.heal(this.time)
+					if (isSuccessfulHeal[0]) {
+						townfolkThis.healingIdx++
+						var msg = {
+							msgType: "heal",
+							healer: townfolkThis.charName,
+							value: isSuccessfulHeal[1],
+						}
+						this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
 					} else {
-						break
+						townfolkThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 					}
-					var msg = {
-						msgType: "attacked",
-						atkValue: atkValue,
-						attacker: townfolkThis.charName,
-					}
-					this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
-				}
-				break
-			case Utils.CHARACTER_STATES.CHASE:
-				townfolkThis.chase(this.time)
-				break
-			case Utils.CHARACTER_STATES.HEAL:
-				var isSuccessfulHeal = townfolkThis.heal(this.time)
-				if (isSuccessfulHeal[0]) {
-					townfolkThis.healingIdx++
-					var msg = {
-						msgType: "heal",
-						healer: townfolkThis.charName,
-						value: isSuccessfulHeal[1],
-					}
-					this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
-						content: JSON.stringify(msg)
-					})
-				} else {
-					townfolkThis.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-				}
-				break
-			case Utils.CHARACTER_STATES.DIED:
-				break
-
+					break
+				case Utils.CHARACTER_STATES.DIED:
+					break
+	
+			}
 		}
-
 		
+
+		CharacterBase.checkOrder(townfolkThis)
 	}
 }
 
@@ -652,6 +687,23 @@ Townfolk.prototype.heal = function(time) {
 	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
 	console.log("hahahahah  " + result[1].durability)
 	return [true, result[1].value]
+}
+
+Townfolk.prototype.orderAttack = function(time){
+	if (this.hasWeapon()) {
+		var result = CharacterBase.orderAttack(this, time)
+		return result
+	} else {
+		this.orderFindAWeapon(time)
+		return false
+	}
+}
+Townfolk.prototype.orderFindAWeapon = function(time){
+	console.log("Order: find a weapon")
+}
+
+Townfolk.prototype.orderChase = function(time){
+	
 }
 
 module.exports = {

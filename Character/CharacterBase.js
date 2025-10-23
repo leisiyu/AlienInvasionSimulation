@@ -454,6 +454,10 @@ function orderAttack(character, time){
 	})
 	return true
 }
+
+function orderChase(time){
+	console.log("character base: order chase")
+}
 //--------- Intervene----------
 
 
