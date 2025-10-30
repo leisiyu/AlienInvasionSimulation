@@ -141,7 +141,7 @@ var Alien = function(name, position){
 							atkValue: Math.floor(alienThis.attackValue * attackRatio),
 							attacker: alienThis.charName,
 						}
-						this.sendMsg(alienThis.state.target.simEvent.guid(), {
+						this.sendMsg(alienThis.order.target.simEvent.guid(), {
 							content: JSON.stringify(msg)
 						})
 					

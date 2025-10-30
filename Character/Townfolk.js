@@ -109,7 +109,7 @@ var Townfolk = function(name, position){
 							atkValue: Math.floor(townfolkThis.attackValue * attackRatio),
 							attacker: townfolkThis.charName,
 						}
-						this.sendMsg(townfolkThis.state.target.simEvent.guid(), {
+						this.sendMsg(townfolkThis.order.target.simEvent.guid(), {
 							content: JSON.stringify(msg)
 						})
 					
@@ -698,12 +698,13 @@ Townfolk.prototype.orderAttack = function(time){
 		return false
 	}
 }
+
 Townfolk.prototype.orderFindAWeapon = function(time){
 	console.log("Order: find a weapon")
 }
 
 Townfolk.prototype.orderChase = function(time){
-	
+
 }
 
 module.exports = {

@@ -158,7 +158,7 @@ var Soldier = function(name, position){
 							atkValue: Math.floor(soldierThis.attackValue * attackRatio),
 							attacker: soldierThis.charName,
 						}
-						this.sendMsg(soldierThis.state.target.simEvent.guid(), {
+						this.sendMsg(soldierThis.order.target.simEvent.guid(), {
 							content: JSON.stringify(msg)
 						})
 					
