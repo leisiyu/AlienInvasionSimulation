@@ -423,7 +423,7 @@ function orderAttack(character, time){
 	}
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		console.log("order target died " + character.order.target.charName + character.order.target.state.stateType + time)
+		console.log("order target died " + character.order.target.charName + character.order.target.state.stateType + " " + time)
 		return false
 	}		
 
@@ -447,7 +447,7 @@ function orderAttack(character, time){
 	const Logger = require('../Logger.js').Logger
 	Logger.info({
 		N1: character.charName,
-		L: "attacked",
+		L: "attacks",
 		N2: target.charName,
 		T: time,
 		Note: "order"

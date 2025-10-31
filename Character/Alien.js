@@ -606,7 +606,7 @@ Alien.prototype.attack = function(time){
 	}
 	Logger.info({
 		N1: this.charName,
-		L: "attacked",
+		L: "attacks",
 		N2: character.charName,
 		T: time,
 	})
