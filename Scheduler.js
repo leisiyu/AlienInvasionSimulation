@@ -3,12 +3,13 @@ const Logger = require("./Logger.js").Logger
 // const {Worker, isMainThread, parentPort} = require('worker_threads')
 const DramaManager = require("./DramaManager/DramaManager")
 const Util = require("./Utils.js")
+const Pool = require("./StorySifter/Pool")
 
 var scheduler = new jssim.Scheduler();
 
 function updateEvents(totalTimeSteps){
     // while(scheduler.hasEvents()) {
-    var timeSteps = 5000
+    var timeSteps = 500
 
     var startTime = Date.now()
 
@@ -27,6 +28,9 @@ function updateEvents(totalTimeSteps){
 
 		// TEST: Count neutral agents each beat
 		// Logger.countNeutralAgents(scheduler.current_time)
+
+        // clean up the sifter pool
+        Pool.cleanUpPool(scheduler.current_time)
         
         if (scheduler.current_time == timeSteps){
             var endTime = Date.now()

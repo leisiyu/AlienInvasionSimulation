@@ -154,10 +154,39 @@ function getResultsJson(){
     return result
 }
 
+// check every character's state in each partial match
+// if the character(not the main character) is dead, return to the previous state
+// a new character then can be allocated to the partial match
+function cleanUpPool(time){
+    var deletedObjs = []
+    for (let i = 0; i < partialMatchPool.length; i++) {
+        var obj = partialMatchPool[i]
+        // console.log("obj index: " + obj.patternEvents[obj.index][0]["tag"] + " " + obj.index)
+        var result = obj.checkActorState()
+        console.log("obj result: " + result)
+        if (result == SifterUtil.ROLL_BACK_TYPE.DELETE){
+            deletedObjs.push(obj)
+            // console.log("deleted obj: " + obj.index + obj.eventName +" " + obj.actors[0] + obj.actors[1] + obj.startTime + " " + obj.finishedTime + " " + time)
+        }
+        // if (result == SifterUtil.ROLL_BACK_TYPE.ROLL_BACK) {
+            // console.log("roll back!! " + obj.index + " " + obj.patternEvents[obj.index][0]["tag"])
+        // }
+    }
+    // console.log("deleted objs: " + deletedObjs.length)
+    for (let i = 0; i < deletedObjs.length; i++) {
+        var obj = deletedObjs[i]
+        var index = partialMatchPool.indexOf(obj)
+        if (index != -1){
+            partialMatchPool.splice(index, 1)
+        }
+    }
+}
+
 module.exports = {
     matchNew,
     partialMatchPool,
     updatePool,
     getResults,
-    getResultsJson
+    getResultsJson,
+    cleanUpPool
 }

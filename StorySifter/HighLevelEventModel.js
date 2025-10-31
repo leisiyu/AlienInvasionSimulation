@@ -1,5 +1,7 @@
 const HighLevelEventsPatterns = require("./HighLevelEvents.json")
 const SifterUtil = require("./SifterUtil")
+const Utils = require("../Utils")
+const CharacterData = require("../Character/CharactersData")
 
 class HighLevelEvent {
     constructor(eventName, newEvent, firstEventIdx, highLevelEventJson){
@@ -242,6 +244,49 @@ class HighLevelEvent {
             }
             return eventList
         }
+    }
+
+    checkActorState(){
+        for (let i = 0; i < this.actors.length; i++){
+            var actor = CharacterData.getCharacterByName(this.actors[i])
+            // console.log("actor " + i + " " + actor.charName)
+            // if it's a weapon name, "getCharacterByName" will return null
+            if (actor != null && actor.state.stateType == Utils.CHARACTER_STATES.DIED){
+                // not the main character
+                // can be returned to the previous state
+                if (this.highLevelEventJson["main_characters"].indexOf(i) == -1) {
+                    var result = this.rollBack(i)
+                    return result
+                }
+            }
+        }
+        return SifterUtil.ROLL_BACK_TYPE.NONE
+    }
+
+    rollBack(actorIdx){
+        for (let i = 0; i < this.index; i++){
+            // if this character is not involved in a "kill" event
+            // roll back to this stage
+            var currentEventList = this.patternEvents[i]
+            for (let j = 0; j < currentEventList.length; j++){
+                var currentEvent = currentEventList[j]
+                if ((currentEvent["char1Idx"] != undefined && actorIdx == currentEvent["char1Idx"]["index"]) 
+                    || (currentEvent["char2Idx"] != undefined && actorIdx == currentEvent["char2Idx"]["index"])){
+                    if (currentEvent["tag"] != "is killed by"){
+                        // console.log("hahahah  index " + this.index + i)
+                        this.index = i
+                        if (this.index <= 0){
+                            return SifterUtil.ROLL_BACK_TYPE.DELETE
+                        } else {
+                            this.actors = this.actors.slice(0, actorIdx)
+                            return SifterUtil.ROLL_BACK_TYPE.ROLL_BACK
+                        }
+                        
+                    }
+                }
+            }
+        }
+        return SifterUtil.ROLL_BACK_TYPE.NONE
     }
 
 }

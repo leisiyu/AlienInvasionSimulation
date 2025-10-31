@@ -28,6 +28,13 @@ function checkCharacterType(characterName, characterType) {
     return currentType === characterType
 }
 
+const ROLL_BACK_TYPE = {
+    ROLL_BACK: 0,
+    DELETE: 1,
+    NONE: 2
+}
+
 module.exports = {
-    checkCharacterType
+    checkCharacterType,
+    ROLL_BACK_TYPE
 }
