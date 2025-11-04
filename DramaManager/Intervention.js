@@ -18,34 +18,39 @@ function intervene(event){
     if (event["N2"] != undefined) {
         target = CharactersData.getCharacterByName(event["N2"])
     }
+
+    if (agent == null) {
+        agent = CharacterBase.findEnemy(target)
+    }
+
     switch (event["L"]){
         case "attacks":
         case "shoots":
             // console.log("intervening: attack/shoot ")
-            if (agent == null) {
-                agent = CharacterBase.findEnemy(target)
-            }
+            // if (agent == null) {
+            //     agent = CharacterBase.findEnemy(target)
+            // }
             if (agent != null){
                 orderAttack(agent, target)
             }
             // if agent is null, abandon this order 
             break;
-        case "is chasing":
-
-            if (agent == null) {
-                agent = findEnemy(target)
-            }
+        case "is chasing":    
             if (agent != null){
                 orderChase(agent, target)
             }
             break;
         case "is healing":
+            if (agent != null) {
+                orderHeal(agent, target)
+            }
             break;
         case "kills":
 
-            if (agent == null) {
-                agent = findEnemy(target)
-            }
+            // if (agent == null) {
+            //     agent = CharacterBase.findEnemy(target)
+            // }
+
             if (agent != null){
                 orderCriticalHit(agent, target)
             }

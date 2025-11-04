@@ -138,7 +138,7 @@ var Soldier = function(name, position){
 		// in neutral state
 		// console.log("soldier state " + soldierThis.charName + " " + soldierThis.state.stateType)
 		if (soldierThis.order != null && Utils.NEUTRAL_STATES.includes(soldierThis.state.stateType)) {
-			console.log("hahaha   soldier order" + soldierThis.charName + " " + soldierThis.order.orderType + this.time)
+			console.log("hahaha   soldier order" + " " + soldierThis.charName + " " + soldierThis.order.orderType + this.time)
 			
 			soldierThis.order.excute()
 			switch(soldierThis.order.orderType){
@@ -146,9 +146,9 @@ var Soldier = function(name, position){
 					// soldierThis.chase(this.time)
 					break
 				case ORDER_TYPE.ATTACK:
-					var isSuccessfulAttack = soldierThis.orderAttack(this.time)
+					var isSuccessfullyAttack = soldierThis.orderAttack(this.time)
 
-					if (isSuccessfulAttack) {
+					if (isSuccessfullyAttack) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var attackType = soldierThis.criticalHitProbability.randomlyPick()
@@ -164,7 +164,10 @@ var Soldier = function(name, position){
 					
 					}
 					break
+				case ORDER_TYPE.CHASE:
+					var isSuccessfullyChase = soldierThis.orderChase(this.time)
 					
+					break
 			}
 		} else {
 			// check the character's state
@@ -181,9 +184,9 @@ var Soldier = function(name, position){
 					soldierThis.runAway(this.time)
 					break
 				case Utils.CHARACTER_STATES.ATTACK:
-					var isSuccessfulAttack = soldierThis.attack(this.time)
+					var isSuccessfullyAttack = soldierThis.attack(this.time)
 
-					if (isSuccessfulAttack[0]) {
+					if (isSuccessfullyAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						if (soldierThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
@@ -191,8 +194,8 @@ var Soldier = function(name, position){
 							var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
 							var atkValue = Math.floor(soldierThis.attackValue * attackRatio)
 
-							if (isSuccessfulAttack[1] != null) {
-								atkValue = Math.floor(isSuccessfulAttack[1].value * attackRatio)
+							if (isSuccessfullyAttack[1] != null) {
+								atkValue = Math.floor(isSuccessfullyAttack[1].value * attackRatio)
 							}
 							var msg = {
 								msgType: "attacked",
@@ -418,32 +421,6 @@ Soldier.prototype.moveOneStep = function(availableDirections, time){
 }
 
 Soldier.prototype.getAvailableDirectionsForPatrol = function(){
-	// var availableDirections = []
-	// for (let i = 0; i < Utils.DIRECTION.length; i++) {
-	// 	var tempDir = Utils.DIRECTION[i]
-	// 	var tempPos = JSON.parse(JSON.stringify(this.position))
-	// 	switch (tempDir) {
-	// 		case Utils.DIRECTION[0]:
-	// 			tempPos[1]--
-	// 			break
-	// 		case Utils.DIRECTION[1]:
-	// 			tempPos[1]++
-	// 			break
-	// 		case Utils.DIRECTION[2]:
-	// 			tempPos[0]--
-	// 			break
-	// 		case Utils.DIRECTION[3]:
-	// 			tempPos[0]++
-	// 			break
-	// 	}
-	// 	if (tempPos[0] >=0 && tempPos[0] < Utils.MAP_SIZE[0] 
-	// 		&& tempPos[1] >=0 && tempPos[1] < Utils.MAP_SIZE[1]) {
-
-	// 		availableDirections.push(tempDir)
-	// 	}
-	// }
-
-	// return availableDirections
 	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.charType)
 
 	return availableDirections
@@ -750,7 +727,7 @@ Soldier.prototype.orderAttack = function(time){
 	return result
 }
 Soldier.prototype.orderChase = function(time){
-
+	var result = CharacterBase.orderChase(this, time)
 }
 //------order-------
 

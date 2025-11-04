@@ -147,7 +147,10 @@ var Alien = function(name, position){
 					
 					}
 					break
-					
+				case ORDER_TYPE.CHASE:
+					var isSuccessfulChase = alienThis.orderChase(this.time)	
+
+					break
 			}
 		} else {
 			// check the character's state
@@ -613,85 +616,6 @@ Alien.prototype.attack = function(time){
 	return true
 }
 
-Alien.prototype.orderAttack = function(time) {
-	// // check if the character died
-	// if (this.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-	// 	return false
-	// }		
-
-	// // no need to check self hp
-	// // just do what the order ask
-
-	// // check attack range
-	// var character = this.order.target
-	// var distance = Math.abs(this.position[0] - character.position[0]) + Math.abs(this.position[1] - character.position[1])
-	// if (distance > this.attackRange) {
-	// 	// incapacitated, can not move
-	// 	if (this.healthState < Utils.HEALTH_STATES.INCAPACITATED && this.healthState > Utils.HEALTH_STATES.DIED) {
-	// 		return false
-	// 	}
-	// 	// this frame still need to move
-	// 	if (distance > this.visualRange) {
-	// 		this.orderChase(time)
-	// 	}
-	// 	return false
-	// }
-	// Logger.info({
-	// 	N1: this.charName,
-	// 	L: "attacked",
-	// 	N2: character.charName,
-	// 	T: time,
-	// 	Note: "order"
-	// })
-	// return true
-	var result = CharacterBase.orderAttack(this, time)
-	return result
-}
-Alien.prototype.orderChase = function(time){
-
-	var targetWidth = 1
-	var targetHeight = 1
-	
-	Logger.info({
-		N1: this.charName,
-		L: "is chasing",
-		N2: this.order.target.charName,
-		T: time,
-		Note: "order"
-	})
-	
-	
-	var position = this.order.target.position
-	this.lastDirection = ""
-	for (let j = 0; j < this.speed; j++){
-		var availableDirections = []
-		var horizontalOffset = position[0] - this.position[0]
-		if ( horizontalOffset > targetWidth) {
-			availableDirections.push(Utils.DIRECTION[3])
-		} else if (horizontalOffset < -targetWidth) {
-			availableDirections.push(Utils.DIRECTION[2])
-		}
-		var verticalOffset = position[1] - this.position[1]
-		if (verticalOffset > targetHeight) {
-			availableDirections.push(Utils.DIRECTION[1])
-		} else if (verticalOffset < -targetHeight) {
-			availableDirections.push(Utils.DIRECTION[0])
-		}
-		if (availableDirections.length > 0) {
-			this.moveOneStep(availableDirections, time)
-		}
-		
-	}
-
-	Logger.statesInfo(JSON.stringify({
-		N: this.charName,
-		S: this.state.stateType, 
-		P: this.position,
-		T: time,
-		Note:"order"
-	}))
-}
-
 Alien.prototype.stay = function(time){
 	Logger.info({
 		N1: this.charName,
@@ -847,6 +771,17 @@ Alien.prototype.checkIfPositionAccessible = function(pos){
 
 	return true
 }
+
+//-------order start-------
+Alien.prototype.orderAttack = function(time) {
+	var result = CharacterBase.orderAttack(this, time)
+	return result
+}
+Alien.prototype.orderChase = function(time){
+	var result = CharacterBase.orderChase(this, time)
+	return result
+}
+//-------order end-------
 
 module.exports = {
 	Alien,

@@ -89,7 +89,7 @@ var Townfolk = function(name, position){
 		// check the character's state
 		townfolkThis.updateStates(time)
 		if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
-			console.log("hahaha   soldier order" + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
+			console.log("hahaha   townsfolk order" + " " + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
 			
 			townfolkThis.order.excute()
 			switch(townfolkThis.order.orderType){
@@ -115,7 +115,10 @@ var Townfolk = function(name, position){
 					
 					}
 					break
+				case ORDER_TYPE.CHASE:
+					var isSuccessfullyChase = townfolkThis.orderChase(this.time)
 					
+					break
 			}
 		} else {
 			switch(townfolkThis.state.stateType){
@@ -469,26 +472,6 @@ Townfolk.prototype.runAway = function(time){
 Townfolk.prototype.getRunAwayDirection = function(){
 	var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
 	return oppositDir
-	// var oppositDir = []
-	// if (this.position[0] - this.state.target.position[0] > 0) {
-	// 	oppositDir.push(Utils.DIRECTION[3])
-	// } else if (this.position[0] - this.state.target.position[0] < 0) {
-	// 	oppositDir.push(Utils.DIRECTION[2])
-	// } else {
-	// 	oppositDir.push(Utils.DIRECTION[2])
-	// 	oppositDir.push(Utils.DIRECTION[3])
-	// }
-
-	// if (this.position[1] - this.state.target.position[1] > 0) {
-	// 	oppositDir.push(Utils.DIRECTION[1])
-	// } else if (this.position[1] - this.state.target.position[0] < 1) {
-	// 	oppositDir.push(Utils.DIRECTION[0])
-	// } else {
-	// 	oppositDir.push(Utils.DIRECTION[0])
-	// 	oppositDir.push(Utils.DIRECTION[1])
-	// }
-
-	// return oppositDir
 }
 
 // one unit per time
@@ -689,6 +672,7 @@ Townfolk.prototype.heal = function(time) {
 	return [true, result[1].value]
 }
 
+//-----------order start -------------
 Townfolk.prototype.orderAttack = function(time){
 	if (this.hasWeapon()) {
 		var result = CharacterBase.orderAttack(this, time)
@@ -700,12 +684,15 @@ Townfolk.prototype.orderAttack = function(time){
 }
 
 Townfolk.prototype.orderFindAWeapon = function(time){
-	console.log("Order: find a weapon")
+	console.log("Order: go and find a weapon")
 }
 
 Townfolk.prototype.orderChase = function(time){
-
+	var result = CharacterBase.orderChase(this, time)
+	
+	return result
 }
+//-----------order end ---------------
 
 module.exports = {
 	Townfolk,

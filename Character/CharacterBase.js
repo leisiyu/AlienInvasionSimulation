@@ -1,6 +1,7 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
 const CharactersData = require("./CharactersData.js")
+// const Logger = require('../Logger.js').Logger
 
 //availableDirections can not be null
 function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
@@ -423,7 +424,7 @@ function orderAttack(character, time){
 	}
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		console.log("order target died " + character.order.target.charName + character.order.target.state.stateType + " " + time)
+		console.log("order target died " + character.order.target.charName + " " + character.order.target.state.stateType + " " + time)
 		return false
 	}		
 
@@ -440,7 +441,7 @@ function orderAttack(character, time){
 			return false
 		}
 		// this frame still need to move
-		console.log("order -> chase")
+		console.log("order: attack -> chase")
 		character.orderChase(time)
 		return false
 	}
@@ -452,11 +453,85 @@ function orderAttack(character, time){
 		T: time,
 		Note: "order"
 	})
+
+	console.log("order success: attack")
 	return true
 }
 
-function orderChase(time){
+
+function orderChase(character, time, usePosInfo = false){
+	// all the needed infomation have been sent to the agent
+	// but in the first a few attemps, the target's position info is not allowed to use
+	// so the "usePosInfo" is default to be false
+	// after that can lead the agent to the exact position
+
 	console.log("character base: order chase")
+	if (character.order.target == null || character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
+		return false
+	}
+
+	var targetWidth = 1
+	var targetHeight = 1
+	
+	const Logger = require('../Logger.js').Logger
+	Logger.info({
+		N1: character.charName,
+		L: "is chasing",
+		N2: character.order.target.charName,
+		T: time,
+		Note: "order"
+	})
+	
+	var [visibleCharacters, visibleBuildings] = character.checkVisualRange()
+
+	var visibleIdx = visibleCharacters.indexOf(character.order.target)
+	if (visibleIdx != -1
+		|| usePosInfo == true) {
+		// if within visual range, chase it directly
+		// if the order has percisely target position info, chase it directly
+
+		position = character.order.target.position
+			
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = []
+			var horizontalOffset = position[0] - character.position[0]
+			if ( horizontalOffset > targetWidth) {
+				availableDirections.push(Utils.DIRECTION[3])
+			} else if (horizontalOffset < -targetWidth) {
+				availableDirections.push(Utils.DIRECTION[2])
+			}
+			var verticalOffset = position[1] - character.position[1]
+			if (verticalOffset > targetHeight) {
+				availableDirections.push(Utils.DIRECTION[1])
+			} else if (verticalOffset < -targetHeight) {
+				availableDirections.push(Utils.DIRECTION[0])
+			}
+			if (availableDirections.length > 0) {
+				character.moveOneStep(availableDirections, time)
+			}
+			
+		}
+	} else {
+		
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = getAvailableDirectionsForPatrol(character.position, character.charType)
+			if (availableDirections.length > 0) {
+				character.moveOneStep(availableDirections, time)
+			}
+		}
+		
+	}
+
+	Logger.statesInfo(JSON.stringify({
+		N: character.charName,
+		S: character.state.stateType, 
+		P: character.position,
+		T: time,
+		Note:"order"
+	}))
+
+	console.log("order success: chase")
+	return true
 }
 //--------- Intervene----------
 
@@ -477,5 +552,6 @@ module.exports = {
 	checkOrder,
 	removeOrder,
 	findEnemy,
-	orderAttack
+	orderAttack,
+	orderChase
 }
