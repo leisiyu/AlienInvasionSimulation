@@ -19,7 +19,7 @@ var Townfolk = function(name, position){
 	// jssim.SimEvent.call(this, 10)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE.TOWNSFOLK
+	this.objType = Utils.CHARACTER_TYPE.TOWNSFOLK
 	this.baseSpeed = Math.floor(Math.random() * 3) + 1
 	this.speed = this.baseSpeed
 	// this.speed = 10 // test
@@ -118,6 +118,20 @@ var Townfolk = function(name, position){
 				case ORDER_TYPE.CHASE:
 					var isSuccessfullyChase = townfolkThis.orderChase(this.time)
 					
+					break
+				case ORDER_TYPE.HEAL:
+					var isSuccessfullyHeal = townfolkThis.orderHeal(this.time)
+					if (isSuccessfullyHeal) {
+						townfolkThis.healingIdx++
+						var msg = {
+							msgType: "heal",
+							healer: townfolkThis.charName,
+							value: isSuccessfullyHeal[1],
+						}
+						this.sendMsg(townfolkThis.order.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					} 
 					break
 			}
 		} else {
@@ -470,7 +484,7 @@ Townfolk.prototype.runAway = function(time){
 }
 
 Townfolk.prototype.getRunAwayDirection = function(){
-	var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
+	var oppositDir = CharacterBase.getAwayTargetDirection(this.objType, this.position, this.state.target)
 	return oppositDir
 }
 
@@ -563,7 +577,7 @@ Townfolk.prototype.moveOneStep = function(availableDirections, time){
 
 Townfolk.prototype.getAvailableDirectionsForPatrol = function(){
 	
-	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.charType)
+	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.objType)
 
 	return availableDirections
 }
@@ -582,7 +596,7 @@ Townfolk.prototype.checkVisualRange = function(){
 		if (characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.state.stateType != Utils.CHARACTER_STATES.DIED) {
-				if (character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+				if (character.objType == Utils.CHARACTER_TYPE.ALIEN) {
 					visibleEnemies.push(character)
 				} else {
 					visibleAllies.push(character)
@@ -689,7 +703,12 @@ Townfolk.prototype.orderFindAWeapon = function(time){
 
 Townfolk.prototype.orderChase = function(time){
 	var result = CharacterBase.orderChase(this, time)
-	
+
+	return result
+}
+
+Townfolk.prototype.orderHeal = function(time){
+	var result = CharacterBase.orderHeal(this, time)
 	return result
 }
 //-----------order end ---------------

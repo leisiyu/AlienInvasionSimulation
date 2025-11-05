@@ -17,7 +17,7 @@ var Soldier = function(name, position){
 	// jssim.SimEvent.call(this, 20)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE.SOLDIER
+	this.objType = Utils.CHARACTER_TYPE.SOLDIER
 	this.baseSpeed = Math.floor(Math.random() * 5) + 3
 	// this.baseSpeed = 15 // test
 	this.speed = this.baseSpeed
@@ -167,6 +167,20 @@ var Soldier = function(name, position){
 				case ORDER_TYPE.CHASE:
 					var isSuccessfullyChase = soldierThis.orderChase(this.time)
 					
+					break
+				case ORDER_TYPE.HEAL:
+					var isSuccessfullyHeal = soldierThis.orderHeal(this.time)
+					if (isSuccessfullyHeal) {
+						soldierThis.healingIdx++
+						var msg = {
+							msgType: "heal",
+							healer: soldierThis.charName,
+							value: isSuccessfullyHeal[1],
+						}
+						this.sendMsg(soldierThis.order.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					} 
 					break
 			}
 		} else {
@@ -421,7 +435,7 @@ Soldier.prototype.moveOneStep = function(availableDirections, time){
 }
 
 Soldier.prototype.getAvailableDirectionsForPatrol = function(){
-	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.charType)
+	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.objType)
 
 	return availableDirections
 }
@@ -485,7 +499,7 @@ Soldier.prototype.runAway = function(time){
 }
 
 Soldier.prototype.getRunAwayDirection = function(){
-	var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
+	var oppositDir = CharacterBase.getAwayTargetDirection(this.objType, this.position, this.state.target)
 	return oppositDir
 	// var oppositDir = []
 	// if (this.position[0] - this.state.target.position[0] > 0) {
@@ -710,7 +724,7 @@ Soldier.prototype.checkVisualRange = function(){
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.charName != this.charName) {
-				if (character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+				if (character.objType == Utils.CHARACTER_TYPE.ALIEN) {
 					visibleEnemies.push(character)
 				} else {
 					visibleFriends.push(character)
@@ -728,6 +742,15 @@ Soldier.prototype.orderAttack = function(time){
 }
 Soldier.prototype.orderChase = function(time){
 	var result = CharacterBase.orderChase(this, time)
+	return result
+}
+Soldier.prototype.orderHeal = function(time){
+	var result = CharacterBase.orderHeal(time)
+	return result
+	
+}
+Soldier.prototype.orderFindMedikit = function(time){
+	console.log("order: find medikit first!")
 }
 //------order-------
 

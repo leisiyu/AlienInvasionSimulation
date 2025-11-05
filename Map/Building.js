@@ -4,7 +4,7 @@ const Utils = require('../Utils.js')
 // anchor point:[0, 1]
 class Building{
     constructor(size, position, buildingType, doors){
-        this.type = "building"
+        this.objType = "building"
         this.size = size
         this.position = position
         this.buildingType = buildingType

@@ -15,7 +15,7 @@ var Alien = function(name, position){
 	// jssim.SimEvent.call(this)
 	this.charName = name
 	this.position = position
-	this.charType = Utils.CHARACTER_TYPE.ALIEN
+	this.objType = Utils.CHARACTER_TYPE.ALIEN
 	var alienThis = this
 	this.baseSpeed = Math.floor(Math.random() * 5) + 3//1
 	this.speed = this.baseSpeed
@@ -337,7 +337,7 @@ Alien.prototype.checkSurrounding = function(time){
 	// TO DO: chase 的检查应该在随机前面
 	// if the original state is chase
 	if (this.state.stateType == Utils.CHARACTER_STATES.CHASE) {
-		if (this.state.target.type != "building" && !CharacterBase.checkIsDied(this.state.target)) {
+		if (this.state.target.objType != "building" && !CharacterBase.checkIsDied(this.state.target)) {
 			if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
 				this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
 			}
@@ -474,7 +474,7 @@ Alien.prototype.moveOneStep = function(availableDirections, time){
 
 Alien.prototype.getAvailableDirectionsForPatrol = function(){
 	
-	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.charType)
+	var availableDirections = CharacterBase.getAvailableDirectionsForPatrol(this.position, this.objType)
 
 	return availableDirections
 }
@@ -510,7 +510,7 @@ Alien.prototype.chase = function(time){
 
 	var targetWidth = 1
 	var targetHeight = 1
-	if (this.state.target.type == "building") {
+	if (this.state.target.objType == "building") {
 		targetWidth = this.state.target.size[0]
 		targetHeight = this.state.target.size[1]
 		Logger.info({
@@ -704,7 +704,7 @@ Alien.prototype.checkVisualRange = function(){
 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charType != this.charType
+			&& character.objType != this.objType
 			&& !MapManager.checkIsInABuilding(character.position)[0]
 			) {
 				visibleCharacters.push(character)
@@ -729,7 +729,7 @@ Alien.prototype.checkVisualRange = function(){
 }
 
 Alien.prototype.getRunAwayDirection = function(){
-	// var oppositDir = CharacterBase.getAwayTargetDirection(this.charType, this.position, this.state.target)
+	// var oppositDir = CharacterBase.getAwayTargetDirection(this.objType, this.position, this.state.target)
 	// return oppositDir
 	var oppositDir = []
 	if (this.position[0] - this.state.target.position[0] > 0 && this.position[0] + 1 < Utils.MAP_SIZE[0]) {

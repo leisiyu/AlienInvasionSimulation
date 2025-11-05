@@ -313,8 +313,27 @@ function getAwayTargetDirection(characterType, position, target){
 	return oppositDir
 }
 
-function getApproachTargetDirection(characterType, position, target){
+function getApproachTargetDirection(position, target){
+	var towardsDir = []
+	if (position[0] - target.position[0] > 0) {
+		towardsDir.push(Utils.DIRECTION[2])
+	} else if (position[0] - target.position[0] < 0) {
+		towardsDir.push(Utils.DIRECTION[3])
+	} else {
+		towardsDir.push(Utils.DIRECTION[2])
+		towardsDir.push(Utils.DIRECTION[3])
+	}
 
+	if (position[1] - target.position[1] > 0) {
+		towardsDir.push(Utils.DIRECTION[0])
+	} else if (position[1] - target.position[0] < 1) {
+		towardsDir.push(Utils.DIRECTION[1])
+	} else {
+		towardsDir.push(Utils.DIRECTION[0])
+		towardsDir.push(Utils.DIRECTION[1])
+	}
+
+	return towardsDir
 }
 
 function checkPositionAccessible(characterType){
@@ -396,14 +415,14 @@ function findEnemy(agent){
 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charType != agent.charType){
-			// && ((agent.charType == Utils.CHARACTER_TYPE.ALIEN && (character.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.charType == Utils.CHARACTER_TYPE.SOLDIER))
-                // || ((agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.charType == Utils.CHARACTER_TYPE.SOLDIER) && character.charType == Utils.CHARACTER_TYPE.ALIEN))){
-                if ((agent.charType == Utils.CHARACTER_TYPE.SOLDIER || agent.charType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
-                    && character.charType == Utils.CHARACTER_TYPE.ALIEN) {
+			&& character.objType != agent.objType){
+			// && ((agent.objType == Utils.CHARACTER_TYPE.ALIEN && (character.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.objType == Utils.CHARACTER_TYPE.SOLDIER))
+                // || ((agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.objType == Utils.CHARACTER_TYPE.SOLDIER) && character.objType == Utils.CHARACTER_TYPE.ALIEN))){
+                if ((agent.objType == Utils.CHARACTER_TYPE.SOLDIER || agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
+                    && character.objType == Utils.CHARACTER_TYPE.ALIEN) {
                         enemies.push(character)
                 }
-                if (agent.charType == Utils.CHARACTER_TYPE.ALIEN) {
+                if (agent.objType == Utils.CHARACTER_TYPE.ALIEN) {
                     enemies.push(character)
                 }
                 
@@ -455,6 +474,7 @@ function orderAttack(character, time){
 	})
 
 	console.log("order success: attack")
+	character.state.updateState(Utils.CHARACTER_STATES.ATTACK)
 	return true
 }
 
@@ -514,7 +534,7 @@ function orderChase(character, time, usePosInfo = false){
 	} else {
 		
 		for (let j = 0; j < character.speed; j++){
-			var availableDirections = getAvailableDirectionsForPatrol(character.position, character.charType)
+			var availableDirections = getAvailableDirectionsForPatrol(character.position, character.objType)
 			if (availableDirections.length > 0) {
 				character.moveOneStep(availableDirections, time)
 			}
@@ -531,8 +551,63 @@ function orderChase(character, time, usePosInfo = false){
 	}))
 
 	console.log("order success: chase")
+	character.state.updateState(Utils.CHARACTER_STATES.CHASE)
 	return true
 }
+
+function orderHeal(character, time, usePosInfo = false){
+	var target = character.order.target
+	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
+
+	if (distance <= 2) {
+		// heal the target
+		if (character.healingIdx >= Utils.HEAL_STEP) {
+			character.healingIdx = 0
+			return [false]
+		}
+	
+		var result = CharacterBase.hasMediKit(character.inventory)
+		if (!result[0]) {
+			character.orderFindMedikit(time)
+			return [false]
+		}
+	
+		CharacterBase.heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time)
+		character.state.updateState(Utils.CHARACTER_STATES.HEAL)
+		return [true, result[1].value]
+	}
+
+	if (distance <= character.visualRange || usePosInfo) {
+		//move to the target
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = getApproachTargetDirection(character.position, target)
+			if (availableDirections.length > 0) {
+				//TO DO: doesn't have a MOVE TO state
+				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
+				character.moveOneStep(availableDirections, time)
+			}
+
+			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= 2) {
+				return [false]
+			}
+		}
+		
+	} else{
+		//find the target first
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = Utils.DIRECTION
+			if (availableDirections.length > 0) {
+				character.moveOneStep(availableDirections, time)
+				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
+			}
+			
+			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= character.visualRange) {
+				return [false]
+			}
+		}
+	}
+}
+
 //--------- Intervene----------
 
 
@@ -548,6 +623,7 @@ module.exports = {
 	checkIsDied,
 	getAvailableDirectionsForPatrol,
 	getAwayTargetDirection,
+	getApproachTargetDirection,
 	addOrder,
 	checkOrder,
 	removeOrder,
