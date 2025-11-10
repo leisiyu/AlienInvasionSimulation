@@ -1,6 +1,7 @@
 // Drama manager
 // Weak action based intra-manifold
-const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
+// const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
+const HighLevelEvents = require("../StorySifter/HighLevelEventsTest.json")
 const Intervention = require("./Intervention.js")
 
 // check in every beat
@@ -46,17 +47,11 @@ function findLowerLevelEventJson(nextEvents){
                     if (eventJson["events"][0][j]["char1Idx"] != undefined) {
                         if (mainCharacters[0] == eventJson["events"][0][j]["char1Idx"]["index"]) {
                             tempJson["N1"] = nextEvent["N1"]
-                            // console.log("haha N1 " + nextEvent["N1"])
-                        // } else {
-                        //     tempJson["N1"] = nextEvent["N2"]
                         }
                     }
                     if (eventJson["events"][0][j]["char2Idx"] != undefined) {
                         if (mainCharacters[1] == eventJson["events"][0][j]["char2Idx"]["index"]) {
                             tempJson["N2"] = nextEvent["N2"]
-                            // console.log("haha N2 " + nextEvent["N2"])
-                        // } else {
-                        //     tempJson["N2"] = nextEvent["N1"]
                         }
                     }
                     nextJsons.push(tempJson)
@@ -87,31 +82,10 @@ function findNextLowestEvents(partialMatch, pool){
     var lowestPartialMatch = findLowestPartialMatch(partialMatch, pool)
     // var actors = partialMatch.getActors()
     var nextEvents = lowestPartialMatch.getNextEvents()
+    console.log("next events " + nextEvents[0]["N1"] + " " + nextEvents[0]["N2"] + " " + nextEvents[0]["L"])
     var nextEventJsons = findLowestLevelJson(nextEvents)
+    console.log("next Jsons " + nextEventJsons.length)
     if (nextEventJsons.length != 0) {
-        // if the "nextEventJson" exists, means the "nextEvent" is a high-level event
-        // So the first event in the "nextEventJson" is the next event to be intervened
-        // var nextJsons = []
-        // for (let i = 0; i < nextEventJsons.length; i++) {
-        //     nextEventJson = nextEventJsons[i]
-        //     // for (let j = 0; j < nextEventJson["events"].length; j++) {
-        //     //     nextJsons.push(nextEventJsons["events"][0][j])
-        //     // }
-        //     var actors = partialMatch.getActors()
-        //     var tempJson = {
-        //         "L": nextEventJson["tag"]
-        //     }
-        //     if (nextEventJson["char1Idx"] != undefined) {
-        //         tempJson["N1"] = actors[nextEventJson["char1Idx"]["index"]]
-        //     }
-        //     if (nextEventJson["char2Idx"] != undefined) {
-        //         tempJson["N2"] = actors[nextEventJson["char2Idx"]["index"]]
-        //     }
-        //     nextJsons.push(tempJson)
-            
-        // }
-
-        
         return nextEventJsons
     } else {
         // if the "nextEventJson" doesn't exist, the "nextEvent" is the final low-level event
@@ -133,9 +107,13 @@ function findLowestPartialMatch(currentPartialMatch, pool){
             var partial = pool[i]
             for (let j = 0; j < lowerLevelEventJsons.length; j++) {
                 var lowerLevelEventJson = lowerLevelEventJsons[j]
+                // if (partial.highLevelEventJson["tag"] == lowerLevelEventJson["tag"]
+                //     && partial.actors[0] == currentPartialMatch.actors[0]
+                //     && (partial.actors[1] == undefined || currentPartialMatch.actors[1] == undefined || (partial.actors[1] == currentPartialMatch.actors[1]))
                 if (partial.highLevelEventJson["tag"] == lowerLevelEventJson["tag"]
-                    && partial.actors[0] == currentPartialMatch.actors[0]
-                    && (partial.actors[1] == undefined || currentPartialMatch.actors[1] == undefined || (partial.actors[1] == currentPartialMatch.actors[1]))
+                    && partial.actors[partial.mainCharacters[0]] == currentPartialMatch.actors[currentPartialMatch.mainCharacters[0]]
+                    && ((partial.mainCharacters[1] == undefined && currentPartialMatch.mainCharacters[1] == undefined) 
+                        || partial.actors[partial.mainCharacters[1]] == currentPartialMatch.actors[currentPartialMatch.mainCharacters[1]])
                 ) {
                     nextLevelPartialMatch = partial
                     nextLevelPartialMatch = findLowestPartialMatch(nextLevelPartialMatch, pool)
