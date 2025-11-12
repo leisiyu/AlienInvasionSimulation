@@ -23,7 +23,7 @@ function updateEvents(totalTimeSteps){
         if (Util.DOES_INTERVENTE){
             // Lazy require to avoid circular dependency during initialization
             const Pool = require('./StorySifter/Pool')
-            DramaManager.checkPartialMatchPool(Pool.partialMatchPool)
+            DramaManager.checkPartialMatchPool(Pool.partialMatchPool, scheduler.current_time)
         }
 
 		// TEST: Count neutral agents each beat

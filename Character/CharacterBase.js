@@ -1,6 +1,7 @@
 const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
 const CharactersData = require("./CharactersData.js")
+const DramaManagerData = require("../DramaManager/DramaManagerData.js")
 // const Logger = require('../Logger.js').Logger
 
 //availableDirections can not be null
@@ -353,7 +354,7 @@ function checkPositionAccessible(characterType){
 // if this agent has already got an order, then don't give the order
 // first come first serve
 
-function addOrder(character, target, order){
+function addOrder(character, target, order, time){
 	const ORDER_TYPE = require("../DramaManager/Order.js").ORDER_TYPE
 	if (target == null) {
 		switch(order.orderType){
@@ -373,12 +374,15 @@ function addOrder(character, target, order){
 	}
 	if (target == null) {
 		// abandon this turn
+		console.log("target nil")
 		return
 	}
-
+	
 	if (character.order == null) {
 		character.order = order
 		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
+		// record orders
+		DramaManagerData.recordOrder(order, time)
 	}
 } 
 
