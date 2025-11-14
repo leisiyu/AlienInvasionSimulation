@@ -360,9 +360,15 @@ function addOrder(character, target, order, time){
 		switch(order.orderType){
 			case ORDER_TYPE.ATTACK:
 			case ORDER_TYPE.CHASE:
-			case ORDER_TYPE.KILL:
-				target = findEnemy(character)
+				target = findEnemy(character, order, time)
+				console.log("hahahahahahha    " + order.orderType + " " + character.charName + " " + time + " ")
+				if (target != null) {
+					console.log("hahahahha????? " + target.charName)
+				}
 				order.updateTarget(target)
+				break
+			
+			case ORDER_TYPE.KILLED:
 				break
 			case ORDER_TYPE.MOVE:
 				// TO DO: find????
@@ -398,10 +404,20 @@ function removeOrder(character){
 }
 
 /// Find an enemy nearby
-function findEnemy(agent){
+function findEnemy(agent, order, time){
 	if (agent == null) {
 		return null
 	}
+
+	// check if there's a target in the last run
+	var target = DramaManagerData.getTargetFromLastOrder(agent, order, time)
+	if (target != null
+		&& target.state.stateType != Utils.CHARACTER_STATES.DIED) {
+
+		console.log("find enemy target " + agent.charName + " " + target.charName + " " + time)
+		return target
+	}
+	
     /// enemies nearby (check the map)
     /// if target is an alien, find solders and armed civilians
     /// if target is a human, find aliens
@@ -426,7 +442,9 @@ function findEnemy(agent){
                     && character.objType == Utils.CHARACTER_TYPE.ALIEN) {
                         enemies.push(character)
                 }
-                if (agent.objType == Utils.CHARACTER_TYPE.ALIEN) {
+                if (agent.objType == Utils.CHARACTER_TYPE.ALIEN
+					&& !MapManager.getMap().checkIsInABuilding(character.position)
+				) {
                     enemies.push(character)
                 }
                 
@@ -438,7 +456,7 @@ function findEnemy(agent){
 
 function orderAttack(character, time){
 	if (character.order.target == null) {
-		var target = findEnemy(character)
+		var target = findEnemy(character, character.order, time)
 		if (target == null) {
 			return false
 		} else {

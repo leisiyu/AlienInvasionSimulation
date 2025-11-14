@@ -36,4 +36,5 @@ function getTargetFromLastOrder(agent, order, time){
 
 module.exports = {
     recordOrder,
+    getTargetFromLastOrder
 }
