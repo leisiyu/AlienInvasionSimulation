@@ -42,7 +42,7 @@ function intervene(event, time){
             }
             break;
         case "is killed by":
-            if (agent != null){
+            if (target != null){
                 orderCriticalHit(agent, target, time)
             }
             
@@ -60,7 +60,7 @@ function orderChase(agent, target, time){
 /// Attack target with critical hit
 function orderCriticalHit(agent, target, time){
     /// attack the target with critical hit
-    var order = new Order(ORDER_TYPE.KILL, target)
+    var order = new Order(ORDER_TYPE.KILLED, target)
     CharacterBase.addOrder(agent, target, order, time)
 }
 

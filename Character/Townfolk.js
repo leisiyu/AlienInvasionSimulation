@@ -682,7 +682,7 @@ Townfolk.prototype.heal = function(time) {
 	}))
 
 	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
-	console.log("hahahahah  " + result[1].durability)
+	// console.log("hahahahah  " + result[1].durability)
 	return [true, result[1].value]
 }
 

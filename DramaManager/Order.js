@@ -7,7 +7,7 @@ const ORDER_TYPE = {
     MOVE: "MOVE",
     CHASE: "CHASE",
     HEAL: "HEAL",
-    KILL: "KILL"
+    KILL: "KILLED"
 }
 
 class Order {

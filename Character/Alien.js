@@ -336,7 +336,7 @@ Alien.prototype.checkSurrounding = function(time){
 
 	// TO DO: chase 的检查应该在随机前面
 	// if the original state is chase
-	if (this.state.stateType == Utils.CHARACTER_STATES.CHASE) {
+	if (this.state.stateType == Utils.CHARACTER_STATES.CHASE && this.state.target != null) {
 		if (this.state.target.objType != "building" && !CharacterBase.checkIsDied(this.state.target)) {
 			if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
 				this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
