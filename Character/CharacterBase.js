@@ -382,7 +382,7 @@ function addOrder(character, target, order, time){
 		character.order = order
 		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 		// record orders
-		DramaManagerData.recordOrder(order, time)
+		DramaManagerData.recordOrder(character.charName, order, time)
 	}
 } 
 
