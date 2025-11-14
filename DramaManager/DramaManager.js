@@ -12,7 +12,7 @@ function checkPartialMatchPool(pool, time){
         if (partialMatch.type == "story") {
             tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             if (tobeIntervenedEvents) {
-                // console.log("partial match: " + partialMatch.eventName)
+                console.log("partial match: " + partialMatch.eventName)
                 intervene(tobeIntervenedEvents, time)
             }
         }
@@ -58,7 +58,7 @@ function findLowerLevelEventJson(nextEvents){
                         // }
                         var idx = mainCharacters.indexOf(eventJson["events"][0][j]["char2Idx"]["index"])
                         if (idx != -1){
-                            tempJson["N1"] = idx == 0 ? nextEvent["N1"] : nextEvent["N2"]
+                            tempJson["N2"] = idx == 0 ? nextEvent["N1"] : nextEvent["N2"] 
                         }
                     }
                     nextJsons.push(tempJson)
@@ -88,9 +88,11 @@ function findLowestLevelJson(nextEvents){
 function findNextLowestEvents(partialMatch, pool){
     var lowestPartialMatch = findLowestPartialMatch(partialMatch, pool)
     // var actors = partialMatch.getActors()
+    // console.log("lowest partial match " + lowestPartialMatch.eventName + lowestPartialMatch.actors)
     var nextEvents = lowestPartialMatch.getNextEvents()
     // console.log("next events " + nextEvents[0]["N1"] + " " + nextEvents[0]["N2"] + " " + nextEvents[0]["L"])
     var nextEventJsons = findLowestLevelJson(nextEvents)
+    // console.log("next jsons " + nextEventJsons[0]["N1"] + " " + nextEventJsons[0]["N2"])
     if (nextEventJsons.length != 0) {
         return nextEventJsons
     } else {
