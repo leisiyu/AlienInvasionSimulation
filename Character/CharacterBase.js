@@ -192,7 +192,7 @@ function updateHealthState(hp, baseHp){
 	return healthState
 }
 
-function heal(healIdx, charName, targetName, medikit, inventory, time){
+function heal(healIdx, charName, targetName, medikit, inventory, time, isOrder = false){
 	const Logger = require('../Logger.js').Logger
 	healIdx ++
 	var result = medikit.use(time)
@@ -218,12 +218,16 @@ function heal(healIdx, charName, targetName, medikit, inventory, time){
         })
 		return true
 	} else {
-		Logger.info({
+		var logInfo = {
             N1: charName,
             L: "is healing",
             N2: targetName,
             T: time,
-        })
+        }
+		if (isOrder) {
+			logInfo["Note"] = "order"
+		}
+		Logger.info(logInfo)
 		return false
 	}
 }
@@ -314,20 +318,20 @@ function getAwayTargetDirection(characterType, position, target){
 	return oppositDir
 }
 
-function getApproachTargetDirection(position, target){
+function getApproachTargetDirection(position, targetPosition){
 	var towardsDir = []
-	if (position[0] - target.position[0] > 0) {
+	if (position[0] - targetPosition[0] > 0) {
 		towardsDir.push(Utils.DIRECTION[2])
-	} else if (position[0] - target.position[0] < 0) {
+	} else if (position[0] - targetPosition[0] < 0) {
 		towardsDir.push(Utils.DIRECTION[3])
 	} else {
 		towardsDir.push(Utils.DIRECTION[2])
 		towardsDir.push(Utils.DIRECTION[3])
 	}
 
-	if (position[1] - target.position[1] > 0) {
+	if (position[1] - targetPosition[1] > 0) {
 		towardsDir.push(Utils.DIRECTION[0])
-	} else if (position[1] - target.position[0] < 1) {
+	} else if (position[1] - targetPosition[0] < 1) {
 		towardsDir.push(Utils.DIRECTION[1])
 	} else {
 		towardsDir.push(Utils.DIRECTION[0])
@@ -361,10 +365,6 @@ function addOrder(character, target, order, time){
 			case ORDER_TYPE.ATTACK:
 			case ORDER_TYPE.CHASE:
 				target = findEnemy(character, order, time)
-				console.log("hahahahahahha    " + order.orderType + " " + character.charName + " " + time + " ")
-				if (target != null) {
-					console.log("hahahahha????? " + target.charName)
-				}
 				order.updateTarget(target)
 				break
 			
@@ -578,6 +578,12 @@ function orderChase(character, time, usePosInfo = false){
 }
 
 function orderHeal(character, time, usePosInfo = false){
+	// if doesn't have a medikit, go and find one first
+	if (!hasMediKit(character.inventory)[0]) {
+		orderFindMedikit(character, time, usePosInfo)
+		return [false]
+	}
+
 	var target = character.order.target
 	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
 
@@ -588,13 +594,13 @@ function orderHeal(character, time, usePosInfo = false){
 			return [false]
 		}
 	
-		var result = CharacterBase.hasMediKit(character.inventory)
-		if (!result[0]) {
-			character.orderFindMedikit(time)
-			return [false]
-		}
+		// var result = CharacterBase.hasMediKit(character.inventory)
+		// if (!result[0]) {
+		// 	character.orderFindMedikit(time)
+		// 	return [false]
+		// }
 	
-		CharacterBase.heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time)
+		CharacterBase.heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time, true)
 		character.state.updateState(Utils.CHARACTER_STATES.HEAL)
 		return [true, result[1].value]
 	}
@@ -602,7 +608,7 @@ function orderHeal(character, time, usePosInfo = false){
 	if (distance <= character.visualRange || usePosInfo) {
 		//move to the target
 		for (let j = 0; j < character.speed; j++){
-			var availableDirections = getApproachTargetDirection(character.position, target)
+			var availableDirections = getApproachTargetDirection(character.position, target.position)
 			if (availableDirections.length > 0) {
 				//TO DO: doesn't have a MOVE TO state
 				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
@@ -630,6 +636,29 @@ function orderHeal(character, time, usePosInfo = false){
 	}
 }
 
+function orderFindMedikit(character, time, usePosInfo){
+	if (usePosInfo){
+		var medikit = MapManager.getNearestMedikitPos(character.position)
+
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = getApproachTargetDirection(character.position, medikit.mapPosition)
+			if (availableDirections.length > 0) {
+				character.moveOneStep(availableDirections, time)
+			}
+		}
+		return
+	}
+
+	//TO DO: search building
+	//At this moment: wandering around
+	console.log("find medikit without position info")
+	for (let j = 0; j < character.speed; j++){
+		var availableDirections = Utils.DIRECTION
+		if (availableDirections.length > 0) {
+			character.moveOneStep(availableDirections, time)
+		}
+	}
+}
 //--------- Intervene----------
 
 
@@ -651,5 +680,6 @@ module.exports = {
 	removeOrder,
 	findEnemy,
 	orderAttack,
-	orderChase
+	orderChase,
+	orderHeal
 }

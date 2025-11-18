@@ -22,6 +22,8 @@ function checkOrdersInLastBeat(){
 }
 
 function getTargetFromLastOrder(agent, order, time){
+    if (order == null) {return}
+
     for (let i = 0; i < OrderRecords.length; i++){
         var record = OrderRecords[i]
         if (order.orderType == record.order.orderType

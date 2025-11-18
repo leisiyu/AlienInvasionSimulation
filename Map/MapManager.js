@@ -13,6 +13,7 @@ function generateMap(){
     
     //generate random gear
     var randomNum = Math.floor(Math.random() * Utils.TOTAL_CHARACTERS * 0.3) + 1
+    // var randomNum = 100
     console.log("haha random gear num " + randomNum)
     for (let i = 0; i < randomNum; i++){
         randomGearInRandomPos(0)
@@ -107,6 +108,7 @@ function removeGearFromGearMap(gear){
 function createRandomGear(){
     var randomType = Utils.GEAR_TYPES[Math.floor(Math.random() * Utils.GEAR_TYPES.length)]
     // var randomType = Utils.GEAR_TYPES[0]
+    // var randomType = Utils.GEAR_TYPES[0]
     var gearSubtypes = {}
     switch (randomType) {
         case Utils.GEAR_TYPES[0]:
@@ -148,6 +150,32 @@ function addGearOnMap(gear, pos) {
     gear.updateMapPosition(pos)
 }
 
+function getNearestMedikitPos(pos){
+    var medikits = []
+    for (let i = 0; i < gearsOnMap.length; i++){
+        var gear = gearsOnMap[i]
+        if (gear.gearType == Utils.GEAR_TYPES[0]
+            && gear.state != Utils.GEAR_STATE.BROKEN
+        ) {
+            medikits.push(gear)
+        }
+    }
+
+    if (medikits.length <= 0) {return}
+
+
+    var distances = []
+    for (let i = 0; i < medikits.length; i++) {
+        var distance = Math.abs(gear.mapPosition[0] - pos[0]) + Math.abs(gear.mapPosition[1] - pos[1])
+        distances.push(distance)
+    }
+    var minDistance = Math.min(...distances)
+    var medkitIdx = distances.indexOf(minDistance)
+    if (medkitIdx != -1) {
+        return medikits[medkitIdx]
+    } 
+}
+
 module.exports = {
     generateMap,
     getMap,
@@ -161,4 +189,5 @@ module.exports = {
     checkHasGearOnPos,
     getRandomPosAroundPos,
     addGearOnMap,
+    getNearestMedikitPos
 }
