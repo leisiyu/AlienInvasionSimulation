@@ -601,13 +601,13 @@ function orderHeal(character, time, usePosInfo = false){
 		// 	return [false]
 		// }
 	
-		CharacterBase.heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time, true)
+		heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time, true)
 		character.state.updateState(Utils.CHARACTER_STATES.HEAL)
 		return [true, result[1].value]
 	}
 
 	if (distance <= character.visualRange || usePosInfo) {
-		//move to the target
+		//move to the target first
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = getApproachTargetDirection(character.position, target.position)
 			if (availableDirections.length > 0) {
@@ -617,23 +617,25 @@ function orderHeal(character, time, usePosInfo = false){
 			}
 
 			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= 2) {
-				return [false]
+				break
 			}
 		}
-		
+		return [false]
+
 	} else{
 		//find the target first
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = Utils.DIRECTION
+			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= character.visualRange) {
+				availableDirections = getApproachTargetDirection(character.position, target.position)
+			}
+			
 			if (availableDirections.length > 0) {
 				character.moveOneStep(availableDirections, time)
 				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
 			}
-			
-			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= character.visualRange) {
-				return [false]
-			}
 		}
+		return [false]
 	}
 }
 
