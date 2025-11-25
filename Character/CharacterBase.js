@@ -579,7 +579,8 @@ function orderChase(character, time, usePosInfo = false){
 
 function orderHeal(character, time, usePosInfo = false){
 	// if doesn't have a medikit, go and find one first
-	if (!hasMediKit(character.inventory)[0]) {
+	var medikitResult = hasMediKit(character.inventory)
+	if (!medikitResult[0]) {
 		console.log("find medikit first!!!!!!")
 		orderFindMedikit(character, time, usePosInfo)
 		return [false]
@@ -590,24 +591,20 @@ function orderHeal(character, time, usePosInfo = false){
 
 	if (distance <= 2) {
 		// heal the target
+		console.log("start healing")
 		if (character.healingIdx >= Utils.HEAL_STEP) {
 			character.healingIdx = 0
 			return [false]
 		}
 	
-		// var result = CharacterBase.hasMediKit(character.inventory)
-		// if (!result[0]) {
-		// 	character.orderFindMedikit(time)
-		// 	return [false]
-		// }
-	
-		heal(character.healingIdx, character.charName, character.order.target.charName, result[1], character.inventory, time, true)
+		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, time, true)
 		character.state.updateState(Utils.CHARACTER_STATES.HEAL)
-		return [true, result[1].value]
+		return [true, medikitResult[1].value]
 	}
 
 	if (distance <= character.visualRange || usePosInfo) {
 		//move to the target first
+		console.log("move to the target (within visual range)")
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = getApproachTargetDirection(character.position, target.position)
 			if (availableDirections.length > 0) {
@@ -624,6 +621,7 @@ function orderHeal(character, time, usePosInfo = false){
 
 	} else{
 		//find the target first
+		console.log("move to the target (out of visual range)")
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = Utils.DIRECTION
 			if (Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1]) <= character.visualRange) {
