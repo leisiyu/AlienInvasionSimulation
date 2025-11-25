@@ -244,7 +244,7 @@ function removeGearFromInventory(gear, inventory){
 }
 
 function hasMediKit(inventory){
-	if (inventory.length <= 0) {return [false]}
+	if (inventory == null || inventory.length <= 0) {return [false]}
 
 	for (let i = 0; i < inventory.length; i++) {
 		var gear = inventory[i]
@@ -580,6 +580,7 @@ function orderChase(character, time, usePosInfo = false){
 function orderHeal(character, time, usePosInfo = false){
 	// if doesn't have a medikit, go and find one first
 	if (!hasMediKit(character.inventory)[0]) {
+		console.log("find medikit first!!!!!!")
 		orderFindMedikit(character, time, usePosInfo)
 		return [false]
 	}
