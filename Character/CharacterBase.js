@@ -598,7 +598,7 @@ function orderHeal(character, time, usePosInfo = false){
 		}
 	
 		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, time, true)
-		character.state.updateState(Utils.CHARACTER_STATES.HEAL)
+		character.state.setState(Utils.CHARACTER_STATES.HEAL, target)
 		return [true, medikitResult[1].value]
 	}
 
@@ -609,7 +609,7 @@ function orderHeal(character, time, usePosInfo = false){
 			var availableDirections = getApproachTargetDirection(character.position, target.position)
 			if (availableDirections.length > 0) {
 				//TO DO: doesn't have a MOVE TO state
-				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
+				character.state.setState(Utils.CHARACTER_STATES.PATROL)
 				character.moveOneStep(availableDirections, time)
 			}
 
@@ -630,7 +630,7 @@ function orderHeal(character, time, usePosInfo = false){
 			
 			if (availableDirections.length > 0) {
 				character.moveOneStep(availableDirections, time)
-				character.state.updateState(Utils.CHARACTER_STATES.PATROL)
+				character.state.setState(Utils.CHARACTER_STATES.PATROL)
 			}
 		}
 		return [false]
