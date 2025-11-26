@@ -121,7 +121,7 @@ var Townfolk = function(name, position){
 					break
 				case ORDER_TYPE.HEAL:
 					var isSuccessfullyHeal = townfolkThis.orderHeal(this.time)
-					if (isSuccessfullyHeal) {
+					if (isSuccessfullyHeal[0]) {
 						townfolkThis.healingIdx++
 						var msg = {
 							msgType: "heal",

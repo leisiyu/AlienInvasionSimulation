@@ -170,7 +170,7 @@ var Soldier = function(name, position){
 					break
 				case ORDER_TYPE.HEAL:
 					var isSuccessfullyHeal = soldierThis.orderHeal(this.time)
-					if (isSuccessfullyHeal) {
+					if (isSuccessfullyHeal[0]) {
 						soldierThis.healingIdx++
 						var msg = {
 							msgType: "heal",
@@ -227,7 +227,7 @@ var Soldier = function(name, position){
 					break
 				case Utils.CHARACTER_STATES.HEAL:
 					var isSuccessfulHeal = soldierThis.heal(this.time)
-					if (isSuccessfulHeal) {
+					if (isSuccessfulHeal[0]) {
 						soldierThis.healingIdx++
 						var msg = {
 							msgType: "heal",
@@ -749,9 +749,7 @@ Soldier.prototype.orderHeal = function(time){
 	return result
 	
 }
-Soldier.prototype.orderFindMedikit = function(time){
-	console.log("order: find medikit first!")
-}
+
 //------order-------
 
 
