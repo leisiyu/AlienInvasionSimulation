@@ -8,7 +8,7 @@ const CharactersData = require("../Character/CharactersData.js")
 const Utils = require('../Utils.js') 
 
 function intervene(event, time){
-    console.log("event log: " + event["L"] + event["N1"] + event["N2"])
+    // console.log("event log: " + event["L"] + event["N1"] + event["N2"])
     var agent = null
     if (event["N1"] != undefined) {
         agent = CharactersData.getCharacterByName(event["N1"])
@@ -43,7 +43,7 @@ function intervene(event, time){
             break;
         case "is killed by":
             if (target != null){
-                orderCriticalHit(agent, target, time)
+                orderCriticalHit(target, agent, time)
             }
             
             break;
@@ -58,10 +58,10 @@ function orderChase(agent, target, time){
 }
 
 /// Attack target with critical hit
-function orderCriticalHit(agent, target, time){
-    /// attack the target with critical hit
-    var order = new Order(ORDER_TYPE.KILLED, target)
-    CharacterBase.addOrder(agent, target, order, time)
+function orderCriticalHit(target, agent, time){
+    /// attack the agent with critical hit
+    var order = new Order(ORDER_TYPE.KILL, agent)
+    CharacterBase.addOrder(target, agent, order, time)
 }
 
 function orderAttack(agent, target,time){

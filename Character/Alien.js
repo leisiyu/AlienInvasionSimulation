@@ -151,6 +151,23 @@ var Alien = function(name, position){
 					var isSuccessfulChase = alienThis.orderChase(this.time)	
 
 					break
+				case ORDER_TYPE.KILL:
+					var isSuccessfullyAttack = alienThis.orderAttack(this.time)
+					console.log("order kill " + isSuccessfulAttack)
+					if (isSuccessfullyAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var msg = {
+							msgType: "attacked",
+							atkValue: Math.floor(alienThis.attackValue * Utils.CRITICAL_HIT),
+							attacker: alienThis.charName,
+						}
+						this.sendMsg(alienThis.order.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					
+					}
+					break
 			}
 		} else {
 			// check the character's state
@@ -780,7 +797,7 @@ Alien.prototype.orderAttack = function(time) {
 Alien.prototype.orderChase = function(time){
 	var result = CharacterBase.orderChase(this, time)
 	return result
-}
+}  
 //-------order end-------
 
 module.exports = {

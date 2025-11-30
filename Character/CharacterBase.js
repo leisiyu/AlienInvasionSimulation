@@ -365,10 +365,9 @@ function addOrder(character, target, order, time){
 			case ORDER_TYPE.ATTACK:
 			case ORDER_TYPE.CHASE:
 				target = findEnemy(character, order, time)
-				order.updateTarget(target)
 				break
-			
 			case ORDER_TYPE.KILLED:
+				target = findEnemy(character, order, time)
 				break
 			case ORDER_TYPE.MOVE:
 				// TO DO: find????
@@ -377,6 +376,7 @@ function addOrder(character, target, order, time){
 				//TO DO: find ally
 				break
 		}
+		order.updateTarget(target)
 	}
 	if (target == null) {
 		// abandon this turn
@@ -388,7 +388,7 @@ function addOrder(character, target, order, time){
 		character.order = order
 		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 		// record orders
-		DramaManagerData.recordOrder(character.charName, order, time)
+		DramaManagerData.recordGivenOrder(character.charName, order, time)
 	}
 } 
 
@@ -496,7 +496,7 @@ function orderAttack(character, time){
 	})
 
 	console.log("order success: attack")
-	character.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
 	return true
 }
 
@@ -573,7 +573,9 @@ function orderChase(character, time, usePosInfo = false){
 	}))
 
 	console.log("order success: chase")
-	character.state.updateState(Utils.CHARACTER_STATES.CHASE)
+	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target
+
+	)
 	return true
 }
 
@@ -660,6 +662,7 @@ function orderFindMedikit(character, time, usePosInfo){
 		}
 	}
 }
+
 //--------- Intervene----------
 
 
@@ -682,5 +685,5 @@ module.exports = {
 	findEnemy,
 	orderAttack,
 	orderChase,
-	orderHeal
+	orderHeal,
 }

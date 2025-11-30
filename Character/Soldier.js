@@ -182,6 +182,23 @@ var Soldier = function(name, position){
 						})
 					} 
 					break
+				case ORDER_TYPE.KILL:
+					var isSuccessfullyAttack = soldierThis.orderAttack(this.time)
+
+					if (isSuccessfullyAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var msg = {
+							msgType: "attacked",
+							atkValue: Math.floor(soldierThis.attackValue * Utils.CRITICAL_HIT),
+							attacker: soldierThis.charName,
+						}
+						this.sendMsg(soldierThis.order.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					
+					}
+					break
 			}
 		} else {
 			// check the character's state
@@ -747,8 +764,8 @@ Soldier.prototype.orderChase = function(time){
 Soldier.prototype.orderHeal = function(time){
 	var result = CharacterBase.orderHeal(time)
 	return result
-	
 }
+
 
 //------order-------
 

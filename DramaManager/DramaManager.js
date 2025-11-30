@@ -12,7 +12,7 @@ function checkPartialMatchPool(pool, time){
         if (partialMatch.type == "story") {
             tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             if (tobeIntervenedEvents) {
-                console.log("partial match: " + partialMatch.eventName)
+                // console.log("partial match: " + partialMatch.eventName)
                 intervene(tobeIntervenedEvents, time)
             }
         }

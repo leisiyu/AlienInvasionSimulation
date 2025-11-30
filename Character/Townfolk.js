@@ -133,6 +133,23 @@ var Townfolk = function(name, position){
 						})
 					} 
 					break
+				case ORDER_TYPE.KILL:
+					var isSuccessfulAttack = townfolkThis.orderAttack(this.time)
+
+					if (isSuccessfulAttack) {
+						// notify the attacked character
+						// state type maybe changed in the attack function
+						var msg = {
+							msgType: "attacked",
+							atkValue: Math.floor(townfolkThis.attackValue * Utils.CRITICAL_HIT),
+							attacker: townfolkThis.charName,
+						}
+						this.sendMsg(townfolkThis.order.target.simEvent.guid(), {
+							content: JSON.stringify(msg)
+						})
+					
+					}
+					break
 			}
 		} else {
 			switch(townfolkThis.state.stateType){

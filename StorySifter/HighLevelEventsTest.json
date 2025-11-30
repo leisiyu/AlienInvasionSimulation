@@ -1,0 +1,52 @@
+{
+
+    "giant_killer": {
+        "events": [
+            [{
+                "tag": "is killed by",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }],
+            [{
+                "tag": "is killed by",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "giant killer",
+        "type": "high-level",
+        "main_characters": [1],
+        "time_limit": 20000
+    },
+
+    "ace_killer": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "giant killer",
+                "repeat": false
+            }],
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "giant killer",
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "ace killer",
+        "type": "story",
+        "main_characters": [0],
+        "time_limit": 20000
+    }
+}

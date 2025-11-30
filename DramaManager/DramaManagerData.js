@@ -11,7 +11,7 @@ function SingleRecord(agentName, order, time) {
     this.time = time
 }
 
-function recordOrder(agentName, order, time){
+function recordGivenOrder(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
     OrderRecords.push(record)
     console.log("record order " + record.time + " " + agentName)
@@ -37,6 +37,6 @@ function getTargetFromLastOrder(agent, order, time){
 }
 
 module.exports = {
-    recordOrder,
+    recordGivenOrder,
     getTargetFromLastOrder
 }
