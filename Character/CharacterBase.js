@@ -91,6 +91,63 @@ function dropInventory(inventory, pos){
     inventory = []
 }
 
+// function chase(character, time){
+// 	var targetWidth = 1
+// 	var targetHeight = 1
+
+// 	const Logger = require('../Logger.js').Logger
+// 	if (character.state.target.objType == "building") {
+// 		targetWidth = character.state.target.size[0]
+// 		targetHeight = character.state.target.size[1]
+// 		Logger.info({
+// 			N1: character.charName,
+// 			L: "is moving to",
+// 			N2: character.state.target.getName(),
+// 			T: time,
+// 		})
+// 	} else {
+// 		Logger.info({
+// 			N1: character.charName,
+// 			L: "is chasing",
+// 			N2: character.state.target.charName,
+// 			T: time,
+// 		})
+// 	}
+	
+// 	var position = character.state.target.position
+// 	character.lastDirection = ""
+// 	for (let j = 0; j < character.speed; j++){
+// 		var availableDirections = []
+// 		var horizontalOffset = position[0] - this.position[0]
+// 		if ( horizontalOffset > targetWidth) {
+// 			availableDirections.push(Utils.DIRECTION[3])
+// 		} else if (horizontalOffset < -targetWidth) {
+// 			availableDirections.push(Utils.DIRECTION[2])
+// 		}
+// 		var verticalOffset = position[1] - this.position[1]
+// 		if (verticalOffset > targetHeight) {
+// 			availableDirections.push(Utils.DIRECTION[1])
+// 		} else if (verticalOffset < -targetHeight) {
+// 			availableDirections.push(Utils.DIRECTION[0])
+// 		}
+// 		if (availableDirections.length > 0) {
+// 			character.moveOneStep(availableDirections, time)
+// 		}
+		
+// 	}
+
+// 	Logger.statesInfo(JSON.stringify({
+// 		N: character.charName,
+// 		S: character.state.stateType, 
+// 		P: character.position,
+// 		T: time,
+// 	}))
+
+// 	if (Math.abs(character.position[0] - position[0]) + Math.abs(character.position[1] - position[1]) <= character.attackRange) {
+// 		var characterName = character.state.target.charName
+// 		character.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+// 	}
+// }
 
 function attack(character, time){
 	const Logger = require('../Logger.js').Logger
@@ -318,20 +375,24 @@ function getAwayTargetDirection(characterType, position, target){
 	return oppositDir
 }
 
-function getApproachTargetDirection(position, targetPosition){
+function getApproachTargetDirection(position, targetPosition, targetWidth = 1, targetHeight = 1){
 	var towardsDir = []
-	if (position[0] - targetPosition[0] > 0) {
+	if (position[0] == targetPosition[0] && position[1] == targetPosition[1]){
+		return towardsDir
+	}
+
+	if (position[0] - targetPosition[0] > targetWidth) {
 		towardsDir.push(Utils.DIRECTION[2])
-	} else if (position[0] - targetPosition[0] < 0) {
+	} else if (position[0] - targetPosition[0] < targetWidth) {
 		towardsDir.push(Utils.DIRECTION[3])
 	} else {
 		towardsDir.push(Utils.DIRECTION[2])
 		towardsDir.push(Utils.DIRECTION[3])
 	}
 
-	if (position[1] - targetPosition[1] > 0) {
+	if (position[1] - targetPosition[1] > targetHeight) {
 		towardsDir.push(Utils.DIRECTION[0])
-	} else if (position[1] - targetPosition[0] < 1) {
+	} else if (position[1] - targetPosition[1] < targetHeight) {
 		towardsDir.push(Utils.DIRECTION[1])
 	} else {
 		towardsDir.push(Utils.DIRECTION[0])
