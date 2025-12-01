@@ -2,7 +2,7 @@ const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
 const CharactersData = require("./CharactersData.js")
 const DramaManagerData = require("../DramaManager/DramaManagerData.js")
-// const Logger = require('../Logger.js').Logger
+const Logger = require('../Logger.js').Logger
 
 //availableDirections can not be null
 function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
@@ -59,7 +59,6 @@ function moveOneStep(lastDirection, availableDirections, directionProbability, p
     var gear = MapManager.checkHasGearOnPos(position)
     if (inventory != null && gear != false) {
         pickUpGear(gear, inventory)
-		const Logger = require('../Logger.js').Logger
         Logger.info({
 			"N1": charName,
 			"L": "picks up",
@@ -150,7 +149,6 @@ function dropInventory(inventory, pos){
 // }
 
 function attack(character, time){
-	const Logger = require('../Logger.js').Logger
     // check if the character died
 	if (character.state.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		
@@ -211,7 +209,7 @@ function attack(character, time){
                 return [true, weapon]
             }
         }
-		// const Logger = require('../Logger.js').Logger
+
 		Logger.info({
             N1: character.charName,
             L: "attacks",
@@ -250,7 +248,6 @@ function updateHealthState(hp, baseHp){
 }
 
 function heal(healIdx, charName, targetName, medikit, inventory, time, isOrder = false){
-	const Logger = require('../Logger.js').Logger
 	healIdx ++
 	var result = medikit.use(time)
 	if (!result) {
@@ -547,7 +544,7 @@ function orderAttack(character, time){
 		character.orderChase(time)
 		return false
 	}
-	const Logger = require('../Logger.js').Logger
+
 	Logger.info({
 		N1: character.charName,
 		L: "attacks",
@@ -558,6 +555,14 @@ function orderAttack(character, time){
 
 	console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
+
+	Logger.orderInfo({
+		Type: character.order.orderType,
+		Agent: character.charName,
+		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
+		Note: "attack",
+		T: time
+	})
 	return true
 }
 
@@ -576,13 +581,32 @@ function orderChase(character, time, usePosInfo = false){
 	var targetWidth = 1
 	var targetHeight = 1
 	
-	const Logger = require('../Logger.js').Logger
-	Logger.info({
-		N1: character.charName,
-		L: "is chasing",
-		N2: character.order.target.charName,
-		T: time,
-		Note: "order"
+	if (character.order.target.objType == "building") {
+		Logger.info({
+			N1: character.charName,
+			L: "is moving to",
+			N2: character.order.target.getName(),
+			T: time,
+			Note: "order"
+		})
+		var buildingSize = character.order.target.size
+		targetWidth = buildingSize[0]
+		targetHeight = buildingSize[1]
+	} else {
+		Logger.info({
+			N1: character.charName,
+			L: "is chasing",
+			N2: character.order.target.charName,
+			T: time,
+			Note: "order"
+		})
+	}
+	Logger.orderInfo({
+		Type: character.order.orderType,
+		Agent: character.charName,
+		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
+		Note: "chase",
+		T: time
 	})
 	
 	var [visibleCharacters, visibleBuildings] = character.checkVisualRange()
@@ -615,7 +639,7 @@ function orderChase(character, time, usePosInfo = false){
 			
 		}
 	} else {
-		
+		// TO DO: randomly go somewhere and check if can get the position
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = getAvailableDirectionsForPatrol(character.position, character.objType)
 			if (availableDirections.length > 0) {
@@ -634,9 +658,7 @@ function orderChase(character, time, usePosInfo = false){
 	}))
 
 	console.log("order success: chase")
-	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target
-
-	)
+	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target)
 	return true
 }
 
@@ -662,6 +684,15 @@ function orderHeal(character, time, usePosInfo = false){
 	
 		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, time, true)
 		character.state.setState(Utils.CHARACTER_STATES.HEAL, target)
+
+		Logger.orderInfo({
+			Type: character.order.orderType,
+			Agent: character.charName,
+			Target: character.order.target,
+			Note: "heal",
+			T: time
+		})
+
 		return [true, medikitResult[1].value]
 	}
 
@@ -680,6 +711,14 @@ function orderHeal(character, time, usePosInfo = false){
 				break
 			}
 		}
+
+		Logger.orderInfo({
+			Type: character.order.orderType,
+			Agent: character.charName,
+			Target: character.order.target,
+			Note: "within the visual range, move to the target",
+			T: time
+		})
 		return [false]
 
 	} else{
@@ -696,11 +735,27 @@ function orderHeal(character, time, usePosInfo = false){
 				character.state.setState(Utils.CHARACTER_STATES.PATROL)
 			}
 		}
+
+		Logger.orderInfo({
+			Type: character.order.orderType,
+			Agent: character.charName,
+			Target: character.order.target,
+			Note: "out of the visual range, find the target first",
+			T: time
+		})
 		return [false]
 	}
 }
 
 function orderFindMedikit(character, time, usePosInfo){
+	Logger.orderInfo({
+		Type: character.order.orderType,
+		Agent: character.charName,
+		Target: character.order.target,
+		Note: "find medikit first",
+		T: time
+	})
+
 	if (usePosInfo){
 		var medikit = MapManager.getNearestMedikitPos(character.position)
 

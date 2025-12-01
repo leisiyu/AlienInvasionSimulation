@@ -8,6 +8,7 @@ var Logger = {
     logQueue: [],
     statesLogQueue: [],
     neutralCountLogQueue: [],
+    orderQueue: [],
     index: 0,
 }
 
@@ -59,6 +60,19 @@ Logger.statesInfo = function(infoStr){
     }
 }
 
+// example
+// {
+    // Type: ORDER_TYPE,
+    // Agent: agent,
+    // Target: target,
+    // Note: note,
+    // T: time
+// }
+Logger.orderInfo = function(infoJson){   
+    this.orderQueue.push(JSON.stringify(infoJson))
+}
+
+
 Logger.setKeyFrame = function(){
     var keyFrame = {}
     keyFrame["frameType"] = "key"
@@ -106,6 +120,7 @@ Logger.countNeutralAgents = function(currentTime){
 Logger.writeToFile = function(){
     var dirName = this.getDirName()
 
+    // info
     var content = ""
     for (let i = 0; i < Logger.logQueue.length; i++){
         content = content + Logger.logQueue[i] + "\n"
@@ -121,6 +136,7 @@ Logger.writeToFile = function(){
         }
     }) 
 
+    // state info
     var statesContent = ""
     for (let i = 0; i < Logger.statesLogQueue.length; i++){
         statesContent = statesContent + Logger.statesLogQueue[i] + "\n"
@@ -136,6 +152,23 @@ Logger.writeToFile = function(){
         }
     })
 
+    // orders
+    var orderContent = ""
+    for (let i = 0; i < Logger.orderQueue.length; i++){
+        orderContent = orderContent + Logger.orderQueue[i] + "\n"
+    }
+    
+    fs.writeFileSync(dirName +'/OrderLog.txt', orderContent, (err) => { 
+        // In case of a error throw err. 
+        if (err) throw err;
+        else {
+            console.log('successful')
+            // Logger.clearQueue()
+            Logger.orderQueue = []
+        }
+    }) 
+
+    // count
     var neutralCountContent = ""
     for (let i = 0; i < Logger.neutralCountLogQueue.length; i++){
         neutralCountContent = neutralCountContent + Logger.neutralCountLogQueue[i] + "\n"
