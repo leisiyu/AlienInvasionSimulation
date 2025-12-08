@@ -561,6 +561,7 @@ function orderAttack(character, time){
 		Agent: character.charName,
 		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
 		Note: "attack",
+		MatchID: character.order.partialMatchId,
 		T: time
 	})
 	return true
@@ -606,6 +607,7 @@ function orderChase(character, time, usePosInfo = false){
 		Agent: character.charName,
 		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
 		Note: "chase",
+		MatchID: character.order.partialMatchId,
 		T: time
 	})
 	
@@ -690,6 +692,7 @@ function orderHeal(character, time, usePosInfo = false){
 			Agent: character.charName,
 			Target: character.order.target,
 			Note: "heal",
+			MatchID: character.order.partialMatchId,
 			T: time
 		})
 
@@ -717,6 +720,7 @@ function orderHeal(character, time, usePosInfo = false){
 			Agent: character.charName,
 			Target: character.order.target,
 			Note: "within the visual range, move to the target",
+			MatchID: character.order.partialMatchId,
 			T: time
 		})
 		return [false]
@@ -741,6 +745,7 @@ function orderHeal(character, time, usePosInfo = false){
 			Agent: character.charName,
 			Target: character.order.target,
 			Note: "out of the visual range, find the target first",
+			MatchID: character.order.partialMatchId,
 			T: time
 		})
 		return [false]
@@ -753,6 +758,7 @@ function orderFindMedikit(character, time, usePosInfo){
 		Agent: character.charName,
 		Target: character.order.target,
 		Note: "find medikit first",
+		MatchID: character.order.partialMatchId,
 		T: time
 	})
 

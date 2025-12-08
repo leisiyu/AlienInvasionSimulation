@@ -1,10 +1,11 @@
-const HighLevelEventsPatterns = require("./HighLevelEvents.json")
+// const HighLevelEventsPatterns = require("./HighLevelEvents.json")
+const HighLevelEventsPatterns = require("./HighLevelEventsTest.json")
 const SifterUtil = require("./SifterUtil")
 const Utils = require("../Utils")
 const CharacterData = require("../Character/CharactersData")
 
 class HighLevelEvent {
-    constructor(eventName, newEvent, firstEventIdx, highLevelEventJson){
+    constructor(eventName, newEvent, firstEventIdx, highLevelEventJson, matchId){
         this.eventName = eventName
         this.actors = [newEvent["N1"]]
         if (newEvent["N2"] != "") {
@@ -23,6 +24,7 @@ class HighLevelEvent {
         this.eventIDs = [newEvent["id"]]
         this.meetUnlessForeverConditionTimes = 0
         this.type = highLevelEventJson["type"]
+        this.matchId = matchId
 
         this.checkUnlessForever(newEvent)
     }
@@ -238,6 +240,7 @@ class HighLevelEvent {
         } else {
             var eventList = []
             for (let i = 0; i < this.patternEvents[this.index].length; i++) {
+                // console.log("actorsssss " + this.actors[this.patternEvents[this.index][i]["char1Idx"] != undefined ? this.patternEvents[this.index][i]["char1Idx"]["index"] : ""])
                 eventList.push({"N1": this.actors[this.patternEvents[this.index][i]["char1Idx"] != undefined ? this.patternEvents[this.index][i]["char1Idx"]["index"] : ""],
                                 "N2": this.actors[this.patternEvents[this.index][i]["char2Idx"] != undefined ? this.patternEvents[this.index][i]["char2Idx"]["index"] : ""],
                                 "L": this.patternEvents[this.index][i]["tag"],})

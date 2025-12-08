@@ -1,5 +1,6 @@
 const fs = require('node:fs')
-const HighLevelEvents = require("./HighLevelEvents.json")
+// const HighLevelEvents = require("./HighLevelEvents.json")
+const HighLevelEvents = require("./HighLevelEventsTest.json")
 // const Logger = require('../Logger').Logger
 const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
 const SifterUtil = require("./SifterUtil")
@@ -13,6 +14,12 @@ var totalMiniStories = 0
 var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
+var partialMatchId = 0
+
+function generatePartialMatchID(){
+    partialMatchId++
+    return partialMatchId
+}
 
 
 function matchNew(newEvent){
@@ -40,7 +47,8 @@ function matchNew(newEvent){
                     && (currentEvent["char1Idx"] == undefined || SifterUtil.checkCharacterType(newEvent["N1"], currentEvent["char1Idx"]["type"]))
                     && (currentEvent["char2Idx"] == undefined || SifterUtil.checkCharacterType(newEvent["N2"], currentEvent["char2Idx"]["type"]))
                 ) {
-                    var newHighEvent = new HighLevelEventModel(eventName, newEvent, i, currentEventModel)
+                    var matchId = generatePartialMatchID()
+                    var newHighEvent = new HighLevelEventModel(eventName, newEvent, i, currentEventModel, matchId)
                     partialMatchPool.push(newHighEvent)
                     totalPartialMatchNum = totalPartialMatchNum + 1
     
@@ -163,7 +171,7 @@ function cleanUpPool(time){
         var obj = partialMatchPool[i]
         // console.log("obj index: " + obj.patternEvents[obj.index][0]["tag"] + " " + obj.index)
         var result = obj.checkActorState()
-        console.log("obj result: " + result)
+        // console.log("obj result: " + result)
         if (result == SifterUtil.ROLL_BACK_TYPE.DELETE){
             deletedObjs.push(obj)
             // console.log("deleted obj: " + obj.index + obj.eventName +" " + obj.actors[0] + obj.actors[1] + obj.startTime + " " + obj.finishedTime + " " + time)

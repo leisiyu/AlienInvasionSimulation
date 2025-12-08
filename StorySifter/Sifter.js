@@ -1,4 +1,4 @@
-const HighLevelEvents = require("./HighLevelEvents.json")
+// const HighLevelEvents = require("./HighLevelEvents.json")
 const Pool = require("./Pool")
 const Util = require("../Utils")
 
@@ -7,15 +7,15 @@ function sift(eventLog){
     Pool.matchNew(eventLog)
 }
 
-function getEventsById(id){
-    for (var event in HighLevelEvents){
-        if (HighLevelEvents[event].id == id) {
-            // console.log(HighLevelEvents[event])
-            return HighLevelEvents[event]
-        }
-    }
-    console.log("no event with id: " + id + ". Have a check!")
-}
+// function getEventsById(id){
+//     for (var event in HighLevelEvents){
+//         if (HighLevelEvents[event].id == id) {
+//             // console.log(HighLevelEvents[event])
+//             return HighLevelEvents[event]
+//         }
+//     }
+//     console.log("no event with id: " + id + ". Have a check!")
+// }
 
 function getFinalResults(){
     return Pool.getResults()
@@ -24,7 +24,6 @@ function getFinalResults(){
 function getFinalResultsJson(){
     return Pool.getResultsJson()
 }
-
 
 
 module.exports = {

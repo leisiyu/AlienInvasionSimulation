@@ -12,10 +12,11 @@ const ORDER_TYPE = {
 
 class Order {
     
-    constructor(orderType, target){
+    constructor(orderType, target, partialMatchId){
         this.orderType = orderType
         this.target = target
         this.count = 1
+        this.partialMatchId = partialMatchId
     }
 
     updateTarget(newTarget){

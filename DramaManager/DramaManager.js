@@ -13,15 +13,15 @@ function checkPartialMatchPool(pool, time){
             tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             if (tobeIntervenedEvents) {
                 // console.log("partial match: " + partialMatch.eventName)
-                intervene(tobeIntervenedEvents, time)
+                intervene(tobeIntervenedEvents, partialMatch.matchId, time)
             }
         }
     }
 }
 
-function intervene(nextEvents, time){
+function intervene(nextEvents, partialMatchId, time){
     if (nextEvents.length != 0) {
-        Intervention.intervene(nextEvents[0], time)
+        Intervention.intervene(nextEvents[0], partialMatchId, time)
     } else {
         console.log("No next lowest event found for intervention.")
     }

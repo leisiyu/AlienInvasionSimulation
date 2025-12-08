@@ -7,7 +7,7 @@ const ORDER_TYPE = require("./Order.js").ORDER_TYPE
 const CharactersData = require("../Character/CharactersData.js")
 const Utils = require('../Utils.js') 
 
-function intervene(event, time){
+function intervene(event, partialMatchId, time){
     // console.log("event log: " + event["L"] + event["N1"] + event["N2"])
     var agent = null
     if (event["N1"] != undefined) {
@@ -27,23 +27,24 @@ function intervene(event, time){
         case "attacks":
         case "shoots":
             if (agent != null){
-                orderAttack(agent, target, time)
+                orderAttack(agent, target, partialMatchId, time)
+
             }
             // if agent is null, abandon this order 
             break;
         case "is chasing":    
             if (agent != null){
-                orderChase(agent, target, time)
+                orderChase(agent, target, partialMatchId, time)
             }
             break;
         case "is healing":
             if (agent != null) {
-                orderHeal(agent, target, time)
+                orderHeal(agent, target, partialMatchId, time)
             }
             break;
         case "is killed by":
             if (target != null){
-                orderCriticalHit(target, agent, time)
+                orderCriticalHit(target, agent, partialMatchId, time)
             }
             
             break;
@@ -52,27 +53,27 @@ function intervene(event, time){
 
 
 /// Move A to B
-function orderChase(agent, target, time){
-    var order = new Order(ORDER_TYPE.MOVE, target)
+function orderChase(agent, target, partialMatchId, time){
+    var order = new Order(ORDER_TYPE.MOVE, target, partialMatchId)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
 /// Attack target with critical hit
-function orderCriticalHit(target, agent, time){
+function orderCriticalHit(target, agent, partialMatchId, time){
     /// attack the agent with critical hit
-    var order = new Order(ORDER_TYPE.KILL, agent)
+    var order = new Order(ORDER_TYPE.KILL, agent, partialMatchId)
     CharacterBase.addOrder(target, agent, order, time)
 }
 
-function orderAttack(agent, target,time){
+function orderAttack(agent, target, partialMatchId, time){
     /// attack the target
-    var order = new Order(ORDER_TYPE.ATTACK, target)
+    var order = new Order(ORDER_TYPE.ATTACK, target, partialMatchId)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
-function orderHeal(agent, target, time){
+function orderHeal(agent, target, partialMatchId, time){
     /// heal the target
-    var order = new Order(ORDER_TYPE.HEAL, target)
+    var order = new Order(ORDER_TYPE.HEAL, target, partialMatchId)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
