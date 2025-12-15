@@ -18,31 +18,40 @@ function intervene(event, partialMatchId, time){
     if (event["N2"] != undefined) {
         target = CharactersData.getCharacterByName(event["N2"])
     }
-
-    if (agent == null) {
-        agent = CharacterBase.findEnemy(target)
-    }
     
     switch (event["L"]){
         case "attacks":
         case "shoots":
+            if (agent == null) {
+                agent = CharacterBase.findEnemy(target)
+            }
+
             if (agent != null){
                 orderAttack(agent, target, partialMatchId, time)
 
             }
             // if agent is null, abandon this order 
             break;
-        case "is chasing":    
+        case "is chasing":  
+            if (agent == null) {
+                agent = CharacterBase.findEnemy(target)
+            }
             if (agent != null){
                 orderChase(agent, target, partialMatchId, time)
             }
             break;
         case "is healing":
+            if (agent == null) {
+                agent = CharacterBase.findAlly(target)
+            }
             if (agent != null) {
                 orderHeal(agent, target, partialMatchId, time)
             }
             break;
         case "is killed by":
+            if (agent == null) {
+                agent = CharacterBase.findEnemy(target)
+            }
             if (target != null){
                 orderCriticalHit(target, agent, partialMatchId, time)
             }

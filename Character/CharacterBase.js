@@ -2,6 +2,7 @@ const MapManager = require("../Map/MapManager.js")
 const Utils = require('../Utils.js') 
 const CharactersData = require("./CharactersData.js")
 const DramaManagerData = require("../DramaManager/DramaManagerData.js")
+const { Order } = require("../DramaManager/Order.js")
 const Logger = require('../Logger.js').Logger
 
 //availableDirections can not be null
@@ -429,9 +430,11 @@ function addOrder(character, target, order, time){
 				break
 			case ORDER_TYPE.MOVE:
 				// TO DO: find????
+				// enemy or ally
+				// chasing is enemy
 				break
 			case ORDER_TYPE.HEAL:
-				//TO DO: find ally
+				target = findAlly(character, order, time)
 				break
 		}
 		order.updateTarget(target)
@@ -472,7 +475,7 @@ function findEnemy(agent, order, time){
 	if (target != null
 		&& target.state.stateType != Utils.CHARACTER_STATES.DIED) {
 
-		console.log("find enemy target " + agent.charName + " " + target.charName + " " + time)
+		console.log("find enemy target from previous order" + agent.charName + " " + target.charName + " " + time)
 		return target
 	}
 	
@@ -510,6 +513,46 @@ function findEnemy(agent, order, time){
             }
 	}
     return enemies[Math.floor(Math.random() * enemies.length)]
+}
+
+function findAlly(agent, order, time){
+	if (agent == null) {
+		return null
+	}
+
+	// check if there's a target in the last run
+	var target = DramaManagerData.getTargetFromLastOrder(agent, order, time)
+	if (target != null
+		&& target.state.stateType != Utils.CHARACTER_STATES.DIED) {
+			console.log("find ally target from previous order" + agent.charName + " " + target.charName + " " + time)
+			return target
+	}
+
+	var range = 15
+	var startX = agent.position[0] - range < 0 ? 0 : agent.position[0] - range
+	var endX = agent.position[0] + range >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : agent.position[0] + range
+	var startY = agent.position[1] - range < 0 ? 0 : agent.position[1] - range
+	var endY = agent.position[1] + range >= Utils.MAP_SIZE[1] ? Utils.MAP_SIZE[1] - 1 : agent.position[1] + range
+
+	var allies = []
+	for (let i = 0; i < CharactersData.charactersArray.length; i++) {
+		var character = CharactersData.charactersArray[i]
+		var characterPos = character.position
+		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
+			&& characterPos[0] >= startX && characterPos[0] <= endX 
+			&& characterPos[1] >= startY && characterPos[1] <= endY
+			&& character.charName != agent.charName){
+				if ((agent.objType == Utils.CHARACTER_TYPE.SOLDIER || agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
+					&& (character.objType == Utils.CHARACTER_TYPE.SOLDIER || character.objType == Utils.CHARACTER_TYPE.TOWNSFOLK)) {
+						allies.push(character)
+				}
+				if (agent.objType == Utils.CHARACTER_TYPE.ALIEN
+					&& character.objType == Utils.CHARACTER_TYPE.ALIEN) {
+					allies.push(character)
+				}
+			}
+	}
+	return allies[Math.floor(Math.random() * allies.length)]
 }
 
 function orderAttack(character, time){
@@ -562,6 +605,7 @@ function orderAttack(character, time){
 		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
 		Note: "attack",
 		MatchID: character.order.partialMatchId,
+		OrderId: character.order.orderId,
 		T: time
 	})
 	return true
@@ -608,6 +652,7 @@ function orderChase(character, time, usePosInfo = false){
 		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
 		Note: "chase",
 		MatchID: character.order.partialMatchId,
+		OrderId: character.order.orderId,
 		T: time
 	})
 	
@@ -690,9 +735,10 @@ function orderHeal(character, time, usePosInfo = false){
 		Logger.orderInfo({
 			Type: character.order.orderType,
 			Agent: character.charName,
-			Target: character.order.target,
+			Target: character.order.target.charName,
 			Note: "heal",
 			MatchID: character.order.partialMatchId,
+			OrderId: character.order.orderId,
 			T: time
 		})
 
@@ -718,9 +764,10 @@ function orderHeal(character, time, usePosInfo = false){
 		Logger.orderInfo({
 			Type: character.order.orderType,
 			Agent: character.charName,
-			Target: character.order.target,
+			Target: character.order.target.charName,
 			Note: "within the visual range, move to the target",
 			MatchID: character.order.partialMatchId,
+			OrderId: character.order.orderId,
 			T: time
 		})
 		return [false]
@@ -739,13 +786,14 @@ function orderHeal(character, time, usePosInfo = false){
 				character.state.setState(Utils.CHARACTER_STATES.PATROL)
 			}
 		}
-
+		
 		Logger.orderInfo({
 			Type: character.order.orderType,
 			Agent: character.charName,
-			Target: character.order.target,
+			Target: character.order.target.charName,
 			Note: "out of the visual range, find the target first",
 			MatchID: character.order.partialMatchId,
+			OrderId: character.order.orderId,
 			T: time
 		})
 		return [false]
@@ -753,12 +801,14 @@ function orderHeal(character, time, usePosInfo = false){
 }
 
 function orderFindMedikit(character, time, usePosInfo){
+	
 	Logger.orderInfo({
 		Type: character.order.orderType,
 		Agent: character.charName,
-		Target: character.order.target,
+		Target: character.order.target.charName,
 		Note: "find medikit first",
 		MatchID: character.order.partialMatchId,
+		OrderId: character.order.orderId,
 		T: time
 	})
 

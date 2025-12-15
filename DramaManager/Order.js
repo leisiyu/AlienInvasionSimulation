@@ -10,6 +10,12 @@ const ORDER_TYPE = {
     KILL: "KILL"
 }
 
+var orderIdx = 0
+function generateUniqueID(){
+    orderIdx++
+    return orderIdx
+}
+
 class Order {
     
     constructor(orderType, target, partialMatchId){
@@ -17,6 +23,7 @@ class Order {
         this.target = target
         this.count = 1
         this.partialMatchId = partialMatchId
+        this.orderId = generateUniqueID()
     }
 
     updateTarget(newTarget){
