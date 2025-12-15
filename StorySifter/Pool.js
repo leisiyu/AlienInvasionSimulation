@@ -15,6 +15,7 @@ var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
 var partialMatchId = 0
+var intervenedStoryCount = 0
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -87,8 +88,12 @@ function updatePool(newEvent){
                 totalHighLevelEvents = totalHighLevelEvents + 1
             } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
+                if (checkIsIntervened(obj)) {
+                    intervenedStoryCount = intervenedStoryCount + 1
+                }
             }
 
+            
             // eventFinish(obj.getJson())
         }
     }
@@ -129,6 +134,17 @@ function eventFinish(highLevelEventJson){
 
 }
 
+function checkIsIntervened(partialMatch){
+    const DramaManagerData = require('../DramaManager/DramaManagerData.js')
+    for (let i = 0; i < DramaManagerData.CurrentOrders.length; i++) {
+        var order = DramaManagerData.CurrentOrders[i]
+        if (order.partialMatchId == partialMatch.matchId) {
+            return true
+        }
+    }
+    return false
+}
+
 function getResults(){
     var result = ""
     result = result + "Total partial matches number: " + totalPartialMatchNum + "\n"
@@ -137,6 +153,7 @@ function getResults(){
     result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Initiated stories number: " + initiatedStories + "\n"
     result = result + "Completed stories number: " + totalMiniStories + "\n"
+    result = result + "Intervened stories number: " + intervenedStoryCount + "\n"
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
@@ -156,7 +173,8 @@ function getResultsJson(){
         "initiatedHighLevel": initiatedHighLevelEvents,
         "completedHighLevel": totalHighLevelEvents,
         "initiatedStories": initiatedStories,
-        "completedStories": totalMiniStories
+        "completedStories": totalMiniStories,
+        "intervenedStories": intervenedStoryCount
     }
 
     return result
