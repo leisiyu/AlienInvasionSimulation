@@ -762,7 +762,7 @@ Soldier.prototype.orderChase = function(time){
 	return result
 }
 Soldier.prototype.orderHeal = function(time){
-	var result = CharacterBase.orderHeal(time)
+	var result = CharacterBase.orderHeal(this, time)
 	return result
 }
 
