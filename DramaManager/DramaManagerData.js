@@ -7,6 +7,7 @@ var InterventionTypeCount = {}
 var OrderRecords = []
 var CurrentOrders = []
 var intervenedStoryCount = 0
+var intervenedStoryTypeCount = {}
 
 function SingleRecord(agentName, order, time) {
     this.agentName = agentName
@@ -44,8 +45,12 @@ function addCurrentOrder(order){
     CurrentOrders.push(order)
 }
 
-function calculateIssuedTimes(){
-
+function updateIntervenedStoryType(storyType){
+    if (intervenedStoryTypeCount[storyType] != null) {
+        intervenedStoryTypeCount[storyType] ++
+    } else {
+        intervenedStoryTypeCount[storyType] = 1
+    }
 }
 
 function addIntervenedStoryCount(){
@@ -72,6 +77,7 @@ module.exports = {
     cleanUpCurrentOrders,
     addCurrentOrder,
     checkIsIntervened,
+    updateIntervenedStoryType,
     addIntervenedStoryCount,
     getIntervenedStoryCount
 }

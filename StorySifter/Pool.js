@@ -90,6 +90,7 @@ function updatePool(newEvent){
                 totalMiniStories = totalMiniStories + 1
                 if (DramaManagerData.checkIsIntervened(obj)) {
                     DramaManagerData.addIntervenedStoryCount()
+                    DramaManagerData.updateIntervenedStoryType(obj.eventName)
                 }
             }
 
