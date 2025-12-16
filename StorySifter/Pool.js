@@ -4,6 +4,7 @@ const HighLevelEvents = require("./HighLevelEventsTest.json")
 // const Logger = require('../Logger').Logger
 const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
 const SifterUtil = require("./SifterUtil")
+const DramaManagerData = require("../DramaManager/DramaManagerData.js")
 
 var partialMatchPool = []
 const poolSize = 5000
@@ -15,7 +16,6 @@ var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
 var partialMatchId = 0
-var intervenedStoryCount = 0
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -88,8 +88,8 @@ function updatePool(newEvent){
                 totalHighLevelEvents = totalHighLevelEvents + 1
             } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
-                if (checkIsIntervened(obj)) {
-                    intervenedStoryCount = intervenedStoryCount + 1
+                if (DramaManagerData.checkIsIntervened(obj)) {
+                    DramaManagerData.addIntervenedStoryCount()
                 }
             }
 
@@ -134,16 +134,7 @@ function eventFinish(highLevelEventJson){
 
 }
 
-function checkIsIntervened(partialMatch){
-    const DramaManagerData = require('../DramaManager/DramaManagerData.js')
-    for (let i = 0; i < DramaManagerData.CurrentOrders.length; i++) {
-        var order = DramaManagerData.CurrentOrders[i]
-        if (order.partialMatchId == partialMatch.matchId) {
-            return true
-        }
-    }
-    return false
-}
+
 
 function getResults(){
     var result = ""
@@ -153,7 +144,7 @@ function getResults(){
     result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Initiated stories number: " + initiatedStories + "\n"
     result = result + "Completed stories number: " + totalMiniStories + "\n"
-    result = result + "Intervened stories number: " + intervenedStoryCount + "\n"
+    result = result + "Intervened stories number: " + DramaManagerData.getIntervenedStoryCount() + "\n"
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
@@ -174,7 +165,7 @@ function getResultsJson(){
         "completedHighLevel": totalHighLevelEvents,
         "initiatedStories": initiatedStories,
         "completedStories": totalMiniStories,
-        "intervenedStories": intervenedStoryCount
+        "intervenedStories": DramaManagerData.getIntervenedStoryCount()
     }
 
     return result

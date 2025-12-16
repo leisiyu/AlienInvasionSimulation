@@ -5,6 +5,9 @@
 
 var InterventionTypeCount = {}
 var OrderRecords = []
+var CurrentOrders = []
+var intervenedStoryCount = 0
+
 function SingleRecord(agentName, order, time) {
     this.agentName = agentName
     this.order = order,
@@ -15,10 +18,6 @@ function recordGivenOrder(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
     OrderRecords.push(record)
     console.log("record order " + record.time + " " + agentName)
-}
-
-function checkOrdersInLastBeat(){
-
 }
 
 function getTargetFromLastOrder(agent, order, time){
@@ -36,7 +35,43 @@ function getTargetFromLastOrder(agent, order, time){
     return
 }
 
+
+function cleanUpCurrentOrders(){
+    CurrentOrders = []
+}
+
+function addCurrentOrder(order){
+    CurrentOrders.push(order)
+}
+
+function calculateIssuedTimes(){
+
+}
+
+function addIntervenedStoryCount(){
+    intervenedStoryCount ++ 
+}
+
+function getIntervenedStoryCount(){
+    return intervenedStoryCount
+}
+
+function checkIsIntervened(partialMatch){
+    for (let i = 0; i < OrderRecords.length; i++) {
+        var order = OrderRecords[i].order
+        if (order.partialMatchId == partialMatch.matchId) {
+            return true
+        }
+    }
+    return false
+}
+
 module.exports = {
     recordGivenOrder,
-    getTargetFromLastOrder
+    getTargetFromLastOrder,
+    cleanUpCurrentOrders,
+    addCurrentOrder,
+    checkIsIntervened,
+    addIntervenedStoryCount,
+    getIntervenedStoryCount
 }
