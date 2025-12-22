@@ -1,6 +1,8 @@
 /// How to intervene in the story
 /// Different types of interventions
-/// 
+/// "agent": the one who carry out orders
+/// "target": the entity on which the order is executed
+
 const CharacterBase = require("../Character/CharacterBase.js")
 const Order = require("./Order.js").Order
 const ORDER_TYPE = require("./Order.js").ORDER_TYPE
@@ -9,20 +11,23 @@ const Utils = require('../Utils.js')
 
 function intervene(event, partialMatchId, time){
     // console.log("event log: " + event["L"] + event["N1"] + event["N2"])
-    var agent = null
+    var character1 = null
     if (event["N1"] != undefined) {
-        agent = CharactersData.getCharacterByName(event["N1"])
+        character1 = CharactersData.getCharacterByName(event["N1"])
     }
     
-    var target = null
+    var character2 = null
     if (event["N2"] != undefined) {
-        target = CharactersData.getCharacterByName(event["N2"])
+        character2 = CharactersData.getCharacterByName(event["N2"])
     }
-    
+    var agent
+    var target
     switch (event["L"]){
         case "attacks":
         case "shoots":
-            if (agent == null) {
+            agent = character1
+            target = character2
+            if (agent == null && target != null) {
                 agent = CharacterBase.findEnemy(target)
             }
 
@@ -33,7 +38,9 @@ function intervene(event, partialMatchId, time){
             // if agent is null, abandon this order 
             break;
         case "is chasing":  
-            if (agent == null) {
+            agent = character1
+            target = character2
+            if (agent == null && target != null) {
                 agent = CharacterBase.findEnemy(target)
             }
             if (agent != null){
@@ -41,7 +48,9 @@ function intervene(event, partialMatchId, time){
             }
             break;
         case "is healing":
-            if (agent == null) {
+            agent = character1
+            target = character2
+            if (agent == null && target != null) {
                 agent = CharacterBase.findAlly(target)
             }
             if (agent != null) {
@@ -49,11 +58,13 @@ function intervene(event, partialMatchId, time){
             }
             break;
         case "is killed by":
-            if (agent == null) {
+            agent = character2
+            target = character1
+            if (agent == null && target != null) {
                 agent = CharacterBase.findEnemy(target)
             }
-            if (target != null){
-                orderCriticalHit(target, agent, partialMatchId, time)
+            if (agent != null){
+                orderCriticalHit(agent, target, partialMatchId, time)
             }
             
             break;
@@ -68,10 +79,10 @@ function orderChase(agent, target, partialMatchId, time){
 }
 
 /// Attack target with critical hit
-function orderCriticalHit(target, agent, partialMatchId, time){
+function orderCriticalHit(agent, target, partialMatchId, time){
     /// attack the agent with critical hit
-    var order = new Order(ORDER_TYPE.KILL, agent, partialMatchId)
-    CharacterBase.addOrder(target, agent, order, time)
+    var order = new Order(ORDER_TYPE.KILL, target, partialMatchId)
+    CharacterBase.addOrder(agent, target, order, time)
 }
 
 function orderAttack(agent, target, partialMatchId, time){
