@@ -464,6 +464,13 @@ function removeOrder(character){
 	console.log("ORDER REMOVED: " + character.charName + character.order == null)
 }
 
+function checkIsNeutralState(state){
+	for (let i = 0; i < Utils.NEUTRAL_STATES.length; i++){
+		if (state.stateType == Utils.NEUTRAL_STATES[i]) { return true}
+	}
+	return false
+}
+
 /// Find an enemy nearby
 function findEnemy(agent, order, time){
 	if (agent == null) {
@@ -496,7 +503,8 @@ function findEnemy(agent, order, time){
 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.objType != agent.objType){
+			&& character.objType != agent.objType
+			&& checkIsNeutralState(character.state)){
 			// && ((agent.objType == Utils.CHARACTER_TYPE.ALIEN && (character.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.objType == Utils.CHARACTER_TYPE.SOLDIER))
                 // || ((agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.objType == Utils.CHARACTER_TYPE.SOLDIER) && character.objType == Utils.CHARACTER_TYPE.ALIEN))){
                 if ((agent.objType == Utils.CHARACTER_TYPE.SOLDIER || agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
@@ -541,7 +549,8 @@ function findAlly(agent, order, time){
 		if (character.state.stateType != Utils.CHARACTER_STATES.DIED 
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
-			&& character.charName != agent.charName){
+			&& character.charName != agent.charName
+			&& checkIsNeutralState(character.state)){
 				if ((agent.objType == Utils.CHARACTER_TYPE.SOLDIER || agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
 					&& (character.objType == Utils.CHARACTER_TYPE.SOLDIER || character.objType == Utils.CHARACTER_TYPE.TOWNSFOLK)) {
 						allies.push(character)
