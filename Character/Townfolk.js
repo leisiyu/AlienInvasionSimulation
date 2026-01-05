@@ -89,7 +89,7 @@ var Townfolk = function(name, position){
 		// check the character's state
 		townfolkThis.updateStates(time)
 		if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
-			console.log("hahaha   townsfolk order" + " " + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
+			// console.log("hahaha   townsfolk order" + " " + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
 			
 			townfolkThis.order.excute()
 			switch(townfolkThis.order.orderType){
@@ -705,26 +705,33 @@ Townfolk.prototype.heal = function(time) {
 
 //-----------order start -------------
 Townfolk.prototype.orderAttack = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
 	if (this.hasWeapon()) {
 		var result = CharacterBase.orderAttack(this, time)
 		return result
 	} else {
-		this.orderFindAWeapon(time)
+		// this.orderFindAWeapon(time)
+		CharacterBase.orderFindAWeapon(this, time)
 		return false
 	}
 }
 
-Townfolk.prototype.orderFindAWeapon = function(time){
-	console.log("Order: go and find a weapon")
-}
+// Townfolk.prototype.orderFindAWeapon = function(time){
+// 	console.log("Order: go and find a weapon")
+// }
 
 Townfolk.prototype.orderChase = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
 	var result = CharacterBase.orderChase(this, time)
 
 	return result
 }
 
 Townfolk.prototype.orderHeal = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
 	var result = CharacterBase.orderHeal(this, time)
 	return result
 }

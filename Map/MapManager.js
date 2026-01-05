@@ -176,6 +176,32 @@ function getNearestMedikitPos(pos){
     } 
 }
 
+function getNEarestWeaponPos(pos){
+    var weapons = []
+    for (let i = 0; i < gearsOnMap.length; i++){
+        var gear = gearsOnMap[i]
+        if (gear.gearType == Utils.GEAR_TYPES[1]
+            && gear.state != Utils.GEAR_STATE.BROKEN
+        ) {
+            weapons.push(gear)
+        }
+    }
+
+    if (weapons.length <= 0) {return}
+
+
+    var distances = []
+    for (let i = 0; i < weapons.length; i++) {
+        var distance = Math.abs(gear.mapPosition[0] - pos[0]) + Math.abs(gear.mapPosition[1] - pos[1])
+        distances.push(distance)
+    }
+    var minDistance = Math.min(...distances)
+    var weaponIdx = distances.indexOf(minDistance)
+    if (weaponIdx != -1) {
+        return weapons[weaponIdx]
+    } 
+}
+
 module.exports = {
     generateMap,
     getMap,
@@ -189,5 +215,6 @@ module.exports = {
     checkHasGearOnPos,
     getRandomPosAroundPos,
     addGearOnMap,
-    getNearestMedikitPos
+    getNearestMedikitPos,
+    getNEarestWeaponPos,
 }

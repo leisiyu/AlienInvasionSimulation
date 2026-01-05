@@ -449,7 +449,7 @@ function addOrder(character, target, order, time){
 		character.order = order
 		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 		// record orders
-		DramaManagerData.recordGivenOrder(character.charName, order, time)
+		DramaManagerData.recordIssuedOrder(character.charName, order, time)
 	}
 } 
 
@@ -719,6 +719,7 @@ function orderChase(character, time, usePosInfo = false){
 }
 
 function orderHeal(character, time, usePosInfo = false){
+	
 	// if doesn't have a medikit, go and find one first
 	var medikitResult = hasMediKit(character.inventory)
 	if (!medikitResult[0]) {
@@ -844,6 +845,45 @@ function orderFindMedikit(character, time, usePosInfo){
 	}
 }
 
+function orderFindAWeapon(character, time, usePosInfo = false){
+	console.log("find a weapon")
+	
+	Logger.orderInfo({
+		Type: character.order.orderType,
+		Agent: character.charName,
+		Target: character.order.target.charName,
+		Note: "find a weapon first",
+		MatchID: character.order.partialMatchId,
+		OrderId: character.order.orderId,
+		T: time
+	})
+
+	if (usePosInfo){
+		var weapon = MapManager.getNEarestWeaponPos(character.position)
+
+		for (let j = 0; j < character.speed; j++){
+			var availableDirections = getApproachTargetDirection(character.position, weapon.mapPosition)
+			if (availableDirections.length > 0) {
+				character.moveOneStep(availableDirections, time)
+			}
+		}
+		return
+	}
+
+	//At this moment: wandering around
+	console.log("find weapon without position info")
+	for (let j = 0; j < character.speed; j++){
+		var availableDirections = Utils.DIRECTION
+		if (availableDirections.length > 0) {
+			character.moveOneStep(availableDirections, time)
+		}
+	}
+}
+
+function executeOrderBase(agentName, order, time){
+	DramaManagerData.recordExecutedOrders(agentName, order, time)
+}
+
 //--------- Intervene----------
 
 
@@ -867,4 +907,6 @@ module.exports = {
 	orderAttack,
 	orderChase,
 	orderHeal,
+	executeOrderBase,
+	orderFindAWeapon,
 }

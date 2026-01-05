@@ -177,23 +177,6 @@ var Alien = function(name, position){
 					break
 				case Utils.CHARACTER_STATES.CHASE:
 					alienThis.chase(this.time)
-
-					// // reached attack range after chasing
-					// if (alienThis.state.stateType == Utils.CHARACTER_STATES.ATTACK){
-					// 	var isSuccessfulAttack = alienThis.attack(this.time)
-					// 	if (isSuccessfulAttack) {
-					// 		var msg = {
-					// 			msgType: "attacked",
-					// 			atkValue: alienThis.attackValue,
-					// 			attacker: alienThis.charName,
-					// 		}
-							
-					// 		this.sendMsg(alienThis.state.target.simEvent.guid(), {
-					// 			content: JSON.stringify(msg)
-					// 		})
-					// 	}
-						
-					// }
 					break
 				case Utils.CHARACTER_STATES.DESTROY:
 					alienThis.destroy(this.time)
@@ -791,10 +774,14 @@ Alien.prototype.checkIfPositionAccessible = function(pos){
 
 //-------order start-------
 Alien.prototype.orderAttack = function(time) {
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
 	var result = CharacterBase.orderAttack(this, time)
 	return result
 }
 Alien.prototype.orderChase = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+	
 	var result = CharacterBase.orderChase(this, time)
 	return result
 }  

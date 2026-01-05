@@ -4,8 +4,10 @@
 // 
 
 var InterventionTypeCount = {}
-var OrderRecords = []
-var CurrentOrders = []
+var IssuedOrderRecords = []
+// If two orders issued to the same agent, the agent will only choose one to execute1
+var ExecutedOrderRecords = []   
+// var CurrentOrders = []
 var intervenedStoryCount = 0
 var intervenedStoryTypeCount = {}
 
@@ -15,17 +17,23 @@ function SingleRecord(agentName, order, time) {
     this.time = time
 }
 
-function recordGivenOrder(agentName, order, time){
+function recordIssuedOrder(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
-    OrderRecords.push(record)
+    IssuedOrderRecords.push(record)
     console.log("record order " + record.time + " " + agentName)
+}
+
+function recordExecutedOrders(agentName, order, time){
+    var record = new SingleRecord(agentName, order, time)
+    ExecutedOrderRecords.push(record)
+    console.log("record executed order: " + record.time + " " + agentName + " ")
 }
 
 function getTargetFromLastOrder(agent, order, time){
     if (order == null) {return}
 
-    for (let i = 0; i < OrderRecords.length; i++){
-        var record = OrderRecords[i]
+    for (let i = 0; i < ExecutedOrderRecords.length; i++){
+        var record = ExecutedOrderRecords[i]
         if (order.orderType == record.order.orderType
             && time - 1 == record.time
             && agent.charName == record.agentName 
@@ -37,13 +45,13 @@ function getTargetFromLastOrder(agent, order, time){
 }
 
 
-function cleanUpCurrentOrders(){
-    CurrentOrders = []
-}
+// function cleanUpCurrentOrders(){
+//     CurrentOrders = []
+// }
 
-function addCurrentOrder(order){
-    CurrentOrders.push(order)
-}
+// function addCurrentOrder(order){
+//     CurrentOrders.push(order)
+// }
 
 function updateIntervenedStoryType(storyType){
     if (intervenedStoryTypeCount[storyType] != null) {
@@ -62,8 +70,8 @@ function getIntervenedStoryCount(){
 }
 
 function checkIsIntervened(partialMatch){
-    for (let i = 0; i < OrderRecords.length; i++) {
-        var order = OrderRecords[i].order
+    for (let i = 0; i < IssuedOrderRecords.length; i++) {
+        var order = IssuedOrderRecords[i].order
         if (order.partialMatchId == partialMatch.matchId) {
             return true
         }
@@ -72,10 +80,11 @@ function checkIsIntervened(partialMatch){
 }
 
 module.exports = {
-    recordGivenOrder,
+    recordIssuedOrder,
+    recordExecutedOrders,
     getTargetFromLastOrder,
-    cleanUpCurrentOrders,
-    addCurrentOrder,
+    // cleanUpCurrentOrders,
+    // addCurrentOrder,
     checkIsIntervened,
     updateIntervenedStoryType,
     addIntervenedStoryCount,
