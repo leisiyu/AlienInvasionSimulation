@@ -36,6 +36,7 @@ var Townfolk = function(name, position){
 	this.beHealedIdx = 0
 	this.healingIdx = 0
 	this.state = new CharacterState(Utils.CHARACTER_STATES.WANDER)
+	this.orders = []
 	this.order = null
 
 	this.simEvent = new jssim.SimEvent(10);
@@ -88,9 +89,10 @@ var Townfolk = function(name, position){
 		}
 		// check the character's state
 		townfolkThis.updateStates(time)
-		if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
+		// if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
+		if (townfolkThis.orders.length != 0){
 			// console.log("hahaha   townsfolk order" + " " + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
-			
+			townfolkThis.order = CharacterBase.chooseOrderWithHighestPriority(townfolkThis.orders)
 			townfolkThis.order.excute()
 			switch(townfolkThis.order.orderType){
 				case ORDER_TYPE.MOVE:

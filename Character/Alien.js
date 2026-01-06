@@ -34,6 +34,7 @@ var Alien = function(name, position){
 	this.enemyOrBuildingProbability = new Probability(this.TARGET, [4, 1])
 	this.state = new CharacterState()
 	this.healthState = Utils.HEALTH_STATES.NORMAL
+	this.orders = []
 	this.order = null
 	this.simEvent = new jssim.SimEvent(10)
 	this.simEvent.update = function(deltaTime){
@@ -117,12 +118,12 @@ var Alien = function(name, position){
 		alienThis.checkSurrounding(this.time)
 
 		// console.log("alien state " + alienThis.charName + " " + alienThis.state.stateType)
-		if (alienThis.order != null & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
+		// if (alienThis.orders.length != 0 & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
+		if (alienThis.orders.length != 0) {
 			// has order
 			// in neutral state
-			console.log("ORDER!!!!!!! " + alienThis.charName + " " + alienThis.order.orderType + " " + alienThis.order.target.charName + this.time)
-			
-			// alienThis.state.updateTarget(alienThis.order.target)
+			alienThis.order = CharacterBase.chooseOrderWithHighestPriority(alienThis.orders)
+			console.log("alien orders " + alienThis.orders.length)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
 				case ORDER_TYPE.MOVE:
@@ -781,7 +782,7 @@ Alien.prototype.orderAttack = function(time) {
 }
 Alien.prototype.orderChase = function(time){
 	CharacterBase.executeOrderBase(this.charName, this.order, time)
-	
+
 	var result = CharacterBase.orderChase(this, time)
 	return result
 }  

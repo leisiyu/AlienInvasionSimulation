@@ -37,6 +37,7 @@ var Soldier = function(name, position){
 	this.healthState = Utils.HEALTH_STATES.NORMAL
 	this.beHealedIdx = 0
 	this.healingIdx = 0
+	this.orders = []
 	this.order = null
 	var soldierThis = this
 
@@ -137,9 +138,10 @@ var Soldier = function(name, position){
 		// has order
 		// in neutral state
 		// console.log("soldier state " + soldierThis.charName + " " + soldierThis.state.stateType)
-		if (soldierThis.order != null && Utils.NEUTRAL_STATES.includes(soldierThis.state.stateType)) {
+		// if (soldierThis.order != null && Utils.NEUTRAL_STATES.includes(soldierThis.state.stateType)) {
+		if (soldierThis.orders.length != 0){
 			// console.log("hahaha   soldier order" + " " + soldierThis.charName + " " + soldierThis.order.orderType + this.time)
-			
+			soldierThis.order = CharacterBase.chooseOrderWithHighestPriority(soldierThis.orders)
 			soldierThis.order.excute()
 			switch(soldierThis.order.orderType){
 				case ORDER_TYPE.MOVE:
@@ -767,7 +769,7 @@ Soldier.prototype.orderChase = function(time){
 }
 Soldier.prototype.orderHeal = function(time){
 	CharacterBase.executeOrderBase(this.charName, this.order, time)
-	
+
 	var result = CharacterBase.orderHeal(this, time)
 	return result
 }

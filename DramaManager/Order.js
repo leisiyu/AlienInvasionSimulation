@@ -24,6 +24,7 @@ class Order {
         this.count = 1
         this.partialMatchId = partialMatchId
         this.orderId = generateUniqueID()
+        this.priority = 0
     }
 
     updateTarget(newTarget){
@@ -36,6 +37,10 @@ class Order {
 
     excute(){
         this.count = this.count - 1
+    }
+
+    updatePriority(value){
+        this.priority = value
     }
 }
 

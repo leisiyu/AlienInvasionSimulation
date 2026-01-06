@@ -4,6 +4,7 @@ const CharactersData = require("./CharactersData.js")
 const DramaManagerData = require("../DramaManager/DramaManagerData.js")
 const { Order } = require("../DramaManager/Order.js")
 const Logger = require('../Logger.js').Logger
+const OrderPriority = require('../DramaManager/Priority.js')
 
 //availableDirections can not be null
 function moveOneStep(lastDirection, availableDirections, directionProbability, position, inventory, time, charName){
@@ -445,23 +446,29 @@ function addOrder(character, target, order, time){
 		return
 	}
 	
-	if (character.order == null) {
-		character.order = order
-		console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
-		// record orders
-		DramaManagerData.recordIssuedOrder(character.charName, order, time)
-	}
+	// push order to agent's order list
+	// if (character.order == null) {
+	order.updatePriority(OrderPriority.calculatePriority(order, character, target, time))
+	character.orders.push(order)
+	console.log("add order: " + order.orderType + " priority " + order.priority)
+	// console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
+	// record orders
+	DramaManagerData.recordIssuedOrder(character.charName, order, time)
+	// }
 } 
 
 function checkOrder(character){
-	if (character.order != null && character.order.isExecuted()){
+	if (character.orders.length != 0
+		&& character.order != null
+		&& character.order.isExecuted()){		
 		removeOrder(character)
 	}
 }
 
 function removeOrder(character){
+	character.orders = []
 	character.order = null
-	console.log("ORDER REMOVED: " + character.charName + character.order == null)
+	console.log("ORDER REMOVED: " + character.charName + character.orders.length == 0)
 }
 
 function checkIsNeutralState(state){
@@ -588,11 +595,11 @@ function orderAttack(character, time){
 	if (distance > character.attackRange) {
 		// incapacitated, can not move
 		if (character.healthState < Utils.HEALTH_STATES.INCAPACITATED && character.healthState > Utils.HEALTH_STATES.DIED) {
-			console.log("order agent incapacitated")
+			// console.log("order agent incapacitated")
 			return false
 		}
 		// this frame still need to move
-		console.log("order: attack -> chase")
+		// console.log("order: attack -> chase")
 		character.orderChase(time)
 		return false
 	}
@@ -605,7 +612,7 @@ function orderAttack(character, time){
 		Note: "order"
 	})
 
-	console.log("order success: attack")
+	// console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
 
 	Logger.orderInfo({
@@ -627,7 +634,7 @@ function orderChase(character, time, usePosInfo = false){
 	// so the "usePosInfo" is default to be false
 	// after that can lead the agent to the exact position
 
-	console.log("character base: order chase")
+	// console.log("character base: order chase")
 	if (character.order.target == null || character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		return false
 	}
@@ -713,7 +720,7 @@ function orderChase(character, time, usePosInfo = false){
 		Note:"order"
 	}))
 
-	console.log("order success: chase")
+	// console.log("order success: chase")
 	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target)
 	return true
 }
@@ -847,7 +854,7 @@ function orderFindMedikit(character, time, usePosInfo){
 
 function orderFindAWeapon(character, time, usePosInfo = false){
 	console.log("find a weapon")
-	
+
 	Logger.orderInfo({
 		Type: character.order.orderType,
 		Agent: character.charName,
@@ -871,7 +878,7 @@ function orderFindAWeapon(character, time, usePosInfo = false){
 	}
 
 	//At this moment: wandering around
-	console.log("find weapon without position info")
+	// console.log("find weapon without position info")
 	for (let j = 0; j < character.speed; j++){
 		var availableDirections = Utils.DIRECTION
 		if (availableDirections.length > 0) {
@@ -882,6 +889,16 @@ function orderFindAWeapon(character, time, usePosInfo = false){
 
 function executeOrderBase(agentName, order, time){
 	DramaManagerData.recordExecutedOrders(agentName, order, time)
+}
+
+function chooseOrderWithHighestPriority(orders){
+	if (orders.length == 0) {return}
+
+	const priorities = orders.map(order => order.priority)
+	let maxPriority = Math.max(...priorities)
+	let topOrder = orders.find(order => order.priority == maxPriority)
+
+	return topOrder
 }
 
 //--------- Intervene----------
@@ -909,4 +926,5 @@ module.exports = {
 	orderHeal,
 	executeOrderBase,
 	orderFindAWeapon,
+	chooseOrderWithHighestPriority
 }
