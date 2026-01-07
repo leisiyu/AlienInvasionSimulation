@@ -6,9 +6,8 @@
 var InterventionTypeCount = {}
 var IssuedOrderRecords = []
 // If two orders issued to the same agent, the agent will only choose one to execute1
-var ExecutedOrderRecords = []   
-// var CurrentOrders = []
-var intervenedStoryCount = 0
+var ExecutedOrderRecords = []
+// var intervenedStoryCount = 0
 var intervenedStoryTypeCount = {}
 
 function SingleRecord(agentName, order, time) {
@@ -20,13 +19,13 @@ function SingleRecord(agentName, order, time) {
 function recordIssuedOrder(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
     IssuedOrderRecords.push(record)
-    console.log("record order " + record.time + " " + agentName)
+    // console.log("record order " + record.time + " " + agentName)
 }
 
 function recordExecutedOrders(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
     ExecutedOrderRecords.push(record)
-    console.log("record executed order: " + record.time + " " + agentName + " ")
+    // console.log("record executed order: " + record.time + " " + agentName + " ")
 }
 
 function getTargetFromLastOrder(agent, order, time){
@@ -44,15 +43,6 @@ function getTargetFromLastOrder(agent, order, time){
     return
 }
 
-
-// function cleanUpCurrentOrders(){
-//     CurrentOrders = []
-// }
-
-// function addCurrentOrder(order){
-//     CurrentOrders.push(order)
-// }
-
 function updateIntervenedStoryType(storyType){
     if (intervenedStoryTypeCount[storyType] != null) {
         intervenedStoryTypeCount[storyType] ++
@@ -61,12 +51,14 @@ function updateIntervenedStoryType(storyType){
     }
 }
 
-function addIntervenedStoryCount(){
-    intervenedStoryCount ++ 
-}
+function getTotalIntervenedStoryCount(){
+    var totalIntervenedStoryCount = 0
 
-function getIntervenedStoryCount(){
-    return intervenedStoryCount
+    for (var key in intervenedStoryTypeCount) {
+        totalIntervenedStoryCount = totalIntervenedStoryCount + intervenedStoryTypeCount[key]
+    }
+
+    return totalIntervenedStoryCount
 }
 
 function checkIsIntervened(partialMatch){
@@ -79,14 +71,16 @@ function checkIsIntervened(partialMatch){
     return false
 }
 
+function getExecutedOrders(){
+    return ExecutedOrderRecords
+}
+
 module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
     getTargetFromLastOrder,
-    // cleanUpCurrentOrders,
-    // addCurrentOrder,
     checkIsIntervened,
     updateIntervenedStoryType,
-    addIntervenedStoryCount,
-    getIntervenedStoryCount
+    getTotalIntervenedStoryCount,
+    getExecutedOrders
 }

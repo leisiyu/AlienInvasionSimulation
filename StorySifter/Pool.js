@@ -89,7 +89,7 @@ function updatePool(newEvent){
             } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
                 if (DramaManagerData.checkIsIntervened(obj)) {
-                    DramaManagerData.addIntervenedStoryCount()
+                    // DramaManagerData.addIntervenedStoryCount()
                     DramaManagerData.updateIntervenedStoryType(obj.eventName)
                 }
             }
@@ -145,7 +145,7 @@ function getResults(){
     result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Initiated stories number: " + initiatedStories + "\n"
     result = result + "Completed stories number: " + totalMiniStories + "\n"
-    result = result + "Intervened stories number: " + DramaManagerData.getIntervenedStoryCount() + "\n"
+    result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
@@ -166,7 +166,7 @@ function getResultsJson(){
         "completedHighLevel": totalHighLevelEvents,
         "initiatedStories": initiatedStories,
         "completedStories": totalMiniStories,
-        "intervenedStories": DramaManagerData.getIntervenedStoryCount()
+        "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount()
     }
 
     return result
