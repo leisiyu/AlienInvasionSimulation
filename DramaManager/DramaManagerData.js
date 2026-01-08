@@ -51,6 +51,10 @@ function updateIntervenedStoryType(storyType){
     }
 }
 
+function getIntervenedStoryCountByType(storyType){
+    return intervenedStoryTypeCount[storyType] || 0
+}
+
 function getTotalIntervenedStoryCount(){
     var totalIntervenedStoryCount = 0
 
@@ -82,5 +86,6 @@ module.exports = {
     checkIsIntervened,
     updateIntervenedStoryType,
     getTotalIntervenedStoryCount,
-    getExecutedOrders
+    getExecutedOrders,
+    getIntervenedStoryCountByType
 }

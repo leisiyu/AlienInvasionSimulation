@@ -18,11 +18,12 @@ function generateUniqueID(){
 
 class Order {
     
-    constructor(orderType, target, partialMatchId){
+    constructor(orderType, target, partialMatchId, partialMatchType){
         this.orderType = orderType
         this.target = target
         this.count = 1
         this.partialMatchId = partialMatchId
+        this.partialMatchType = partialMatchType
         this.orderId = generateUniqueID()
         this.priority = 0
     }

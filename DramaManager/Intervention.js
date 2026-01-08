@@ -9,7 +9,7 @@ const ORDER_TYPE = require("./Order.js").ORDER_TYPE
 const CharactersData = require("../Character/CharactersData.js")
 const Utils = require('../Utils.js') 
 
-function intervene(event, partialMatchId, time){
+function intervene(event, partialMatchId, partialMatchType, time){
     // console.log("event log: " + event["L"] + event["N1"] + event["N2"])
     var character1 = null
     if (event["N1"] != undefined) {
@@ -32,7 +32,7 @@ function intervene(event, partialMatchId, time){
             }
 
             if (agent != null){
-                orderAttack(agent, target, partialMatchId, time)
+                orderAttack(agent, target, partialMatchId, partialMatchType, time)
 
             }
             // if agent is null, abandon this order 
@@ -44,7 +44,7 @@ function intervene(event, partialMatchId, time){
                 agent = CharacterBase.findEnemy(target)
             }
             if (agent != null){
-                orderChase(agent, target, partialMatchId, time)
+                orderChase(agent, target, partialMatchId, partialMatchType, time)
             }
             break;
         case "is healing":
@@ -54,7 +54,7 @@ function intervene(event, partialMatchId, time){
                 agent = CharacterBase.findAlly(target)
             }
             if (agent != null) {
-                orderHeal(agent, target, partialMatchId, time)
+                orderHeal(agent, target, partialMatchId, partialMatchType, time)
             }
             break;
         case "is killed by":
@@ -64,7 +64,7 @@ function intervene(event, partialMatchId, time){
                 agent = CharacterBase.findEnemy(target)
             }
             if (agent != null){
-                orderCriticalHit(agent, target, partialMatchId, time)
+                orderCriticalHit(agent, target, partialMatchId, partialMatchType, time)
             }
             
             break;
@@ -73,27 +73,27 @@ function intervene(event, partialMatchId, time){
 
 
 /// Move A to B
-function orderChase(agent, target, partialMatchId, time){
-    var order = new Order(ORDER_TYPE.MOVE, target, partialMatchId)
+function orderChase(agent, target, partialMatchId, partialMatchType, time){
+    var order = new Order(ORDER_TYPE.MOVE, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
 /// Attack target with critical hit
-function orderCriticalHit(agent, target, partialMatchId, time){
+function orderCriticalHit(agent, target, partialMatchId, partialMatchType, time){
     /// attack the agent with critical hit
-    var order = new Order(ORDER_TYPE.KILL, target, partialMatchId)
+    var order = new Order(ORDER_TYPE.KILL, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
-function orderAttack(agent, target, partialMatchId, time){
+function orderAttack(agent, target, partialMatchId, partialMatchType, time){
     /// attack the target
-    var order = new Order(ORDER_TYPE.ATTACK, target, partialMatchId)
+    var order = new Order(ORDER_TYPE.ATTACK, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
-function orderHeal(agent, target, partialMatchId, time){
+function orderHeal(agent, target, partialMatchId, partialMatchType, time){
     /// heal the target
-    var order = new Order(ORDER_TYPE.HEAL, target, partialMatchId)
+    var order = new Order(ORDER_TYPE.HEAL, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
 
