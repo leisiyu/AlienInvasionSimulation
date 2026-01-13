@@ -9,9 +9,9 @@ const CHARACTER_TYPE = {
 
 
 var TOTAL_CHARACTERS = 60
-var CHARACTER_RATIO = [1, 1, 1]   // alien:soldier:townsfolk
+var CHARACTER_RATIO = [2, 1, 2]   // alien:soldier:townsfolk
 const TOTAL_STEPS = 10
-var MAP_SIZE = [50, 50]
+var MAP_SIZE = [100, 100]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
 var ALIENS_NUM = getNumberByRatio(CHARACTER_TYPE.ALIEN)
 var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)

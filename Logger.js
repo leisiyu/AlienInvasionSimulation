@@ -169,20 +169,20 @@ Logger.writeToFile = function(){
     }) 
 
     // count
-    var neutralCountContent = ""
-    for (let i = 0; i < Logger.neutralCountLogQueue.length; i++){
-        neutralCountContent = neutralCountContent + Logger.neutralCountLogQueue[i] + "\n"
-    }
+    // var neutralCountContent = ""
+    // for (let i = 0; i < Logger.neutralCountLogQueue.length; i++){
+    //     neutralCountContent = neutralCountContent + Logger.neutralCountLogQueue[i] + "\n"
+    // }
 
-    fs.writeFileSync(dirName + '/NeutralCountLog.txt', neutralCountContent, (err) => { 
-        // In case of a error throw err. 
-        if (err) throw err;
-        else {
-            console.log('successful')
-            // Logger.clearQueue()
-            Logger.neutralCountLogQueue = []
-        }
-    }) 
+    // fs.writeFileSync(dirName + '/NeutralCountLog.txt', neutralCountContent, (err) => { 
+    //     // In case of a error throw err. 
+    //     if (err) throw err;
+    //     else {
+    //         console.log('successful')
+    //         // Logger.clearQueue()
+    //         Logger.neutralCountLogQueue = []
+    //     }
+    // }) 
 }
 
 Logger.outputFinalResults = function(excutionTime, timeSteps){
@@ -209,6 +209,7 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
 
 Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // Lazy require to avoid circular dependency
+    var dirName = this.getDirName()
     const Sifter = require('./StorySifter/Sifter')
     var results = Sifter.getFinalResultsJson()
     results["excutionTime"] = excutionTime
@@ -217,7 +218,8 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
-    fs.writeFileSync(__dirname + "/StableTest/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+    // fs.writeFileSync(__dirname + "/StableTest/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+        fs.writeFileSync(__dirname + "/DM_Test/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
     // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
         if (err) throw err;
         else {
@@ -235,9 +237,10 @@ Logger.clearQueue = function(){
 var dirNameIdx = ""
 Logger.getDirName = function(){
     // var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
-    var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS + "/" + dirNameIdx
+    // var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS + "/" + dirNameIdx
     // var dirName = __dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + "/" + dirNameIdx
     // var dirName = __dirname + "/SimulatorTime/" + Utils.TIME_STEPS + "/" + dirNameIdx
+    var dirName = __dirname + "/DM_Test/" + dirNameIdx
 
 
     if (!fs.existsSync( dirName)) {
