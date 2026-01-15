@@ -37,6 +37,7 @@
         "tag": "almost kills",
         "type": "high-level",
         "main_characters": [0, 1],
+        "roll_back_check": [],
         "time_limit": 20000
     },
 
@@ -68,6 +69,7 @@
         "tag": "escaped from",
         "type": "high-level",
         "main_characters": [0, 1],
+        "roll_back_check": [],
         "time_limit": 300
     },
 
@@ -97,11 +99,17 @@
             {
                 "char1Idx": {"index": 0},
                 "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by",
+                "char2Idx": {"index": 2}
             }
         ],
         "tag": "defeats",
         "type": "high-level",
         "main_characters": [0, 1],
+        "roll_back_check": [],
         "time_limit": 20000
 
     },
@@ -141,7 +149,8 @@
         "tag": "interrupts the treatment of",
         "type": "high-level",
         "main_characters": [2, 0],
-        "time_limit": 20000
+        "roll_back_check": [],
+        "time_limit": 3
 
     },
 
@@ -164,12 +173,17 @@
             {
                 "char1Idx": {"index": 1},
                 "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
             }
         ],
         "tag": "survive from",
-        "type": "high-level",
+        "type": "story",
         "main_characters": [1, 0],
-        "time_limit": 20000
+        "roll_back_check": [],
+        "time_limit": 50
     },
 
     "revenge": {
@@ -203,7 +217,8 @@
         "tag": "takes revenge on",
         "type": "story",
         "main_characters": [1, 0],
-        "time_limit": 20000
+        "roll_back_check": [],
+        "time_limit": 200
     },
 
     "giant_killer": {
@@ -228,6 +243,7 @@
         "tag": "giant killer",
         "type": "high-level",
         "main_characters": [1],
+        "roll_back_check": [],
         "time_limit": 20000
     },
 
@@ -253,6 +269,7 @@
         "tag": "ace killer",
         "type": "story",
         "main_characters": [0],
+        "roll_back_check": [],
         "time_limit": 20000
     },
 
@@ -299,7 +316,8 @@
         "tag": "luckily kills",
         "type": "high-level",
         "main_characters": [0, 1],
-        "time_limit": 20000
+        "roll_back_check": [],
+        "time_limit": 1
     },
 
     "rescue": {
@@ -352,6 +370,7 @@
         "tag": "rescued",
         "type": "high-level",
         "main_characters": [2, 1],
+        "roll_back_check": [2],
         "time_limit": 20000
     },
 
@@ -369,25 +388,6 @@
                 },
                 "repeat": true
             }],
-            [{
-                "char1Idx": {
-                    "index": 0,
-                    "type": "TOWNSFOLK"
-                },
-                "tag": "shoots",
-                "char2Idx": {"index": 2},
-                "repeat": true
-            },
-            {
-                "char1Idx": {
-                    "index": 0,
-                    "type": "TOWNSFOLK"
-                },
-                "tag": "attacks",
-                "char2Idx": {"index": 2},
-                "repeat": true
-            }
-            ],
             [{
                 "char1Idx": {
                     "index": 0,
@@ -411,6 +411,7 @@
         "tag": "vigilante",
         "type": "story",
         "main_characters": [0],
+        "roll_back_check": [2],
         "time_limit": 20000
     },
 
@@ -454,6 +455,7 @@
         "tag": "is the guardian angel of",
         "type": "story",
         "main_characters": [0, 1],
+        "roll_back_check": [],
         "time_limit": 20000
     }
 }

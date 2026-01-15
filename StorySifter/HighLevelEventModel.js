@@ -1,5 +1,5 @@
-// const HighLevelEventsPatterns = require("./HighLevelEvents.json")
-const HighLevelEventsPatterns = require("./HighLevelEventsTest.json")
+const HighLevelEventsPatterns = require("./HighLevelEvents.json")
+// const HighLevelEventsPatterns = require("./HighLevelEventsTest.json")
 const SifterUtil = require("./SifterUtil")
 const Utils = require("../Utils")
 const CharacterData = require("../Character/CharactersData")
@@ -189,10 +189,17 @@ class HighLevelEvent {
             // characters in this part should be involved in earlier events,
             // so no need to check if this character in the actors array
             if (newEvent["L"] == this.unlessEvents[i]["tag"]) {
-                if (currentUnlessEvent["char1Idx"] == undefined || this.actors[currentUnlessEvent["char1Idx"]["index"]] == newEvent["N1"]) {
-                    if (currentUnlessEvent["char2Idx"] == undefined || this.actors[currentUnlessEvent["char2Idx"]["index"]] == newEvent["N2"]) {
-                        return true
+                if (currentUnlessEvent["char1Idx"] == undefined
+                    ||(this.actors[currentUnlessEvent["char1Idx"]["index"]] == undefined && this.actors.indexOf(newEvent["N1"]) == -1)
+                    ||(this.actors[currentUnlessEvent["char1Idx"]["index"]] != undefined && this.actors[currentUnlessEvent["char1Idx"]["index"]] == newEvent["N1"])) {
+                    
+                        if (currentUnlessEvent["char2Idx"] == undefined 
+                        || (this.actors[currentUnlessEvent["char2Idx"]["index"]] == undefined && this.actors.indexOf(newEvent["N2"]) == -1)
+                        || (this.actors[currentUnlessEvent["char2Idx"]["index"]] != undefined && this.actors[currentUnlessEvent["char2Idx"]["index"]] == newEvent["N2"])) {
+                            // TO DO: difficult to test
+                            return true
                     }
+                    
                 }
                 
             }
@@ -255,9 +262,8 @@ class HighLevelEvent {
             // console.log("actor " + i + " " + actor.charName)
             // if it's a weapon name, "getCharacterByName" will return null
             if (actor != null && actor.state.stateType == Utils.CHARACTER_STATES.DIED){
-                // not the main character
                 // can be returned to the previous state
-                if (this.highLevelEventJson["main_characters"].indexOf(i) == -1) {
+                if (this.highLevelEventJson["roll_back_check"].length > 0 && this.highLevelEventJson["roll_back_check"].indexOf(i) == -1) {
                     var result = this.rollBack(i)
                     return result
                 }

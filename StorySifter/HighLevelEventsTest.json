@@ -1,4 +1,225 @@
 {
+    "almost_kill": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is badly hurt, run away from",
+                "char2Idx": {"index": 0},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by",
+                "char2Idx": {"index": 1}
+            },
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by",
+                "char2Idx": {"index": 0}
+            }
+        ],
+        "tag": "almost kills",
+        "type": "high-level",
+        "main_characters": [0, 1],
+        "roll_back_check": [],
+        "time_limit": 20000
+    },
+
+    "escape": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "runs away from",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "successfully ran away from",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "escaped from",
+        "type": "high-level",
+        "main_characters": [0, 1],
+        "roll_back_check": [],
+        "time_limit": 300
+    },
+
+    "defeat": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is killed by",
+                "char2Idx": {"index": 0},
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by",
+                "char2Idx": {"index": 2}
+            }
+        ],
+        "tag": "defeats",
+        "type": "high-level",
+        "main_characters": [0, 1],
+        "roll_back_check": [],
+        "time_limit": 20000
+
+    },
+
+    "Interrupt_the_treatment": {
+        "events": [
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is healing",
+                "char2Idx": {"index": 0},
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {"index": 2},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            },
+            {
+                "char1Idx": {"index": 2},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "died from fatal injuries that didn't be treated"
+            }
+        ],
+        "tag": "interrupts the treatment of",
+        "type": "high-level",
+        "main_characters": [2, 0],
+        "roll_back_check": [],
+        "time_limit": 3
+
+    },
+
+    "survive": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "almost kills",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "escaped from",
+                "char2Idx": {"index": 0},
+                "repeat": true
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "survive from",
+        "type": "story",
+        "main_characters": [1, 0],
+        "roll_back_check": [],
+        "time_limit": 50
+    },
+
+    "revenge": {
+        "events": [
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "survive from",
+                "char2Idx": {"index": 0},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "interrupts the treatment of",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "defeats",
+                "char2Idx": {"index": 0},
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "takes revenge on",
+        "type": "story",
+        "main_characters": [1, 0],
+        "roll_back_check": [],
+        "time_limit": 200
+    },
 
     "giant_killer": {
         "events": [
@@ -22,6 +243,7 @@
         "tag": "giant killer",
         "type": "high-level",
         "main_characters": [1],
+        "roll_back_check": [],
         "time_limit": 20000
     },
 
@@ -47,6 +269,193 @@
         "tag": "ace killer",
         "type": "story",
         "main_characters": [0],
+        "roll_back_check": [],
+        "time_limit": 20000
+    },
+
+    "lucky_kill": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is killed by",
+                "char2Idx": {"index": 0},
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is killed by"
+            }
+        ],
+        "unless_forever": [
+            {
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1}
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1}
+            }
+        ],
+        "tag": "luckily kills",
+        "type": "high-level",
+        "main_characters": [0, 1],
+        "roll_back_check": [],
+        "time_limit": 1
+    },
+
+    "rescue": {
+        "events": [
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "attacks",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "shoots",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            },
+            {
+                "char1Idx": {"index": 0},
+                "tag": "is chasing",
+                "char2Idx": {"index": 1},
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 1},
+                "tag": "is incapacitated, can't move anymore, need cure",
+                "repeat": true
+            }
+            ],
+            [{
+                "char1Idx": {"index": 0},
+                "tag": "is attacked by",
+                "char2Idx": {"index": 2},
+                "repeat": false
+            },
+            {
+                "char1Idx": {"index": 2},
+                "tag": "is healing",
+                "char2Idx": {"index": 1},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {"index": 1},
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "rescued",
+        "type": "high-level",
+        "main_characters": [2, 1],
+        "roll_back_check": [2],
+        "time_limit": 20000
+    },
+
+    "vigilante": {
+        "events": [
+            [{
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "picks up",
+                "char2Idx": {
+                    "index": 1,
+                    "type": "WEAPON"
+                },
+                "repeat": true
+            }],
+            [{
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "defeats",
+                "char2Idx": {"index": 2},
+                "repeat": false
+            }
+            ]
+        ],
+        "unless": [
+            {
+                "char1Idx": {
+                    "index": 0,
+                    "type": "TOWNSFOLK"
+                },
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "vigilante",
+        "type": "story",
+        "main_characters": [0],
+        "roll_back_check": [2],
+        "time_limit": 20000
+    },
+
+    "guardian_angel": {
+        "events": [
+            [{
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "rescued",
+                "char2Idx": {
+                    "index": 1
+                },
+                "repeat": false
+            }],
+            [{
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "rescued",
+                "char2Idx": {
+                    "index": 1
+                },
+                "repeat": false
+            }]
+        ],
+        "unless": [
+            {
+                "char1Idx": {
+                    "index": 0
+                },
+                "tag": "is killed by"
+            },
+            {
+                "char1Idx": {
+                    "index": 1
+                },
+                "tag": "is killed by"
+            }
+        ],
+        "tag": "is the guardian angel of",
+        "type": "story",
+        "main_characters": [0, 1],
+        "roll_back_check": [],
         "time_limit": 20000
     }
 }
