@@ -7,7 +7,7 @@ function getCharacterByName(name){
             return charactersArray[i]
         }
     }
-    console.info("There is not a character named: " + name)
+    // console.info("There is not a character named: " + name)
     return null
 }
 

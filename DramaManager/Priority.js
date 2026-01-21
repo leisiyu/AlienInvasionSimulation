@@ -19,7 +19,7 @@ function calculateIssuedTimesWeight(order){
     var totalEvents = OrderData.getTotalIntervenedStoryCount()
     var currentTypeCount = OrderData.getIntervenedStoryCountByType(order.partialMatchType)
     var ratio = Math.log((totalEvents + 1) / (currentTypeCount + 1))
-    console.log("issued times priority " + currentTypeCount + " " + ratio + " " + ratio * WEIGHT_ISSUED_TIMES)
+    // console.log("issued times priority " + currentTypeCount + " " + ratio + " " + ratio * WEIGHT_ISSUED_TIMES)
     return ratio * WEIGHT_ISSUED_TIMES
 }
 

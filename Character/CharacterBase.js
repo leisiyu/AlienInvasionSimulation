@@ -489,7 +489,7 @@ function findEnemy(agent, order, time){
 	if (target != null
 		&& target.state.stateType != Utils.CHARACTER_STATES.DIED) {
 
-		console.log("find enemy target from previous order" + agent.charName + " " + target.charName + " " + time)
+		// console.log("find enemy target from previous order" + agent.charName + " " + target.charName + " " + time)
 		return target
 	}
 	
@@ -579,7 +579,12 @@ function orderAttack(character, time){
 		} else {
 			character.order.updateTarget(target)
 		}
-	}
+	} 
+	// else {
+	// 	console.log("target state: " + character.order.target.state.stateType)
+	// }
+
+
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		console.log("order target died " + character.order.target.charName + " " + character.order.target.state.stateType + " " + time)
