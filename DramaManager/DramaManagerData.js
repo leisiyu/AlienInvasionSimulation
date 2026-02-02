@@ -19,7 +19,7 @@ function SingleRecord(agentName, order, time) {
 function recordIssuedOrder(agentName, order, time){
     var record = new SingleRecord(agentName, order, time)
     IssuedOrderRecords.push(record)
-    // console.log("record order " + record.time + " " + agentName)
+    // console.log("record order " + order.partialMatchType + " " + order.partialMatchId)
 }
 
 function recordExecutedOrders(agentName, order, time){
@@ -65,10 +65,14 @@ function getTotalIntervenedStoryCount(){
     return totalIntervenedStoryCount
 }
 
+
+// TODO: have a check if only sub-sub events was intervened?
 function checkIsIntervened(partialMatch){
-    for (let i = 0; i < IssuedOrderRecords.length; i++) {
-        var order = IssuedOrderRecords[i].order
-        if (order.partialMatchId == partialMatch.matchId) {
+    for (let i = 0; i < ExecutedOrderRecords.length; i++) {
+        var order = ExecutedOrderRecords[i].order
+        // console.log("check is intervened" + order.partialMatchId + " " + partialMatch.matchId)
+        if (order.partialMatchId === partialMatch.matchId) {
+
             return true
         }
     }
@@ -79,6 +83,14 @@ function getExecutedOrders(){
     return ExecutedOrderRecords
 }
 
+function getIssuedOrderNumber(){
+    return IssuedOrderRecords.length
+}
+
+function getExecutedOrderNumber(){
+    return ExecutedOrderRecords.length
+}
+
 module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
@@ -87,5 +99,7 @@ module.exports = {
     updateIntervenedStoryType,
     getTotalIntervenedStoryCount,
     getExecutedOrders,
-    getIntervenedStoryCountByType
+    getIntervenedStoryCountByType,
+    getIssuedOrderNumber,
+    getExecutedOrderNumber
 }

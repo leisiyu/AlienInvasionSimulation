@@ -1,5 +1,6 @@
 const fs = require('node:fs')
 const CharactersData = require('./Character/CharactersData')
+const DramaManagerData = require("./DramaManager/DramaManagerData")
 const { info } = require('node:console')
 // const Config = require('./Config')
 const Utils = require('./Utils')
@@ -195,9 +196,11 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
     var finalResults = "Total events number: " + (this.generateUniqueID() - 1) + '\n'
     // Lazy require to avoid circular dependency
     const Sifter = require('./StorySifter/Sifter')
-    finalResults = finalResults + Sifter.getFinalResults()
+    finalResults = finalResults + Sifter.getFinalResults() + '\n'
     finalResults = finalResults + "Excution time: " + excutionTime + '\n'
-    finalResults = finalResults + "Simulation time: " + timeSteps + '\n'
+    finalResults = finalResults + "Simulation time: " + timeSteps + '\n\n'
+    finalResults = finalResults + "Issued order number:" + DramaManagerData.getIssuedOrderNumber() + '\n'
+    finalResults = finalResults + "Executed order number: " + DramaManagerData.getExecutedOrderNumber() + '\n'
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;

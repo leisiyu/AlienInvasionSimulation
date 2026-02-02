@@ -145,7 +145,6 @@ function getResults(){
     result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Initiated stories number: " + initiatedStories + "\n"
     result = result + "Completed stories number: " + totalMiniStories + "\n"
-    result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
@@ -154,6 +153,9 @@ function getResults(){
         }
     }
     result = result + "Unless Forever events: " + totalAbandonedEvents + "\n"
+
+
+    result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
     return result
 }
