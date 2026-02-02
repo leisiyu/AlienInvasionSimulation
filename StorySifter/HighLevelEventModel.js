@@ -263,8 +263,9 @@ class HighLevelEvent {
             // if it's a weapon name, "getCharacterByName" will return null
             if (actor != null && actor.state.stateType == Utils.CHARACTER_STATES.DIED){
                 // can be returned to the previous state
-                if (this.highLevelEventJson["roll_back_check"].length > 0 && this.highLevelEventJson["roll_back_check"].indexOf(i) == -1) {
+                if (this.highLevelEventJson["roll_back_check"].length > 0 && this.highLevelEventJson["roll_back_check"].indexOf(i) != -1) {
                     var result = this.rollBack(i)
+                    console.log("roll back result: " + result + " " + i)
                     return result
                 }
             }
