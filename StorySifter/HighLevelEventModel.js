@@ -226,6 +226,10 @@ class HighLevelEvent {
         }
         return false
     }
+
+    isUnlessForever(){
+        return this.meetUnlessForeverConditionTimes > 1
+    }
         
     getJson(){
         // console.log("haha2   " + this.actors)
