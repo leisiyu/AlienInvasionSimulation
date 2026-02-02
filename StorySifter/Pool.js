@@ -74,7 +74,7 @@ function updatePool(newEvent){
         var result = obj.checkNewEvent(newEvent)
 
         if (result["isEnd"]) {
-            if (obj.unlessForever) {
+            if (obj.isUnlessForever()) {
                 console.log("wrong here")
             }
             removedEventsPool.push(obj)
@@ -149,11 +149,11 @@ function getResults(){
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
-        if (obj.unlessForever) {
+        if (obj.isUnlessForever()) {
             totalAbandonedEvents = totalAbandonedEvents + 1
         }
     }
-    result = result + "Abandoned events: " + totalAbandonedEvents + "\n"
+    result = result + "Unless Forever events: " + totalAbandonedEvents + "\n"
 
     return result
 }
@@ -184,6 +184,7 @@ function cleanUpPool(time){
         // console.log("obj result: " + result)
         if (result == SifterUtil.ROLL_BACK_TYPE.DELETE){
             deletedObjs.push(obj)
+            // console.log("delete obj " + obj.eventName)
             // console.log("deleted obj: " + obj.index + obj.eventName +" " + obj.actors[0] + obj.actors[1] + obj.startTime + " " + obj.finishedTime + " " + time)
         }
         // if (result == SifterUtil.ROLL_BACK_TYPE.ROLL_BACK) {
