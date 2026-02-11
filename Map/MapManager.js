@@ -13,7 +13,7 @@ function generateMap(){
     
     //generate random gear
     var randomNum = Math.floor(Math.random() * Utils.TOTAL_CHARACTERS * 0.3) + 1
-    // var randomNum = 100
+    // var randomNum = 1000
     console.log("haha random gear num " + randomNum)
     for (let i = 0; i < randomNum; i++){
         randomGearInRandomPos(0)

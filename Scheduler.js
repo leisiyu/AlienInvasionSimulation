@@ -9,7 +9,7 @@ var scheduler = new jssim.Scheduler();
 
 function updateEvents(totalTimeSteps){
     // while(scheduler.hasEvents()) {
-    var timeSteps = 500
+    var timeSteps = 2000
 
     var startTime = Date.now()
 

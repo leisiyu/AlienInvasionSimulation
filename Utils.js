@@ -8,7 +8,7 @@ const CHARACTER_TYPE = {
 }
 
 
-var TOTAL_CHARACTERS = 60
+var TOTAL_CHARACTERS = 100
 var CHARACTER_RATIO = [2, 1, 2]   // alien:soldier:townsfolk
 const TOTAL_STEPS = 10
 var MAP_SIZE = [100, 100]
