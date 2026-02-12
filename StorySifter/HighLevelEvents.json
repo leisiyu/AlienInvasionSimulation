@@ -16,7 +16,7 @@
             ],
             [{
                 "char1Idx": {"index": 1},
-                "tag": "is badly hurt, run away from",
+                "tag": "is badly hurt, runs away from",
                 "char2Idx": {"index": 0},
                 "repeat": false
             }
