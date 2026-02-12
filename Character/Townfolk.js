@@ -503,6 +503,20 @@ Townfolk.prototype.runAway = function(time){
 		P: this.position,
 		T: time,
 	}))
+
+	// run away succeed
+	// TO DO
+	var enemiesNearby = this.checkVisualRange()[0]
+	if (enemiesNearby.indexOf(this.state.target) == -1) {
+		var characterName = this.state.target.charName
+		Logger.info({
+			N1: this.charName,
+			L: "successfully ran away from",
+			N2: characterName,
+			T: time,
+		})
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	}
 }
 
 Townfolk.prototype.getRunAwayDirection = function(){
