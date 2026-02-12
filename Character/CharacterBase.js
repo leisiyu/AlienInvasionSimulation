@@ -845,8 +845,8 @@ function orderRunAway(character, target, time){
 
 	for (let i = 0; i < character.speed; i++) {
 		var oppositDir = getAwayTargetDirection(character.objType, character.position, target)
-		var result = moveOneStep(oppositDir, time)
-		character.lastDirection = null
+		var result = character.moveOneStep(oppositDir, time)
+		character.lastDirection = ""
 	}
 	character.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, target)
 
