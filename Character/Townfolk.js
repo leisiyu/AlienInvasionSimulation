@@ -152,6 +152,9 @@ var Townfolk = function(name, position){
 					
 					}
 					break
+				case ORDER_TYPE.RUN_AWAY:
+					townfolkThis.orderRunAway(this.time)
+					break
 			}
 		} else {
 			switch(townfolkThis.state.stateType){
@@ -736,6 +739,12 @@ Townfolk.prototype.orderHeal = function(time){
 
 	var result = CharacterBase.orderHeal(this, time)
 	return result
+}
+
+Townfolk.prototype.orderRunAway = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
+	CharacterBase.orderRunAway(this, this.order.target, time)
 }
 //-----------order end ---------------
 

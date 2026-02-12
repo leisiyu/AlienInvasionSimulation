@@ -37,6 +37,7 @@ function getTargetFromLastOrder(agent, order, time){
             && time - 1 == record.time
             && agent.charName == record.agentName 
         ){
+            // console.log("hahahahahah   " + record.agentName + " " + record.order.target.charName + time)
             return record.order.target
         }
     }
@@ -91,6 +92,10 @@ function getExecutedOrderNumber(){
     return ExecutedOrderRecords.length
 }
 
+function getIssuedOrders(){
+    return IssuedOrderRecords
+}
+
 module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
@@ -101,5 +106,6 @@ module.exports = {
     getExecutedOrders,
     getIntervenedStoryCountByType,
     getIssuedOrderNumber,
-    getExecutedOrderNumber
+    getExecutedOrderNumber,
+    getIssuedOrders
 }

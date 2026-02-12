@@ -7,7 +7,8 @@ const ORDER_TYPE = {
     MOVE: "MOVE",
     CHASE: "CHASE",
     HEAL: "HEAL",
-    KILL: "KILL"
+    KILL: "KILL",
+    RUN_AWAY: "RUN_AWAY"
 }
 
 var orderIdx = 0

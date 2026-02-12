@@ -68,6 +68,13 @@ function intervene(event, partialMatchId, partialMatchType, time){
             }
             
             break;
+        case "runs away from":
+            agent = character1
+            target = character2
+            if (agent == null || target == null){
+                return
+            }
+            orderRunAway(agent, target, partialMatchId, partialMatchType, time)
     }
 }
 
@@ -97,6 +104,10 @@ function orderHeal(agent, target, partialMatchId, partialMatchType, time){
     CharacterBase.addOrder(agent, target, order, time)
 }
 
+function orderRunAway(agent, target, partialMatchId, partialMatchType, time){
+    var order = new Order(ORDER_TYPE.RUN_AWAY, target, partialMatchId, partialMatchType)
+    CharacterBase.addOrder(agent, target, order, time)
+}
 
 
 module.exports = {

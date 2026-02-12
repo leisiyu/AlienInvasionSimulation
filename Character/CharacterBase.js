@@ -437,6 +437,8 @@ function addOrder(character, target, order, time){
 			case ORDER_TYPE.HEAL:
 				target = findAlly(character, order, time)
 				break
+			case ORDER_TYPE.RUN_AWAY:
+				break
 		}
 		order.updateTarget(target)
 	}
@@ -450,7 +452,7 @@ function addOrder(character, target, order, time){
 	// if (character.order == null) {
 	order.updatePriority(OrderPriority.calculatePriority(order, character, target, time))
 	character.orders.push(order)
-	console.log("add order: " + order.orderType + " priority " + order.priority)
+	console.log("add order: " + DramaManagerData.getIssuedOrderNumber() + " " + order.orderType + " priority " + order.priority)
 	// console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 	// record orders
 	DramaManagerData.recordIssuedOrder(character.charName, order, time)
@@ -620,15 +622,15 @@ function orderAttack(character, time){
 	// console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
 
-	Logger.orderInfo({
-		Type: character.order.orderType,
-		Agent: character.charName,
-		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
-		Note: "attack",
-		MatchID: character.order.partialMatchId,
-		OrderId: character.order.orderId,
-		T: time
-	})
+	// Logger.orderInfo({
+	// 	Type: character.order.orderType,
+	// 	Agent: character.charName,
+	// 	Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
+	// 	Note: "attack",
+	// 	MatchID: character.order.partialMatchId,
+	// 	OrderId: character.order.orderId,
+	// 	T: time
+	// })
 	return true
 }
 
@@ -667,15 +669,15 @@ function orderChase(character, time, usePosInfo = false){
 			Note: "order"
 		})
 	}
-	Logger.orderInfo({
-		Type: character.order.orderType,
-		Agent: character.charName,
-		Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
-		Note: "chase",
-		MatchID: character.order.partialMatchId,
-		OrderId: character.order.orderId,
-		T: time
-	})
+	// Logger.orderInfo({
+	// 	Type: character.order.orderType,
+	// 	Agent: character.charName,
+	// 	Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
+	// 	Note: "chase",
+	// 	MatchID: character.order.partialMatchId,
+	// 	OrderId: character.order.orderId,
+	// 	T: time
+	// })
 	
 	var [visibleCharacters, visibleBuildings] = character.checkVisualRange()
 
@@ -754,15 +756,15 @@ function orderHeal(character, time, usePosInfo = false){
 		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, time, true)
 		character.state.setState(Utils.CHARACTER_STATES.HEAL, target)
 
-		Logger.orderInfo({
-			Type: character.order.orderType,
-			Agent: character.charName,
-			Target: character.order.target.charName,
-			Note: "heal",
-			MatchID: character.order.partialMatchId,
-			OrderId: character.order.orderId,
-			T: time
-		})
+		// Logger.orderInfo({
+		// 	Type: character.order.orderType,
+		// 	Agent: character.charName,
+		// 	Target: character.order.target.charName,
+		// 	Note: "heal",
+		// 	MatchID: character.order.partialMatchId,
+		// 	OrderId: character.order.orderId,
+		// 	T: time
+		// })
 
 		return [true, medikitResult[1].value]
 	}
@@ -783,15 +785,15 @@ function orderHeal(character, time, usePosInfo = false){
 			}
 		}
 
-		Logger.orderInfo({
-			Type: character.order.orderType,
-			Agent: character.charName,
-			Target: character.order.target.charName,
-			Note: "within the visual range, move to the target",
-			MatchID: character.order.partialMatchId,
-			OrderId: character.order.orderId,
-			T: time
-		})
+		// Logger.orderInfo({
+		// 	Type: character.order.orderType,
+		// 	Agent: character.charName,
+		// 	Target: character.order.target.charName,
+		// 	Note: "within the visual range, move to the target",
+		// 	MatchID: character.order.partialMatchId,
+		// 	OrderId: character.order.orderId,
+		// 	T: time
+		// })
 		return [false]
 
 	} else{
@@ -809,30 +811,78 @@ function orderHeal(character, time, usePosInfo = false){
 			}
 		}
 		
-		Logger.orderInfo({
-			Type: character.order.orderType,
-			Agent: character.charName,
-			Target: character.order.target.charName,
-			Note: "out of the visual range, find the target first",
-			MatchID: character.order.partialMatchId,
-			OrderId: character.order.orderId,
-			T: time
-		})
+		// Logger.orderInfo({
+		// 	Type: character.order.orderType,
+		// 	Agent: character.charName,
+		// 	Target: character.order.target.charName,
+		// 	Note: "out of the visual range, find the target first",
+		// 	MatchID: character.order.partialMatchId,
+		// 	OrderId: character.order.orderId,
+		// 	T: time
+		// })
 		return [false]
+	}
+}
+
+function orderRunAway(character, target, time){
+	if (character.order.target == null) { return }
+
+	Logger.info({
+		N1: character.charName,
+		L: "runs away from",
+		N2: target.charName,
+		T: time,
+	})
+	// Logger.orderInfo({
+	// 	Type: character.order.orderType,
+	// 	Agent: character.charName,
+	// 	Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
+	// 	Note: "runs away",
+	// 	MatchID: character.order.partialMatchId,
+	// 	OrderId: character.order.orderId,
+	// 	T: time
+	// })
+
+	for (let i = 0; i < character.speed; i++) {
+		var oppositDir = getAwayTargetDirection(character.objType, character.position, target)
+		var result = moveOneStep(oppositDir, time)
+		character.lastDirection = null
+	}
+	character.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, target)
+
+	Logger.statesInfo(JSON.stringify({
+		N: character.charName,
+		S: character.state.stateType, 
+		P: character.position,
+		T: time,
+	}))
+
+	// run away succeed
+	// TO DO
+	if (character.checkVisualRange()[0].length <= 0) {
+		var target = character.state.target
+
+		Logger.info({
+			N1: this.charName,
+			L: "successfully ran away from",
+			N2: target.charName,
+			T: this.time
+		})
+		character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
 
 function orderFindMedikit(character, time, usePosInfo){
 	
-	Logger.orderInfo({
-		Type: character.order.orderType,
-		Agent: character.charName,
-		Target: character.order.target.charName,
-		Note: "find medikit first",
-		MatchID: character.order.partialMatchId,
-		OrderId: character.order.orderId,
-		T: time
-	})
+	// Logger.orderInfo({
+	// 	Type: character.order.orderType,
+	// 	Agent: character.charName,
+	// 	Target: character.order.target.charName,
+	// 	Note: "find medikit first",
+	// 	MatchID: character.order.partialMatchId,
+	// 	OrderId: character.order.orderId,
+	// 	T: time
+	// })
 
 	if (usePosInfo){
 		var medikit = MapManager.getNearestMedikitPos(character.position)
@@ -860,15 +910,15 @@ function orderFindMedikit(character, time, usePosInfo){
 function orderFindAWeapon(character, time, usePosInfo = false){
 	console.log("find a weapon")
 
-	Logger.orderInfo({
-		Type: character.order.orderType,
-		Agent: character.charName,
-		Target: character.order.target.charName,
-		Note: "find a weapon first",
-		MatchID: character.order.partialMatchId,
-		OrderId: character.order.orderId,
-		T: time
-	})
+	// Logger.orderInfo({
+	// 	Type: character.order.orderType,
+	// 	Agent: character.charName,
+	// 	Target: character.order.target.charName,
+	// 	Note: "find a weapon first",
+	// 	MatchID: character.order.partialMatchId,
+	// 	OrderId: character.order.orderId,
+	// 	T: time
+	// })
 
 	if (usePosInfo){
 		var weapon = MapManager.getNEarestWeaponPos(character.position)
@@ -929,6 +979,7 @@ module.exports = {
 	orderAttack,
 	orderChase,
 	orderHeal,
+	orderRunAway,
 	executeOrderBase,
 	orderFindAWeapon,
 	chooseOrderWithHighestPriority

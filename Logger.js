@@ -9,7 +9,7 @@ var Logger = {
     logQueue: [],
     statesLogQueue: [],
     neutralCountLogQueue: [],
-    orderQueue: [],
+    // orderQueue: [],
     index: 0,
 }
 
@@ -69,9 +69,9 @@ Logger.statesInfo = function(infoStr){
     // Note: note,
     // T: time
 // }
-Logger.orderInfo = function(infoJson){   
-    this.orderQueue.push(JSON.stringify(infoJson))
-}
+// Logger.orderInfo = function(infoJson){   
+//     this.orderQueue.push(JSON.stringify(infoJson))
+// }
 
 
 Logger.setKeyFrame = function(){
@@ -154,20 +154,32 @@ Logger.writeToFile = function(){
     })
 
     // orders
-    var orderContent = ""
-    for (let i = 0; i < Logger.orderQueue.length; i++){
-        orderContent = orderContent + Logger.orderQueue[i] + "\n"
-    }
-    
-    fs.writeFileSync(dirName +'/OrderLog.txt', orderContent, (err) => { 
-        // In case of a error throw err. 
-        if (err) throw err;
-        else {
-            console.log('successful')
-            // Logger.clearQueue()
-            Logger.orderQueue = []
-        }
-    }) 
+    // var orderContent = ""
+    // for (let i = 0; i < Logger.orderQueue.length; i++){
+    //     orderContent = orderContent + Logger.orderQueue[i] + "\n"
+    // }
+    // var issuedOrders = DramaManagerData.getIssuedOrders()
+    // for (let i = 0; issuedOrders.length; i++){
+    //     var currentOrderRecord = issuedOrders[i]
+    //     console.log("type of??? " + typeof(currentOrderRecord))
+        // var currentOrder = {
+        //     orderType: currentOrderRecord.order.orderType,
+        //     agent: currentOrderRecord.agentName,
+        //     target: currentOrderRecord.order.target.charName,
+        //     time: currentOrderRecord.time
+        // }
+        // orderContent = orderContent + JSON.stringify(currentOrder) + "\n"
+    // }
+
+    // fs.writeFileSync(dirName +'/OrderLog.txt', orderContent, (err) => { 
+    //     // In case of a error throw err. 
+    //     if (err) throw err;
+    //     else {
+    //         console.log('successful')
+    //         // Logger.clearQueue()
+    //         // Logger.orderQueue = []
+    //     }
+    // }) 
 
     // count
     // var neutralCountContent = ""
@@ -229,6 +241,33 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
             console.log('successful')
         }
     })
+}
+
+Logger.outputOrderResults = function(){
+    var orderContent = ""
+    var issuedOrders = DramaManagerData.getIssuedOrders()
+    for (let i = 0; i < issuedOrders.length; i++){
+        var currentOrderRecord = issuedOrders[i]
+        var currentOrder = {
+            orderType: currentOrderRecord.order.orderType,
+            agent: currentOrderRecord.agentName,
+            target: currentOrderRecord.order.target.charName,
+            partialMatchId: currentOrderRecord.order.partialMatchId,
+            partialMatchType: currentOrderRecord.order.partialMatchType,
+            orderId: currentOrderRecord.order.orderId,
+            time: currentOrderRecord.time
+        }
+        orderContent = orderContent + JSON.stringify(currentOrder) + "\n"
+    }
+
+    var dirName = this.getDirName()
+    fs.writeFileSync(dirName + "/OrderResults.txt", orderContent, (err) => {
+        // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+            if (err) throw err;
+            else {
+                console.log('successful')
+            }
+        })
 }
 
 Logger.clearQueue = function(){

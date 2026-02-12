@@ -123,7 +123,7 @@ var Alien = function(name, position){
 			// has order
 			// in neutral state
 			alienThis.order = CharacterBase.chooseOrderWithHighestPriority(alienThis.orders)
-			console.log("alien orders " + alienThis.orders.length)
+			console.log("alien orders " + alienThis.orders.length + " " + alienThis.order.orderType + " " + alienThis.order.target.charName)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
 				case ORDER_TYPE.MOVE:
@@ -168,6 +168,9 @@ var Alien = function(name, position){
 						})
 					
 					}
+					break
+				case ORDER_TYPE.RUN_AWAY:
+					alienThis.orderRunAway(this.time)
 					break
 			}
 		} else {
@@ -786,6 +789,11 @@ Alien.prototype.orderChase = function(time){
 	var result = CharacterBase.orderChase(this, time)
 	return result
 }  
+Alien.prototype.orderRunAway = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+
+	CharacterBase.orderRunAway(this, this.order.target, time)
+}
 //-------order end-------
 
 module.exports = {

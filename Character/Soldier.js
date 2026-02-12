@@ -201,6 +201,9 @@ var Soldier = function(name, position){
 					
 					}
 					break
+				case ORDER_TYPE.RUN_AWAY:
+					soldierThis.orderRunAway(this.time)
+					break
 			}
 		} else {
 			// check the character's state
@@ -773,7 +776,10 @@ Soldier.prototype.orderHeal = function(time){
 	var result = CharacterBase.orderHeal(this, time)
 	return result
 }
-
+Soldier.prototype.orderRunAway = function(time){
+	CharacterBase.executeOrderBase(this.charName, this.order, time)
+	CharacterBase.orderRunAway(this.charName, this.order.target, time)
+}
 
 //------order-------
 
