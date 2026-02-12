@@ -69,12 +69,15 @@ function intervene(event, partialMatchId, partialMatchType, time){
             
             break;
         case "runs away from":
+        case "is badly hurt, run away from":
+        case "successfully ran away from":
             agent = character1
             target = character2
             if (agent == null || target == null){
                 return
             }
             orderRunAway(agent, target, partialMatchId, partialMatchType, time)
+            break
     }
 }
 
