@@ -778,7 +778,7 @@ Soldier.prototype.orderHeal = function(time){
 }
 Soldier.prototype.orderRunAway = function(time){
 	CharacterBase.executeOrderBase(this.charName, this.order, time)
-	CharacterBase.orderRunAway(this.charName, this.order.target, time)
+	CharacterBase.orderRunAway(this, this.order.target, time)
 }
 
 //------order-------
