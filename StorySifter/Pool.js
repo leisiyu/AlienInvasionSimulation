@@ -12,6 +12,7 @@ var totalPartialMatchNum = 0
 var totalCompleteNum = 0
 var totalHighLevelEvents = 0
 var totalMiniStories = 0
+var miniStoriesType = []
 var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
@@ -88,6 +89,7 @@ function updatePool(newEvent){
                 totalHighLevelEvents = totalHighLevelEvents + 1
             } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
+                miniStoriesType.push(obj.eventName)
                 if (DramaManagerData.checkIsIntervened(obj)) {
                     // DramaManagerData.addIntervenedStoryCount()
                     DramaManagerData.updateIntervenedStoryType(obj.eventName)
@@ -203,11 +205,28 @@ function cleanUpPool(time){
     }
 }
 
+function getMiniStoryNumByType(type ){
+    var num = 0
+    for (let i = 0; i < miniStoriesType.length; i++){
+        var storyType = miniStoriesType[i]
+        if (storyType == type){
+            num = num + 1
+        }
+    }
+    return num
+}
+
+function getTotalStoryNum(){
+    return totalMiniStories
+}
+
 module.exports = {
     matchNew,
     partialMatchPool,
     updatePool,
     getResults,
     getResultsJson,
-    cleanUpPool
+    cleanUpPool,
+    getMiniStoryNumByType,
+    getTotalStoryNum
 }
