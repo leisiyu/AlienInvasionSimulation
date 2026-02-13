@@ -452,7 +452,7 @@ function addOrder(character, target, order, time){
 	// if (character.order == null) {
 	order.updatePriority(OrderPriority.calculatePriority(order, character, target, time))
 	character.orders.push(order)
-	console.log("add order: " + DramaManagerData.getIssuedOrderNumber() + " " + order.orderType + " priority " + order.priority)
+	// console.log("add order: " + DramaManagerData.getIssuedOrderNumber() + " " + order.orderType + " priority " + order.priority)
 	// console.log("add order " + order.orderType + " " + character.charName + " to " + order.target.charName)
 	// record orders
 	DramaManagerData.recordIssuedOrder(character.charName, order, time)
@@ -825,7 +825,11 @@ function orderHeal(character, time, usePosInfo = false){
 }
 
 function orderRunAway(character, target, time){
-	if (character.order.target == null) { return }
+	if (character.order.target == null) { return false}
+
+	if (character.healthState <= Utils.HEALTH_STATES.INCAPACITATED) {
+		return false
+	}
 
 	Logger.info({
 		N1: character.charName,
@@ -870,6 +874,7 @@ function orderRunAway(character, target, time){
 		})
 		character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
+	return true
 }
 
 function orderFindMedikit(character, time, usePosInfo){

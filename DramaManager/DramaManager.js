@@ -10,7 +10,7 @@ function checkPartialMatchPool(pool, time){
     for (let i = 0; i < pool.length; i++) {
         var partialMatch = pool[i]
         if (partialMatch.type == "story") {
-            console.log("partial match: " + partialMatch.eventName)
+            // console.log("partial match: " + partialMatch.eventName)
             tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             if (tobeIntervenedEvents) {
                 // console.log("partial match: " + partialMatch.eventName)

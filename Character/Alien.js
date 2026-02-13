@@ -790,9 +790,11 @@ Alien.prototype.orderChase = function(time){
 	return result
 }  
 Alien.prototype.orderRunAway = function(time){
-	CharacterBase.executeOrderBase(this.charName, this.order, time)
+	var result = CharacterBase.orderRunAway(this, this.order.target, time)
 
-	CharacterBase.orderRunAway(this, this.order.target, time)
+	if (result) {
+		CharacterBase.executeOrderBase(this.charName, this.order, time)
+	}
 }
 //-------order end-------
 

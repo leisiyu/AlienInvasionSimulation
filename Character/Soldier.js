@@ -777,8 +777,11 @@ Soldier.prototype.orderHeal = function(time){
 	return result
 }
 Soldier.prototype.orderRunAway = function(time){
-	CharacterBase.executeOrderBase(this.charName, this.order, time)
-	CharacterBase.orderRunAway(this, this.order.target, time)
+	var result = CharacterBase.orderRunAway(this, this.order.target, time)
+
+	if (result) {
+		CharacterBase.executeOrderBase(this.charName, this.order, time)
+	}
 }
 
 //------order-------
