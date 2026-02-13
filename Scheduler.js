@@ -36,6 +36,8 @@ function updateEvents(totalTimeSteps){
             var endTime = Date.now()
             Logger.outputFinalResults(endTime - startTime, timeSteps)
             Logger.outputStableTestResults(endTime - startTime, timeSteps)
+
+            Logger.outputOrderResults()
         }
 	}
 }
