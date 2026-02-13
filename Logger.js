@@ -9,7 +9,6 @@ var Logger = {
     logQueue: [],
     statesLogQueue: [],
     neutralCountLogQueue: [],
-    // orderQueue: [],
     index: 0,
 }
 
@@ -153,34 +152,6 @@ Logger.writeToFile = function(){
         }
     })
 
-    // orders
-    // var orderContent = ""
-    // for (let i = 0; i < Logger.orderQueue.length; i++){
-    //     orderContent = orderContent + Logger.orderQueue[i] + "\n"
-    // }
-    // var issuedOrders = DramaManagerData.getIssuedOrders()
-    // for (let i = 0; issuedOrders.length; i++){
-    //     var currentOrderRecord = issuedOrders[i]
-    //     console.log("type of??? " + typeof(currentOrderRecord))
-        // var currentOrder = {
-        //     orderType: currentOrderRecord.order.orderType,
-        //     agent: currentOrderRecord.agentName,
-        //     target: currentOrderRecord.order.target.charName,
-        //     time: currentOrderRecord.time
-        // }
-        // orderContent = orderContent + JSON.stringify(currentOrder) + "\n"
-    // }
-
-    // fs.writeFileSync(dirName +'/OrderLog.txt', orderContent, (err) => { 
-    //     // In case of a error throw err. 
-    //     if (err) throw err;
-    //     else {
-    //         console.log('successful')
-    //         // Logger.clearQueue()
-    //         // Logger.orderQueue = []
-    //     }
-    // }) 
-
     // count
     // var neutralCountContent = ""
     // for (let i = 0; i < Logger.neutralCountLogQueue.length; i++){
@@ -224,7 +195,7 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
 
 Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // Lazy require to avoid circular dependency
-    var dirName = this.getDirName()
+    var dirName = this.getDirNameWithoutIdx()
     const Sifter = require('./StorySifter/Sifter')
     var results = Sifter.getFinalResultsJson()
     results["excutionTime"] = excutionTime
@@ -234,7 +205,7 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
     // fs.writeFileSync(__dirname + "/StableTest/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
-        fs.writeFileSync(__dirname + "/DM_Test/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+        fs.writeFileSync(dirName + "/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
     // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
         if (err) throw err;
         else {
@@ -260,14 +231,41 @@ Logger.outputOrderResults = function(){
         orderContent = orderContent + JSON.stringify(currentOrder) + "\n"
     }
 
+
     var dirName = this.getDirName()
-    fs.writeFileSync(dirName + "/OrderResults.txt", orderContent, (err) => {
+    fs.writeFileSync(dirName + "/IssuedOrderResults.txt", orderContent, (err) => {
         // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
             if (err) throw err;
             else {
                 console.log('successful')
             }
         })
+
+        var exeOrderContent = ""
+        var issuedOrders = DramaManagerData.getExecutedOrders()
+        for (let i = 0; i < issuedOrders.length; i++){
+            var currentOrderRecord = issuedOrders[i]
+            var currentOrder = {
+                orderType: currentOrderRecord.order.orderType,
+                agent: currentOrderRecord.agentName,
+                target: currentOrderRecord.order.target.charName,
+                partialMatchId: currentOrderRecord.order.partialMatchId,
+                partialMatchType: currentOrderRecord.order.partialMatchType,
+                orderId: currentOrderRecord.order.orderId,
+                time: currentOrderRecord.time
+            }
+            exeOrderContent = exeOrderContent + JSON.stringify(currentOrder) + "\n"
+        }
+    
+    
+        var dirName = this.getDirName()
+        fs.writeFileSync(dirName + "/ExecutedOrderResults.txt", exeOrderContent, (err) => {
+            // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+                if (err) throw err;
+                else {
+                    console.log('successful')
+                }
+            })
 }
 
 Logger.clearQueue = function(){
@@ -282,7 +280,35 @@ Logger.getDirName = function(){
     // var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS + "/" + dirNameIdx
     // var dirName = __dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + "/" + dirNameIdx
     // var dirName = __dirname + "/SimulatorTime/" + Utils.TIME_STEPS + "/" + dirNameIdx
-    var dirName = __dirname + "/DM_Test/" + dirNameIdx
+    // var dramaManagerSwitch = Utils.DOES_INTERVENTE ? "DramaManagerOn/" : "DramaManagerOff/"
+    // var dirName = __dirname + "/DM_Test/" + dramaManagerSwitch + dirNameIdx
+
+
+    // if (!fs.existsSync( dirName)) {
+    //     fs.mkdirSync(dirName, { recursive: true }, (err) => {
+    //         if (err) throw err;
+    //     })
+    // }
+
+    var dirName = this.getDirNameWithoutIdx()
+    dirName = dirName + "/" + dirNameIdx
+
+    if (!fs.existsSync( dirName)) {
+        fs.mkdirSync(dirName, { recursive: true }, (err) => {
+            if (err) throw err;
+        })
+    }
+
+    return dirName
+}
+
+Logger.getDirNameWithoutIdx = function(){
+    // var dirName = __dirname + "/Map" + Utils.MAP_SIZE[0] + "A" + Utils.ALIENS_NUM + "S" + Utils.SOLIDERS_NUM + "T" + Utils.TOWNFOLKS_NUM
+    // var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
+    // var dirName = __dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO)
+    // var dirName = __dirname + "/SimulatorTime/" + Utils.TIME_STEPS
+    var dramaManagerSwitch = Utils.DOES_INTERVENTE ? "DramaManagerOn" : "DramaManagerOff"
+    var dirName = __dirname + "/DM_Test/" + dramaManagerSwitch 
 
 
     if (!fs.existsSync( dirName)) {
