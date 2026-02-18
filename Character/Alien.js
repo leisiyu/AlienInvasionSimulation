@@ -584,7 +584,7 @@ Alien.prototype.attack = function(time){
 			N1: this.charName,
 			L: "is badly hurt, runs away from",
 			N2: this.state.target.charName,
-			T: this.time
+			T: time
 		})
 		this.state.updateState(Utils.CHARACTER_STATES.RUN_AWAY)
 		this.runAway(time)
@@ -689,7 +689,7 @@ Alien.prototype.runAway = function(time){
 			N1: this.charName,
 			L: "successfully ran away from",
 			N2: target.charName,
-			T: this.time
+			T: time
 		})
 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
