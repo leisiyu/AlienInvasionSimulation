@@ -43,8 +43,9 @@ class HighLevelEvent {
                         || (newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]]
                             && SifterUtil.checkCharacterType(this.actors[currentEvent["char1Idx"]["index"]], currentEvent["char1Idx"]["type"])))
                     && (currentEvent["char2Idx"] == undefined 
-                        || (newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]]
-                            && SifterUtil.checkCharacterType(this.actors[currentEvent["char2Idx"]["index"]], currentEvent["char2Idx"]["type"])))
+                        || (newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]] && SifterUtil.checkCharacterType(this.actors[currentEvent["char2Idx"]["index"]], currentEvent["char2Idx"]["type"]))
+                        || currentEvent["char2Idx"]["type"] == Utils.GEAR_TYPES[1]
+                    )
                     ){
                         return true
                 }
@@ -69,11 +70,11 @@ class HighLevelEvent {
                     var event = possibleEventList[j]
                     if (event["repeat"]
                     && (event["char1Idx"] == undefined 
-                        || (newEvent["N1"] == this.actors[event["char1Idx"]["index"]]
-                            && SifterUtil.checkCharacterType(this.actors[event["char1Idx"]["index"]], event["char1Idx"]["type"]))
+                        || ((newEvent["N1"] == this.actors[event["char1Idx"]["index"]]
+                            && SifterUtil.checkCharacterType(this.actors[event["char1Idx"]["index"]], event["char1Idx"]["type"])))
                     && (event["char2Idx"] == undefined 
-                        || (newEvent["N2"] == this.actors[event["char2Idx"]["index"]])
-                            && SifterUtil.checkCharacterType(this.actors[event["char2Idx"]["index"]], event["char2Idx"]["type"]))
+                        || (newEvent["N2"] == this.actors[event["char2Idx"]["index"]] && SifterUtil.checkCharacterType(this.actors[event["char2Idx"]["index"]], event["char2Idx"]["type"]))
+                        || event["char2Idx"]["type"] == Utils.GEAR_TYPES[1])
                     && newEvent["L"] == event["tag"])) {
                         this.eventIDs.push(newEvent["id"])
                         return {"isEnd": false, "isSuccessful": false}
