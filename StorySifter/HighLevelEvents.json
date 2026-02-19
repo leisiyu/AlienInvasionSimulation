@@ -102,8 +102,7 @@
             },
             {
                 "char1Idx": {"index": 1},
-                "tag": "is killed by",
-                "char2Idx": {"index": 2}
+                "tag": "is killed by"
             }
         ],
         "tag": "defeats",
@@ -348,9 +347,9 @@
             }
             ],
             [{
-                "char1Idx": {"index": 0},
-                "tag": "is attacked by",
-                "char2Idx": {"index": 2},
+                "char1Idx": {"index": 2},
+                "tag": "attacks",
+                "char2Idx": {"index": 0},
                 "repeat": false
             },
             {
