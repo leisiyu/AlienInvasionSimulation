@@ -444,7 +444,7 @@ function addOrder(character, target, order, time){
 	}
 	if (target == null) {
 		// abandon this turn
-		console.log("target nil")
+		// console.log("target nil")
 		return
 	}
 	
@@ -529,7 +529,19 @@ function findEnemy(agent, order, time){
                 
             }
 	}
-    return enemies[Math.floor(Math.random() * enemies.length)]
+
+	// find the nearest first
+	if (enemies.length == 0) { return null}
+
+	var distances = []
+	for (let i = 0; i < enemies.length; i++){
+		var enemy = enemies[i]
+		var distance = Math.abs(agent.position[0] - enemy.position[0]) + Math.abs(agent.position[1] - enemy.position[1])
+		distances.push(distance)
+	}
+
+	
+    return enemies[distances.indexOf(Math.min(distances))]
 }
 
 function findAlly(agent, order, time){
@@ -570,7 +582,24 @@ function findAlly(agent, order, time){
 				}
 			}
 	}
-	return allies[Math.floor(Math.random() * allies.length)]
+
+	if (allies.length == 0) {
+		return null
+	}
+
+	// find the nearest ally
+	var minDistance = Infinity
+	var nearestAlly = null
+	for (let i = 0; i < allies.length; i++) {
+		var ally = allies[i]
+		var distance = Math.abs(agent.position[0] - ally.position[0]) + Math.abs(agent.position[1] - ally.position[1])
+		if (distance < minDistance) {
+			minDistance = distance
+			nearestAlly = ally
+		}
+	}
+
+	return nearestAlly
 }
 
 function orderAttack(character, time){
@@ -582,10 +611,6 @@ function orderAttack(character, time){
 			character.order.updateTarget(target)
 		}
 	} 
-	// else {
-	// 	console.log("target state: " + character.order.target.state.stateType)
-	// }
-
 
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
@@ -622,15 +647,6 @@ function orderAttack(character, time){
 	// console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
 
-	// Logger.orderInfo({
-	// 	Type: character.order.orderType,
-	// 	Agent: character.charName,
-	// 	Target: character.order.target && (character.order.target.charName || character.order.target.getName()),
-	// 	Note: "attack",
-	// 	MatchID: character.order.partialMatchId,
-	// 	OrderId: character.order.orderId,
-	// 	T: time
-	// })
 	return true
 }
 
