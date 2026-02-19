@@ -69,7 +69,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
             
             break;
         case "runs away from":
-        case "is badly hurt, run away from":
+        case "is badly hurt, runs away from":
         case "successfully ran away from":
             agent = character1
             target = character2
