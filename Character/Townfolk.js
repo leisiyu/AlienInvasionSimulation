@@ -290,6 +290,13 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 	}
 	this.hp = this.hp - atkValue
 
+	Logger.info({
+		N1: this.charName,
+		L: "is attacked by",
+		N2: attacker,
+		T: time,
+	})
+
 	if (this.hp <= 0) {
 		this.state.setState(Utils.CHARACTER_STATES.DIED, null)
 		Logger.statesInfo(JSON.stringify({
@@ -315,6 +322,8 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 				T: this.time,
 			})
 			this.healingIdx = 0
+			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
+
 		}
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED){
 			Logger.info({
@@ -324,30 +333,22 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 				T: time,
 			})
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
+			return
 		} else {
 			if (this.hasWeapon()) {
+				this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(attacker))
+				return	
+			} else {
 				Logger.info({
 					N1: this.charName,
-					L: "is attacked by",
+					L: "runs away from",
 					N2: attacker,
-					T: time,
+					T: this.time,
 				})
-				this.state.setState(Utils.CHARACTER_STATES.CHASE, CharactersData.getCharacterByName(attacker))
-			
+				this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 			}
 		}
-		//To do
-		// return
 	}
-
-	Logger.info({
-		N1: this.charName,
-		L: "is attacked, and runs away from",
-		N2: attacker,
-		T: this.time,
-	})
-	this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
-	
 }
 
 // hide only happen in a building
