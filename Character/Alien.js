@@ -19,9 +19,9 @@ var Alien = function(name, position){
 	var alienThis = this
 	this.baseSpeed = Math.floor(Math.random() * 5) + 1
 	this.speed = this.baseSpeed
-	this.visualRange = Math.floor(Math.random() * 3) + 3
-	this.attackRange = Math.floor(Math.random() * 2) + 1
-	this.maxHp = Math.floor(Math.random() * 300) + 100
+	this.visualRange = Math.floor(Math.random() * 5) + 3
+	this.attackRange = Math.floor(Math.random() * 5) + 1
+	this.maxHp = Math.floor(Math.random() * 400) + 100
 	// this.maxHp = 200  // test
 	this.hp = this.maxHp
 	// this.inventory = []
@@ -60,6 +60,13 @@ var Alien = function(name, position){
 				if (msgContent.msgType.valueOf() == "attacked".valueOf()) {
 					if (alienThis.hp <= 0) {return}
 					alienThis.hp = alienThis.hp - msgContent.atkValue
+					Logger.info({
+						"N1": alienThis.charName,
+						"L": "is attacked by",
+						"N2": msgContent.attacker,
+						"T": this.time,
+					})
+					
 					if (alienThis.hp <= 0){
 						alienThis.state.setState(Utils.CHARACTER_STATES.DIED, null)
 						Logger.info({
@@ -88,12 +95,12 @@ var Alien = function(name, position){
 							// 1. health state >= hurt, can fight back
 							// 2. health state < incapacitated, can not move, attack value reduce
 							if (alienThis.healthState > Utils.HEALTH_STATES.HURT) {
-								Logger.info({
-									"N1": alienThis.charName,
-									"L": "is attacked by",
-									"N2": msgContent.attacker,
-									"T": this.time,
-								})
+								// Logger.info({
+								// 	"N1": alienThis.charName,
+								// 	"L": "is attacked by",
+								// 	"N2": msgContent.attacker,
+								// 	"T": this.time,
+								// })
 							} else {
 								Logger.info({
 									"N1": alienThis.charName,
