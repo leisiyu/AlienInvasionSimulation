@@ -25,13 +25,11 @@
         "unless": [
             {
                 "char1Idx": {"index": 0},
-                "tag": "is killed by",
-                "char2Idx": {"index": 1}
+                "tag": "is killed by"
             },
             {
                 "char1Idx": {"index": 1},
-                "tag": "is killed by",
-                "char2Idx": {"index": 0}
+                "tag": "is killed by"
             }
         ],
         "tag": "almost kills",
