@@ -159,6 +159,8 @@ function getResults(){
 
     result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
+    result = result + "Intervened Details:" + JSON.stringify(DramaManagerData.getIntervenedStoryDetails())
+
     return result
 }
 
@@ -170,15 +172,18 @@ function getResultsJson(){
         "completedHighLevel": totalHighLevelEvents,
         "initiatedStories": initiatedStories,
         "completedStories": totalMiniStories,
-        "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount()
+        "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount(),
+        "intervenedDetails": DramaManagerData.getIntervenedStoryDetails()
     }
 
     return result
 }
 
+// used in each beat
 // check every character's state in each partial match
 // if the character(not the main character) is dead, return to the previous state
 // a new character then can be allocated to the partial match
+// also check the unless conditions
 function cleanUpPool(time){
     var deletedObjs = []
     for (let i = 0; i < partialMatchPool.length; i++) {
@@ -194,6 +199,10 @@ function cleanUpPool(time){
         // if (result == SifterUtil.ROLL_BACK_TYPE.ROLL_BACK) {
             // console.log("roll back!! " + obj.index + " " + obj.patternEvents[obj.index][0]["tag"])
         // }
+        var unlessResult = obj.checkUnlessForCleanUpPool()
+        if (unlessResult){
+            deletedObjs.push(obj)
+        }
     }
     // console.log("deleted objs: " + deletedObjs.length)
     for (let i = 0; i < deletedObjs.length; i++) {

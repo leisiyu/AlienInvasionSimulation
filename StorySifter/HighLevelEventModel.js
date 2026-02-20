@@ -88,6 +88,11 @@ class HighLevelEvent {
             return {"isEnd": false, "isSuccessful": false}
         }
 
+        // check unless conditions - should be checked for ANY event, not just pattern events
+        if (this.checkUnless(newEvent)) {
+            return {"isEnd": true, "isSuccessful": false}
+        }
+
         // check the next event
         // if (this.eventName == "Interrupt_the_treatment") {
         //     console.log("hahaha " + newEvent["N1"]  + newEvent["L"] + newEvent["N2"] + " " + this.actors)
@@ -155,9 +160,9 @@ class HighLevelEvent {
             return {"isMatch": false, "isEnd": false, "isSuccessful": false}
         }
 
-        if (this.checkUnless(newEvent)) {
-            return {"isMatch": true, "isEnd": true, "isSuccessful": false}
-        }
+        // if (this.checkUnless(newEvent)) {
+        //     return {"isMatch": true, "isEnd": true, "isSuccessful": false}
+        // }
         
         if (newEvent["L"] == currentEvent["tag"]){
             this.finishedTime = newEvent["T"]
@@ -304,6 +309,22 @@ class HighLevelEvent {
         return SifterUtil.ROLL_BACK_TYPE.NONE
     }
 
+    // used for clean up pool in each beat
+    // TO DO: if there are any other unless condition in the future, don't forget to add check code here
+    //
+    checkUnlessForCleanUpPool(){
+        for (let i = 0; i < this.unlessEvents.length; i++){
+            var currentUnlessEvent = this.unlessEvents[i]
+            if (currentUnlessEvent["tag"] === "is killed by"){
+                var agentName = this.actors[currentUnlessEvent["char1Idx"]["index"]]
+                var agent = CharacterData.getCharacterByName(agentName)
+                if (agent != null && agent.state.stateType == Utils.CHARACTER_STATES.DIED){
+                    return true
+                }
+            }
+        }
+        return false
+    }
 }
 
 module.exports = {
