@@ -69,6 +69,7 @@ function matchNew(newEvent){
 
 function updatePool(newEvent){
     var removedEventsPool = []
+    var successfulEvents = []
 
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
@@ -95,8 +96,7 @@ function updatePool(newEvent){
                     DramaManagerData.updateIntervenedStoryType(obj.eventName)
                 }
             }
-
-            
+            successfulEvents.push(obj)
             // eventFinish(obj.getJson())
         }
     }
@@ -114,8 +114,8 @@ function updatePool(newEvent){
     // console.log("partial match num: " + partialMatchPool.length)
 
     const Logger = require('../Logger').Logger
-    for (let i = 0; i < removedEventsPool.length; i++) {
-        var obj = removedEventsPool[i]
+    for (let i = 0; i < successfulEvents.length; i++) {
+        var obj = successfulEvents[i]
         Logger.info(obj.getJson())
     }
 
