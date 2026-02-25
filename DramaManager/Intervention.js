@@ -60,10 +60,10 @@ function intervene(event, partialMatchId, partialMatchType, time){
         case "is killed by":
             agent = character2
             target = character1
-            if (agent == null && target != null) {
-                agent = CharacterBase.findEnemy(target)
+            if (target == null && agent != null) {
+                target = CharacterBase.findEnemy(agent)
             }
-            if (agent != null){
+            if (agent != null && target != null){
                 orderCriticalHit(agent, target, partialMatchId, partialMatchType, time)
             }
             

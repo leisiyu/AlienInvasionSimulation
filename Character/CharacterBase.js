@@ -652,7 +652,7 @@ function orderAttack(character, time){
 
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
-		console.log("order target died " + character.order.target.charName + " " + character.order.target.state.stateType + " " + time)
+		// console.log("order target died " + character.order.target.charName + " " + character.order.target.state.stateType + " " + time)
 		return false
 	}		
 
@@ -670,7 +670,11 @@ function orderAttack(character, time){
 		}
 		// this frame still need to move
 		// console.log("order: attack -> chase")
-		character.orderChase(time)
+		// IMPORTANT: call base-level orderChase to avoid double-counting the same order execution.
+		// Using character.orderChase(time) here would invoke CharacterBase.executeOrderBase again
+		// via the character-specific wrapper (Alien/Soldier/Townfolk), resulting in the same
+		// Order instance (same orderId) being recorded twice in DramaManagerData.
+		orderChase(character, time)
 		return false
 	}
 
@@ -890,6 +894,7 @@ function orderRunAway(character, target, time){
 		L: "runs away from",
 		N2: target.charName,
 		T: time,
+		Note: "order",
 	})
 	// Logger.orderInfo({
 	// 	Type: character.order.orderType,
@@ -916,8 +921,8 @@ function orderRunAway(character, target, time){
 	}))
 
 	// run away succeed
-	// TO DO
-	if (character.checkVisualRange()[0].length <= 0) {
+	var distance = Math.abs(character.position[0] - target.position[1]) + Math.abs(character.position[1] - target.position[1])
+	if ( distance >= character.visualRange) {
 		var target = character.state.target
 
 		Logger.info({
@@ -967,7 +972,7 @@ function orderFindMedikit(character, time, usePosInfo){
 }
 
 function orderFindAWeapon(character, time, usePosInfo = false){
-	console.log("find a weapon")
+	// console.log("find a weapon")
 
 	// Logger.orderInfo({
 	// 	Type: character.order.orderType,
