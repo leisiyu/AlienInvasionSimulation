@@ -22,7 +22,9 @@ var Soldier = function(name, position){
 	// this.baseSpeed = 15 // test
 	this.speed = this.baseSpeed
 	this.visualRange = Math.floor(Math.random() * 5) + 3
-	this.attackRange = Math.floor(Math.random() * 5) + 1
+	var attackRange = Math.floor(Math.random() * 5) + 1
+	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
+	
 	this.maxHp = Math.floor(Math.random() * 300) + 200
 	this.hp = this.maxHp
 	this.baseAttackValue = Math.floor(Math.random() * 40) + 10

@@ -20,7 +20,9 @@ var Alien = function(name, position){
 	this.baseSpeed = Math.floor(Math.random() * 5) + 2
 	this.speed = this.baseSpeed
 	this.visualRange = Math.floor(Math.random() * 5) + 3
-	this.attackRange = Math.floor(Math.random() * 5) + 1
+	var attackRange = Math.floor(Math.random() * 5) + 1
+	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
+	
 	this.maxHp = Math.floor(Math.random() * 400) + 100
 	// this.maxHp = 200  // test
 	this.hp = this.maxHp
@@ -130,7 +132,7 @@ var Alien = function(name, position){
 			// has order
 			// in neutral state
 			alienThis.order = CharacterBase.chooseOrderWithHighestPriority(alienThis.orders)
-			console.log("alien orders " + alienThis.orders.length + " " + alienThis.order.orderType + " " + alienThis.order.target.charName)
+			// console.log("alien orders " + alienThis.orders.length + " " + alienThis.order.orderType + " " + alienThis.order.target.charName)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
 				case ORDER_TYPE.MOVE:
@@ -138,7 +140,7 @@ var Alien = function(name, position){
 					break
 				case ORDER_TYPE.ATTACK:
 					var isSuccessfulAttack = alienThis.orderAttack(this.time)
-					console.log("order attack " + isSuccessfulAttack)
+					// console.log("order attack " + isSuccessfulAttack)
 					if (isSuccessfulAttack) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
@@ -161,7 +163,7 @@ var Alien = function(name, position){
 					break
 				case ORDER_TYPE.KILL:
 					var isSuccessfullyAttack = alienThis.orderAttack(this.time)
-					console.log("order kill " + isSuccessfulAttack)
+					// console.log("order kill " + isSuccessfulAttack)
 					if (isSuccessfullyAttack) {
 						// notify the attacked character
 						// state type maybe changed in the attack function

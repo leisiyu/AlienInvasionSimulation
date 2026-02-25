@@ -24,7 +24,9 @@ var Townfolk = function(name, position){
 	this.speed = this.baseSpeed
 	// this.speed = 10 // test
 	this.visualRange = Math.floor(Math.random() * 5) + 3
-	this.attackRange = Math.floor(Math.random() * 2) + 1
+	var attackRange = Math.floor(Math.random() * 2) + 1
+	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
+	
 	this.attackValue = 10
 	this.criticalHitProbability = new Probability(Utils.ATTACK_TYPE, [95, 5])
 	this.maxHp = Math.floor(Math.random() * 300) + 50
