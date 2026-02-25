@@ -172,6 +172,12 @@ function attack(character, time){
 				N2: target.charName,
 				T: time,
 			})
+			Logger.statesInfo(JSON.stringify({
+				N: character.charName,
+				S: Utils.CHARACTER_STATES.PATROL, 
+				P: character.position,
+				T: time
+			}))
 			character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 			character.wander(time)
 		} else {
@@ -183,6 +189,12 @@ function attack(character, time){
 			})
 			character.state.setState(Utils.CHARACTER_STATES.CHASE, target)
 			character.chase(time)
+			Logger.statesInfo(JSON.stringify({
+				N: character.charName,
+				S: Utils.CHARACTER_STATES.CHASE, 
+				P: character.position,
+				T: time
+			}))
 		}
 		return [false]
 	}
@@ -198,6 +210,12 @@ function attack(character, time){
                     N2: target.charName,
                     T: time,
                 })
+				Logger.statesInfo(JSON.stringify({
+					N: character.charName,
+					S: Utils.CHARACTER_STATES.ATTACK, 
+					P: character.position,
+					T: time
+				}))
                 var isAvailable = weapon.use(time)
                 if (!isAvailable) {
                     character.inventory.splice(i, 1)
@@ -218,6 +236,12 @@ function attack(character, time){
             N2: target.charName,
             T: time,
         })
+		Logger.statesInfo(JSON.stringify({
+			N: character.charName,
+			S: Utils.CHARACTER_STATES.ATTACK, 
+			P: character.position,
+			T: time
+		}))
         return [true]
     } else {
         Logger.info({
@@ -226,6 +250,12 @@ function attack(character, time){
             N2: target.charName,
             T: time,
         })
+		Logger.statesInfo(JSON.stringify({
+			N: character.charName,
+			S: Utils.CHARACTER_STATES.ATTACK, 
+			P: character.position,
+			T: time
+		}))
         return [true]
     }
 	
@@ -249,7 +279,14 @@ function updateHealthState(hp, baseHp){
 	return healthState
 }
 
-function heal(healIdx, charName, targetName, medikit, inventory, time, isOrder = false){
+function heal(healIdx, charName, targetName, medikit, inventory, position, time, isOrder = false){
+	Logger.statesInfo(JSON.stringify({
+		N: charName,
+		S: Utils.CHARACTER_STATES.HEAL, 
+		P: position,
+		T: time
+	}))
+
 	healIdx ++
 	var result = medikit.use(time)
 	if (!result) {
@@ -262,6 +299,7 @@ function heal(healIdx, charName, targetName, medikit, inventory, time, isOrder =
             N2: targetName,
             T: time,
         })
+		
 		return true
 	}
 

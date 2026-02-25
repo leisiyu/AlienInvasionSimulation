@@ -406,7 +406,7 @@ Soldier.prototype.heal = function(time) {
 		return [false]
 	}
 
-	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, time)
+	CharacterBase.heal(this.healingIdx, this.charName, this.state.target.charName, result[1], this.inventory, this.position, time)
 	return [true, result[1].value]
 }
 
