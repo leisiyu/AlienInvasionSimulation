@@ -519,7 +519,7 @@ function checkIsNeutralState(state){
 }
 
 /// Find an enemy nearby
-function findEnemy(agent, order, time){
+function findEnemy(agent, order, time, needNeutralState = true){
 	if (agent == null) {
 		return null
 	}
@@ -551,21 +551,20 @@ function findEnemy(agent, order, time){
 			&& characterPos[0] >= startX && characterPos[0] <= endX 
 			&& characterPos[1] >= startY && characterPos[1] <= endY
 			&& character.objType != agent.objType
-			&& checkIsNeutralState(character.state)){
+			&& (needNeutralState && checkIsNeutralState(character.state) || !needNeutralState)){
 			// && ((agent.objType == Utils.CHARACTER_TYPE.ALIEN && (character.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || character.objType == Utils.CHARACTER_TYPE.SOLDIER))
                 // || ((agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK || agent.objType == Utils.CHARACTER_TYPE.SOLDIER) && character.objType == Utils.CHARACTER_TYPE.ALIEN))){
                 if ((agent.objType == Utils.CHARACTER_TYPE.SOLDIER || agent.objType == Utils.CHARACTER_TYPE.TOWNSFOLK) 
                     && character.objType == Utils.CHARACTER_TYPE.ALIEN) {
                         enemies.push(character)
                 }
-                if (agent.objType == Utils.CHARACTER_TYPE.ALIEN
-					&& !MapManager.getMap().checkIsInABuilding(character.position)
+                if (agent.objType == Utils.CHARACTER_TYPE.ALIEN 
+					&& !MapManager.getMap().checkIsInABuilding(character.position)[0]
 				) {
                     enemies.push(character)
                 }
                 
-                
-            }
+		}
 	}
 
 	// find the nearest first

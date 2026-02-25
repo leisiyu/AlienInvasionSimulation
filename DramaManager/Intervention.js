@@ -61,8 +61,9 @@ function intervene(event, partialMatchId, partialMatchType, time){
             agent = character2
             target = character1
             if (target == null && agent != null) {
-                target = CharacterBase.findEnemy(agent)
+                target = CharacterBase.findEnemy(agent, null, null, false)
             }
+            // console.log("haha " + agent.charName + " " )
             if (agent != null && target != null){
                 orderCriticalHit(agent, target, partialMatchId, partialMatchType, time)
             }
@@ -91,6 +92,7 @@ function orderChase(agent, target, partialMatchId, partialMatchType, time){
 /// Attack target with critical hit
 function orderCriticalHit(agent, target, partialMatchId, partialMatchType, time){
     /// attack the agent with critical hit
+
     var order = new Order(ORDER_TYPE.KILL, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
