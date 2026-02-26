@@ -12,7 +12,7 @@ var totalPartialMatchNum = 0
 var totalCompleteNum = 0
 var totalHighLevelEvents = 0
 var totalMiniStories = 0
-var miniStoriesType = []
+var miniStoriesType = {}
 var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
@@ -90,10 +90,12 @@ function updatePool(newEvent){
                 totalHighLevelEvents = totalHighLevelEvents + 1
             } else if (obj.highLevelEventJson['type'] == "story"){
                 totalMiniStories = totalMiniStories + 1
-                miniStoriesType.push(obj.eventName)
+                // miniStoriesType.push(obj.eventName)
+                updateMiniStoryNumByType(obj.eventName)
                 if (DramaManagerData.checkIsIntervened(obj)) {
                     // DramaManagerData.addIntervenedStoryCount()
                     DramaManagerData.updateIntervenedStoryType(obj.eventName)
+                    // console.log("hahahaha " + JSON.stringify(obj.getJson()))
                 }
             }
             successfulEvents.push(obj)
@@ -147,6 +149,7 @@ function getResults(){
     result = result + "Completed high-level events number: " + totalHighLevelEvents + "\n"
     result = result + "Initiated stories number: " + initiatedStories + "\n"
     result = result + "Completed stories number: " + totalMiniStories + "\n"
+    result = result + "Completed stories detail:" + JSON.stringify(miniStoriesType) + '\n'
 
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
@@ -172,6 +175,7 @@ function getResultsJson(){
         "completedHighLevel": totalHighLevelEvents,
         "initiatedStories": initiatedStories,
         "completedStories": totalMiniStories,
+        "completedStoriesDetail": miniStoriesType,
         "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount(),
         "intervenedDetails": DramaManagerData.getIntervenedStoryDetails()
     }
@@ -214,15 +218,27 @@ function cleanUpPool(time){
     }
 }
 
-function getMiniStoryNumByType(type ){
-    var num = 0
-    for (let i = 0; i < miniStoriesType.length; i++){
-        var storyType = miniStoriesType[i]
-        if (storyType == type){
-            num = num + 1
-        }
+function getMiniStoryNumByType(type){
+    // var num = 0
+    // for (let i = 0; i < miniStoriesType.length; i++){
+    //     var storyType = miniStoriesType[i]
+    //     if (storyType == type){
+    //         num = num + 1
+    //     }
+    // }
+    // return num
+    if (miniStoriesType[type] == null){
+        return 0
+    } else {
+        return miniStoriesType[type]
     }
-    return num
+}
+
+function updateMiniStoryNumByType(type){
+    if (miniStoriesType[type] == null){
+        miniStoriesType[type] = 0
+    }
+    miniStoriesType[type] = miniStoriesType[type] + 1
 }
 
 function getTotalStoryNum(){
