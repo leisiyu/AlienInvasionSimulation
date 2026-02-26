@@ -20,7 +20,7 @@ var Townfolk = function(name, position){
 	this.charName = name
 	this.position = position
 	this.objType = Utils.CHARACTER_TYPE.TOWNSFOLK
-	this.baseSpeed = Math.floor(Math.random() * 3) + 2
+	this.baseSpeed = Math.floor(Math.random() * 7) + 1
 	this.speed = this.baseSpeed
 	// this.speed = 10 // test
 	this.visualRange = Math.floor(Math.random() * 5) + 3
@@ -321,7 +321,7 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 				N1: this.charName,
 				L: "healing process is interupted by ",
 				N2: attacker,
-				T: this.time,
+				T: time,
 			})
 			this.healingIdx = 0
 			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
@@ -341,12 +341,12 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 				this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(attacker))
 				return	
 			} else {
-				Logger.info({
-					N1: this.charName,
-					L: "runs away from",
-					N2: attacker,
-					T: this.time,
-				})
+				// Logger.info({
+				// 	N1: this.charName,
+				// 	L: "runs away from",
+				// 	N2: attacker,
+				// 	T: time,
+				// })
 				this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, CharactersData.getCharacterByName(attacker))
 			}
 		}
