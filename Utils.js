@@ -9,7 +9,7 @@ const CHARACTER_TYPE = {
 
 
 var TOTAL_CHARACTERS = 100
-var CHARACTER_RATIO = [2, 1, 2]   // alien:soldier:townsfolk
+var CHARACTER_RATIO = [1, 1, 1]   // alien:soldier:townsfolk
 const TOTAL_STEPS = 10
 var MAP_SIZE = [100, 100]
 var TOWNFOLKS_NUM = getNumberByRatio(CHARACTER_TYPE.TOWNSFOLK)
@@ -139,11 +139,11 @@ const HEALTH_STATES = {
 
 const WEAPONS = {
 	GUN: {
-		value: [50, 70],
+		value: [30, 70],
 		durability: 25,
 	},
 	RIFLE: {
-		value: [80, 100],
+		value: [70, 120],
 		durability: 25,
 	}
 }
