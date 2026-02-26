@@ -925,10 +925,10 @@ function orderRunAway(character, target, time){
 		var target = character.state.target
 
 		Logger.info({
-			N1: this.charName,
+			N1: character.charName,
 			L: "successfully ran away from",
 			N2: target.charName,
-			T: this.time
+			T: time
 		})
 		character.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
