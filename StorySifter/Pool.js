@@ -17,7 +17,6 @@ var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
 var partialMatchId = 0
-var successfulEvents = []
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -25,7 +24,7 @@ function generatePartialMatchID(){
 }
 
 
-function matchNew(newEvent){
+function matchNew(newEvent, successfulEvents){
     for (var eventName in HighLevelEvents) {
         var currentEventModel = HighLevelEvents[eventName]
         var isBelongToOneMatch = false
@@ -39,17 +38,21 @@ function matchNew(newEvent){
                 }
             }
         }
+        
+        
 
         if (!isBelongToOneMatch){
             for (let i = 0; i < successfulEvents.length; i++){
                 var partialMatch = successfulEvents[i]
-                // isBelongToOneMatch = false
-                if (partialMatch.highLevelEventJson["tag"] == currentEventModel["tag"]) {
-                    isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
-                    if (isBelongToOneMatch) {
-                        break
-                    }
+
+                if (partialMatch.highLevelEventJson["tag"] == currentEventModel["tag"]){
+                    isBelongToOneMatch = partialMatch.checkIsMatchLastEvent(newEvent)
+                }    
+                
+                if (isBelongToOneMatch) {
+                    break
                 }
+                
             }
         }
         
@@ -84,7 +87,7 @@ function matchNew(newEvent){
 
 function updatePool(newEvent){
     var removedEventsPool = []
-    successfulEvents = []
+    var successEvents = []
 
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
@@ -113,7 +116,7 @@ function updatePool(newEvent){
                     // console.log("hahahaha " + JSON.stringify(obj.getJson()))
                 }
             }
-            successfulEvents.push(obj)
+            successEvents.push(obj)
             // eventFinish(obj.getJson())
         }
     }
@@ -131,12 +134,14 @@ function updatePool(newEvent){
     // console.log("partial match num: " + partialMatchPool.length)
 
     const Logger = require('../Logger').Logger
-    for (let i = 0; i < successfulEvents.length; i++) {
-        var obj = successfulEvents[i]
+    for (let i = 0; i < successEvents.length; i++) {
+        var obj = successEvents[i]
         Logger.info(obj.getJson())
     }
 
+
     // console.log("pool " + partialMatchPool.length)
+    return successEvents
 }
 
 function eventFinish(highLevelEventJson){

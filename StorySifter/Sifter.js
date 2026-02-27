@@ -3,8 +3,8 @@ const Pool = require("./Pool")
 const Util = require("../Utils")
 
 function sift(eventLog){
-    Pool.updatePool(eventLog)
-    Pool.matchNew(eventLog)
+    var successEvents = Pool.updatePool(eventLog)
+    Pool.matchNew(eventLog, successEvents)
 }
 
 // function getEventsById(id){
