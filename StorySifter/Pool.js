@@ -17,6 +17,7 @@ var totalAbandonedEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
 var partialMatchId = 0
+var successfulEvents = []
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -38,6 +39,20 @@ function matchNew(newEvent){
                 }
             }
         }
+
+        if (!isBelongToOneMatch){
+            for (let i = 0; i < successfulEvents.length; i++){
+                var partialMatch = successfulEvents[i]
+                // isBelongToOneMatch = false
+                if (partialMatch.highLevelEventJson["tag"] == currentEventModel["tag"]) {
+                    isBelongToOneMatch = partialMatch.checkIsNewEventBelongsToThisMatch(newEvent)
+                    if (isBelongToOneMatch) {
+                        break
+                    }
+                }
+            }
+        }
+        
 
         if (!isBelongToOneMatch) {
             var currentEventModelFirstEventList = currentEventModel["events"][0]
@@ -69,7 +84,7 @@ function matchNew(newEvent){
 
 function updatePool(newEvent){
     var removedEventsPool = []
-    var successfulEvents = []
+    successfulEvents = []
 
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
