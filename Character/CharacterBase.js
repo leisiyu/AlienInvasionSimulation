@@ -921,7 +921,7 @@ function orderRunAway(character, target, time){
 
 	// run away succeed
 	var distance = Math.abs(character.position[0] - target.position[1]) + Math.abs(character.position[1] - target.position[1])
-	if ( distance >= character.visualRange) {
+	if ( distance >= character.visualRange * 1.2) {
 		var target = character.state.target
 
 		Logger.info({

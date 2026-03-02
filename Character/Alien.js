@@ -690,8 +690,8 @@ Alien.prototype.runAway = function(time){
 	}
 
 	// run away succeed
-	// TO DO
-	if (this.checkVisualRange()[0].length <= 0) {
+	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
+	if (distance >= this.visualRange * 1.2) {
 		var target = this.state.target
 
 		Logger.info({
