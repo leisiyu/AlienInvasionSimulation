@@ -39,6 +39,7 @@ class HighLevelEvent {
             for (let j = 0; j < possibleEventList.length; j++) {
                 var currentEvent = possibleEventList[j]
                 if (newEvent["L"] == currentEvent["tag"]
+                    && currentEvent["repeat"]
                     && (currentEvent["char1Idx"] == undefined 
                         || (newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]]
                             && SifterUtil.checkCharacterType(this.actors[currentEvent["char1Idx"]["index"]], currentEvent["char1Idx"]["type"])))
@@ -53,6 +54,30 @@ class HighLevelEvent {
                 
         }
 
+        return false
+    }
+
+    // when a partial match completed and removed from the pool
+    // check if the event match the last event in the match
+    // (If match, then no need to check "matchNew")
+    checkIsMatchLastEvent(newEvent){
+        if ( this.index >= this.patternEvents.length) {
+            var lastEvents = this.patternEvents[this.patternEvents.length - 1]
+            for (let i = 0; i < lastEvents.length; i++){
+                var currentEvent = lastEvents[i]
+                if ( currentEvent["tag"] == newEvent["L"]
+                    && (currentEvent["char1Idx"] == undefined 
+                        || (newEvent["N1"] == this.actors[currentEvent["char1Idx"]["index"]]
+                            && SifterUtil.checkCharacterType(this.actors[currentEvent["char1Idx"]["index"]], currentEvent["char1Idx"]["type"])))
+                    && (currentEvent["char2Idx"] == undefined 
+                        || (newEvent["N2"] == this.actors[currentEvent["char2Idx"]["index"]] && SifterUtil.checkCharacterType(this.actors[currentEvent["char2Idx"]["index"]], currentEvent["char2Idx"]["type"]))
+                        || currentEvent["char2Idx"]["type"] == Utils.GEAR_TYPES[1])
+                ) {
+                    return true
+                }
+            }
+        }
+        
         return false
     }
 

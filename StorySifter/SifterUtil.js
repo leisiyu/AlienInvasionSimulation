@@ -1,8 +1,8 @@
 
 function checkCharacterType(characterName, characterType) {
         
-    if (characterType == undefined) {return true}
-    if (characterName === "") {return true}
+    if (characterType == undefined || characterType == null) {return true}
+    if (characterName === "" || characterName == undefined) {return true}
     var currentType = ""
     switch (characterName.charAt(0)){
         case "s":
