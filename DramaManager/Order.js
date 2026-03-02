@@ -4,7 +4,7 @@
 
 const ORDER_TYPE = {
     ATTACK: "ATTACK",
-    MOVE: "MOVE",
+    // MOVE: "MOVE",
     CHASE: "CHASE",
     HEAL: "HEAL",
     KILL: "KILL",

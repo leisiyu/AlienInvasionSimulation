@@ -10,10 +10,9 @@ function checkPartialMatchPool(pool, time){
     for (let i = 0; i < pool.length; i++) {
         var partialMatch = pool[i]
         if (partialMatch.type == "story") {
-            // console.log("partial match: " + partialMatch.eventName)
             tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
+            // console.log("partial match: " + partialMatch.eventName + " " + tobeIntervenedEvents.length)
             if (tobeIntervenedEvents) {
-                // console.log("partial match: " + partialMatch.eventName)
                 intervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
             }
         }
@@ -23,6 +22,8 @@ function checkPartialMatchPool(pool, time){
 function intervene(nextEvents, partialMatchId, partialMatchType, time){
     if (nextEvents.length != 0) {
         var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
+
+        // console.log("partial match: " + nextEvent["L"] + " " + nextEvent["N2"])
         Intervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
     } else {
         console.log("No next lowest event found for intervention.")
