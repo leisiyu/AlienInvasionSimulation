@@ -4,6 +4,7 @@ const Logger = require("./Logger.js").Logger
 const DramaManager = require("./DramaManager/DramaManager")
 const Util = require("./Utils.js")
 const Pool = require("./StorySifter/Pool")
+const ClarkEvans = require("./Aggregation/ClarkEvansAggregation.js")
 
 var scheduler = new jssim.Scheduler();
 
@@ -13,13 +14,17 @@ function updateEvents(totalTimeSteps){
 
     var startTime = Date.now()
 
+    ClarkEvans.resetAggregatedRResults()
+
     if (totalTimeSteps != null) {timeSteps = totalTimeSteps}
     while(scheduler.current_time <= timeSteps){
         if (Logger.logQueue.length > 0){
             Logger.writeToFile()
         }
 		scheduler.update()
-		
+
+        // record Clark–Evans R each beat
+        ClarkEvans.recordAggregation(scheduler.current_time)
         if (Util.DOES_INTERVENTE){
             // Lazy require to avoid circular dependency during initialization
             const Pool = require('./StorySifter/Pool')
@@ -38,6 +43,9 @@ function updateEvents(totalTimeSteps){
             Logger.outputStableTestResults(endTime - startTime, timeSteps)
 
             Logger.outputOrderResults()
+
+            var averageR = ClarkEvans.getAverageR()
+            console.log('Average Clark–Evans R:', averageR)
         }
 	}
 }

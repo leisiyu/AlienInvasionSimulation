@@ -197,10 +197,16 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // Lazy require to avoid circular dependency
     var dirName = this.getDirNameWithoutIdx()
     const Sifter = require('./StorySifter/Sifter')
+    const ClarkEvans = require('./Aggregation/ClarkEvansAggregation')
     var results = Sifter.getFinalResultsJson()
     results["excutionTime"] = excutionTime
     results["total"] = (this.generateUniqueID() - 1)
     results["simulationTime"] = timeSteps
+
+    // Clark–Evans R over all beats in this run
+    results["averageAggregation"] = ClarkEvans.getAverageR()
+    // Only store the R values (one per beat), not the full objects
+    results["allR"] = ClarkEvans.getAggregatedRResults().map(r => r.R)
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
