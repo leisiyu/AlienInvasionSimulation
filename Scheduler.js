@@ -5,6 +5,7 @@ const DramaManager = require("./DramaManager/DramaManager")
 const Util = require("./Utils.js")
 const Pool = require("./StorySifter/Pool")
 const ClarkEvans = require("./Aggregation/ClarkEvansAggregation.js")
+// const PCF = require("./Aggregation/PairCorrelationFunction.js")
 
 var scheduler = new jssim.Scheduler();
 
@@ -15,6 +16,7 @@ function updateEvents(totalTimeSteps){
     var startTime = Date.now()
 
     ClarkEvans.resetAggregatedRResults()
+    // PCF.resetAggregatedPCFResults()
 
     if (totalTimeSteps != null) {timeSteps = totalTimeSteps}
     while(scheduler.current_time <= timeSteps){
@@ -25,6 +27,9 @@ function updateEvents(totalTimeSteps){
 
         // record Clark–Evans R each beat
         ClarkEvans.recordAggregation(scheduler.current_time)
+
+        // record PCF g(r) each beat with binWidth = 3
+        // PCF.recordAggregation(scheduler.current_time, { binWidth: 5 })
         if (Util.DOES_INTERVENTE){
             // Lazy require to avoid circular dependency during initialization
             const Pool = require('./StorySifter/Pool')
@@ -46,6 +51,10 @@ function updateEvents(totalTimeSteps){
 
             var averageR = ClarkEvans.getAverageR()
             console.log('Average Clark–Evans R:', averageR)
+
+            // var averagePCF = PCF.getAverageG()
+            // console.log('Average PCF radii:', averagePCF.radii)
+            // console.log('Average PCF g:', averagePCF.g)
         }
 	}
 }

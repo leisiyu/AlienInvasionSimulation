@@ -198,6 +198,7 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     var dirName = this.getDirNameWithoutIdx()
     const Sifter = require('./StorySifter/Sifter')
     const ClarkEvans = require('./Aggregation/ClarkEvansAggregation')
+    // const PCF = require('./Aggregation/PairCorrelationFunction')
     var results = Sifter.getFinalResultsJson()
     results["excutionTime"] = excutionTime
     results["total"] = (this.generateUniqueID() - 1)
@@ -207,6 +208,11 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     results["averageAggregation"] = ClarkEvans.getAverageR()
     // Only store the R values (one per beat), not the full objects
     results["allR"] = ClarkEvans.getAggregatedRResults().map(r => r.R)
+
+    // Pair Correlation Function g(r), averaged over all beats (binWidth = 3)
+    // var averagePCF = PCF.getAverageG()
+    // results["pcfRadii"] = averagePCF.radii
+    // results["pcfG"] = averagePCF.g
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
