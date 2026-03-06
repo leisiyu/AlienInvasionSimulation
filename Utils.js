@@ -18,6 +18,8 @@ var SOLIDERS_NUM = getNumberByRatio(CHARACTER_TYPE.SOLDIER)
 var TIME_STEPS = 10000
 var DOES_INTERVENTE = true
 
+var RUN_AWAY_SUCCESS_DISTANCE_RATIO = 1.5
+
 function initParameters(totalCharacters, characterRatio, mapSize, timeSteps){
 	TOTAL_CHARACTERS = totalCharacters != undefined ?  Number(totalCharacters) : TOTAL_CHARACTERS
 	this.TOTAL_CHARACTERS = TOTAL_CHARACTERS
@@ -199,5 +201,6 @@ module.exports = {
 	HEAL_STEP,
 	ATTACK_TYPE,
 	CRITICAL_HIT,
-	GEAR_STATE
+	GEAR_STATE,
+	RUN_AWAY_SUCCESS_DISTANCE_RATIO
 }

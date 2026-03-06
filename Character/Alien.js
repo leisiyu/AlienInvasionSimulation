@@ -671,27 +671,39 @@ Alien.prototype.runAway = function(time){
 		if (enemies.length <= 0) {
 			Logger.info({
 				N1: this.charName,
-				L: "successfully ran away, recovered, start to walk around",
-				N2: "",
+				L: "successfully ran away from",
+				N2: this.state.target.charName,
 				T: time,
 			})
 			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
-			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-			Logger.info({
-				N1: this.charName,
-				L: "recovered, start to chase ",
-				N2: randomEnemy.charName,
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+			
+			if (enemies.includes(this.state.target)) {
+				Logger.info({
+					N1: this.charName,
+					L: "is chasing",
+					N2: this.state.target.charName,
+					T: time,
+				})
+				this.state.setState(Utils.CHARACTER_STATES.CHASE, this.state.target)
+			} else {
+				randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+				Logger.info({
+					N1: this.charName,
+					L: "is chasing",
+					N2: randomEnemy.charName,
+					T: time,
+				})
+				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+			}
+			
 		}
 		return
 	}
 
 	// run away succeed
 	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * 1.2) {
+	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 		var target = this.state.target
 
 		Logger.info({

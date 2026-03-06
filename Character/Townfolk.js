@@ -511,7 +511,7 @@ Townfolk.prototype.runAway = function(time){
 	
 	// var enemiesNearby = this.checkVisualRange()[0]
 	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * 1.2) {
+	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 	// if (enemiesNearby.indexOf(this.state.target) == -1) {
 		var characterName = this.state.target.charName
 		Logger.info({

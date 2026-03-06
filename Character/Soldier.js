@@ -511,7 +511,7 @@ Soldier.prototype.runAway = function(time){
 	// run away succeed
 	
 	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * 1.2) {
+	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 	// if (this.checkVisualRange()[0].length <= 0) {
 		var characterName = this.state.target.charName
 		Logger.info({
