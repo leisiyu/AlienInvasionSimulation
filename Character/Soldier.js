@@ -80,6 +80,7 @@ var Soldier = function(name, position){
 						}))
 						// console.log("hahah1111   " + soldierThis.charName + " " + messageContent.attacker)
 						CharacterBase.dropInventory(soldierThis.inventory, soldierThis.position)
+						return
 					} else {
 						if (soldierThis.state.stateType == Utils.CHARACTER_STATES.HEAL){
 							Logger.info({
@@ -485,33 +486,33 @@ Soldier.prototype.runAway = function(time){
 		T: time,
 	}))
 	
-	if (this.healthState > Utils.HEALTH_STATES.HURT) {
-		var enemies = this.checkVisualRange()[0]
-		if (enemies.length <= 0) {
-			Logger.info({
-				N1: this.charName,
-				L: "recovered, start to partrol",
-				N2: "",
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-		} else {
-			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-			Logger.info({
-				N1: this.charName,
-				L: "recovered, start to chase",
-				N2: randomEnemy.charName,
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
-		}
-		return
-	}
+	// if (this.healthState > Utils.HEALTH_STATES.HURT) {
+	// 	var enemies = this.checkVisualRange()[0]
+	// 	if (enemies.length <= 0) {
+	// 		Logger.info({
+	// 			N1: this.charName,
+	// 			L: "recovered, start to partrol",
+	// 			N2: "",
+	// 			T: time,
+	// 		})
+	// 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	// 	} else {
+	// 		randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+	// 		Logger.info({
+	// 			N1: this.charName,
+	// 			L: "recovered, start to chase",
+	// 			N2: randomEnemy.charName,
+	// 			T: time,
+	// 		})
+	// 		this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+	// 	}
+	// 	return
+	// }
 
 	// run away succeed
 	
-	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
+	var distance = CharacterBase.calDistanceOfCharacters(this, this.state.target)
+	if (distance > this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 	// if (this.checkVisualRange()[0].length <= 0) {
 		var characterName = this.state.target.charName
 		Logger.info({
@@ -580,6 +581,8 @@ Soldier.prototype.chase = function(time){
 	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
 		var character = this.state.target	
 		this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
+	} else if (CharacterBase.calDistanceOfCharacters(this, this.state.target) > this.visualRange){
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
 
@@ -686,9 +689,13 @@ Soldier.prototype.updateStates = function(time){
 		if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 			// TO DO 
 			// the original state is run_away,
-			var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
-			this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
-			return 
+			if(this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY && visibleEnemies.includes(this.state.target)){
+				return
+			} else {
+				var randomVisibleCharacter = visibleEnemies[Math.floor(Math.random() * visibleEnemies.length)]
+				this.state.setState(Utils.CHARACTER_STATES.RUN_AWAY, randomVisibleCharacter)
+				return 
+			}
 		}
 		if (this.state.stateType == Utils.CHARACTER_STATES.CHASE || this.state.stateType == Utils.CHARACTER_STATES.ATTACK){
 			if (!visibleEnemies.includes(this.state.target)){
@@ -714,6 +721,13 @@ Soldier.prototype.updateStates = function(time){
 				}
 		}
 		return
+	}
+
+	// run away check? 
+	if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY){
+		if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO){
+			return
+		}
 	}
 
 	// check allies

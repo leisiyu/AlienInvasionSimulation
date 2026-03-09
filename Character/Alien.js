@@ -83,6 +83,7 @@ var Alien = function(name, position){
 							"P": alienThis.position,
 							"T": this.time
 						}))
+						return
 					} else {
 						if (alienThis.healthState <= Utils.HEALTH_STATES.HURT && alienThis.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 							Logger.info({
@@ -306,7 +307,7 @@ Alien.prototype.checkSurrounding = function(time){
 	} else if (this.healthState <= Utils.HEALTH_STATES.HURT && this.healthState > Utils.HEALTH_STATES.INCAPACITATED) {
 		// can walk around
 		// but if the original state is run_away, keep it
-		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY){
+		if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY && CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO){
 			return Utils.CHARACTER_STATES.RUN_AWAY
 		}
 	} else if (this.healthState > Utils.HEALTH_STATES.HURT) {
@@ -347,14 +348,17 @@ Alien.prototype.checkSurrounding = function(time){
 		}
 	}
 
-	// TO DO: chase 的检查应该在随机前面
 	// if the original state is chase
 	if (this.state.stateType == Utils.CHARACTER_STATES.CHASE && this.state.target != null) {
 		if (this.state.target.objType != "building" && !CharacterBase.checkIsDied(this.state.target)) {
 			if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.attackRange) {
 				this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
-			}
-			return
+				return
+			} else if (CharacterBase.calDistanceOfCharacters(this, this.state.target) > this.attackRange && CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.visualRange) {
+				this.state.updateState(Utils.CHARACTER_STATES.CHASE)
+				return
+			} 
+			
 		}
 	}
 
@@ -574,6 +578,8 @@ Alien.prototype.chase = function(time){
 		var characterName = this.state.target.charName
 		// this.state.setState(Utils.CHARACTER_STATES.ATTACK, CharactersData.getCharacterByName(characterName))
 		this.state.updateState(Utils.CHARACTER_STATES.ATTACK)
+	} else if (CharacterBase.calDistanceOfCharacters(this, this.state.target) > this.visualRange){
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 
 }
@@ -665,45 +671,46 @@ Alien.prototype.runAway = function(time){
 		T: time,
 	}))
 	
-	// TO DO
-	if (this.healthState > Utils.HEALTH_STATES.HURT) {
-		var [enemies, buildings] = this.checkVisualRange()
-		if (enemies.length <= 0) {
-			Logger.info({
-				N1: this.charName,
-				L: "successfully ran away from",
-				N2: this.state.target.charName,
-				T: time,
-			})
-			this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
-		} else {
+	// // TO DO
+	// if (this.healthState > Utils.HEALTH_STATES.HURT) {
+	// 	// var [enemies, buildings] = this.checkVisualRange()
+	// 	// if (enemies.length <= 0) {
+	// 	if (CharacterBase.calDistanceOfCharacters(this, this.state.target) > this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO){
+	// 		Logger.info({
+	// 			N1: this.charName,
+	// 			L: "successfully ran away from",
+	// 			N2: this.state.target.charName,
+	// 			T: time,
+	// 		})
+	// 		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+	// 	} else {
+	// 		var [enemies, buildings] = this.checkVisualRange()
+	// 		if (enemies.includes(this.state.target)) {
+	// 			Logger.info({
+	// 				N1: this.charName,
+	// 				L: "is chasing",
+	// 				N2: this.state.target.charName,
+	// 				T: time,
+	// 			})
+	// 			this.state.setState(Utils.CHARACTER_STATES.CHASE, this.state.target)
+	// 		} else {
+	// 			randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
+	// 			Logger.info({
+	// 				N1: this.charName,
+	// 				L: "is chasing",
+	// 				N2: randomEnemy.charName,
+	// 				T: time,
+	// 			})
+	// 			this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
+	// 		}
 			
-			if (enemies.includes(this.state.target)) {
-				Logger.info({
-					N1: this.charName,
-					L: "is chasing",
-					N2: this.state.target.charName,
-					T: time,
-				})
-				this.state.setState(Utils.CHARACTER_STATES.CHASE, this.state.target)
-			} else {
-				randomEnemy = enemies[Math.floor(Math.random() * enemies.length)]
-				Logger.info({
-					N1: this.charName,
-					L: "is chasing",
-					N2: randomEnemy.charName,
-					T: time,
-				})
-				this.state.setState(Utils.CHARACTER_STATES.CHASE, randomEnemy)
-			}
-			
-		}
-		return
-	}
+	// 	}
+	// 	return
+	// }
 
 	// run away succeed
 	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
+	if (distance > this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 		var target = this.state.target
 
 		Logger.info({

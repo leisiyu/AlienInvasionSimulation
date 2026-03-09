@@ -747,19 +747,19 @@ function orderChase(character, time, usePosInfo = false){
 		position = character.order.target.position
 			
 		for (let j = 0; j < character.speed; j++){
-			var availableDirections = []
-			var horizontalOffset = position[0] - character.position[0]
-			if ( horizontalOffset > targetWidth) {
-				availableDirections.push(Utils.DIRECTION[3])
-			} else if (horizontalOffset < -targetWidth) {
-				availableDirections.push(Utils.DIRECTION[2])
-			}
-			var verticalOffset = position[1] - character.position[1]
-			if (verticalOffset > targetHeight) {
-				availableDirections.push(Utils.DIRECTION[1])
-			} else if (verticalOffset < -targetHeight) {
-				availableDirections.push(Utils.DIRECTION[0])
-			}
+			var availableDirections = getApproachTargetDirection(character.position, position)
+			// var horizontalOffset = position[0] - character.position[0]
+			// if ( horizontalOffset > targetWidth) {
+			// 	availableDirections.push(Utils.DIRECTION[3])
+			// } else if (horizontalOffset < -targetWidth) {
+			// 	availableDirections.push(Utils.DIRECTION[2])
+			// }
+			// var verticalOffset = position[1] - character.position[1]
+			// if (verticalOffset > targetHeight) {
+			// 	availableDirections.push(Utils.DIRECTION[1])
+			// } else if (verticalOffset < -targetHeight) {
+			// 	availableDirections.push(Utils.DIRECTION[0])
+			// }
 			if (availableDirections.length > 0) {
 				character.moveOneStep(availableDirections, time)
 			}
@@ -776,6 +776,9 @@ function orderChase(character, time, usePosInfo = false){
 		
 	}
 
+	// console.log("order success: chase")
+	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target)
+
 	Logger.statesInfo(JSON.stringify({
 		N: character.charName,
 		S: character.state.stateType, 
@@ -783,9 +786,6 @@ function orderChase(character, time, usePosInfo = false){
 		T: time,
 		Note:"order"
 	}))
-
-	// console.log("order success: chase")
-	character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target)
 	return true
 }
 
@@ -921,7 +921,7 @@ function orderRunAway(character, target, time){
 
 	// run away succeed
 	var distance = Math.abs(character.position[0] - target.position[1]) + Math.abs(character.position[1] - target.position[1])
-	if ( distance >= character.visualRange * 1.2) {
+	if ( distance >= character.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 		var target = character.state.target
 
 		Logger.info({

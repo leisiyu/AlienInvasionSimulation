@@ -24,12 +24,12 @@ var Townfolk = function(name, position){
 	this.speed = this.baseSpeed
 	// this.speed = 10 // test
 	this.visualRange = Math.floor(Math.random() * 5) + 3
-	var attackRange = Math.floor(Math.random() * 2) + 1
+	var attackRange = Math.floor(Math.random() * 2) + 2
 	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
 	
 	this.attackValue = 10
 	this.criticalHitProbability = new Probability(Utils.ATTACK_TYPE, [95, 5])
-	this.maxHp = Math.floor(Math.random() * 300) + 50
+	this.maxHp = Math.floor(Math.random() * 300) + 100
 	this.hp = this.maxHp
 	this.hideProbability = new Probability([Utils.CHARACTER_STATES.WANDER, Utils.CHARACTER_STATES.HIDE], [30, 70])
 	this.directionProbability = new Probability(Utils.DIRECTION, [10, 10, 10, 10])
@@ -89,6 +89,10 @@ var Townfolk = function(name, position){
 				}
 			}
 		}
+
+		// if character died
+		if (townfolkThis.state.stateType == Utils.CHARACTER_STATES.DIED) { return }
+		
 		// check the character's state
 		townfolkThis.updateStates(time)
 		// if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
@@ -432,11 +436,9 @@ Townfolk.prototype.updateStates = function(time){
 					enemy = this.state.target
 				} 
 
-				var enemyPos = enemy.position
-				// if (Math.abs(this.position[0] - enemyPos[0]) + Math.abs(this.position[1] - enemyPos[1]) <= this.attackRange) {
-					if (CharacterBase.calDistanceOfCharacters(this, enemy) <= this.attackRange) {
+				if (CharacterBase.calDistanceOfCharacters(this, enemy) <= this.attackRange) {
 					this.state.setState(Utils.CHARACTER_STATES.ATTACK, enemy)
-				} else {
+				} else if (CharacterBase.calDistanceOfCharacters(this, enemy) > this.attackRange && CharacterBase.calDistanceOfCharacters(this, enemy) <= this.visualRange) {
 					this.state.setState(Utils.CHARACTER_STATES.CHASE, enemy)
 				}
 						
@@ -454,6 +456,12 @@ Townfolk.prototype.updateStates = function(time){
 				}
 			}
 			return 
+		} else {
+			if (this.state.stateType == Utils.CHARACTER_STATES.RUN_AWAY){
+				if (CharacterBase.calDistanceOfCharacters(this, this.state.target) <= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO){
+					return
+				}
+			}
 		}
 		
 		// check allies
@@ -511,7 +519,7 @@ Townfolk.prototype.runAway = function(time){
 	
 	// var enemiesNearby = this.checkVisualRange()[0]
 	var distance = Math.abs(this.position[0] - this.state.target.position[0]) + Math.abs(this.position[1] - this.state.target.position[1])
-	if (distance >= this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
+	if (distance > this.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 	// if (enemiesNearby.indexOf(this.state.target) == -1) {
 		var characterName = this.state.target.charName
 		Logger.info({
@@ -698,6 +706,8 @@ Townfolk.prototype.chase = function(time){
 	if (Math.abs(this.position[0] - position[0]) + Math.abs(this.position[1] - position[1]) <= this.attackRange) {
 		var character = this.state.target	
 		this.state.setState(Utils.CHARACTER_STATES.ATTACK, character)
+	} else if (CharacterBase.calDistanceOfCharacters(this, this.state.target) > this.visualRange){
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 	}
 }
 
