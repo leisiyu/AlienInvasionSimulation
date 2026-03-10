@@ -402,7 +402,7 @@ function getAwayTargetDirection(characterType, position, target){
 
 	if (position[1] - target.position[1] > 0) {
 		oppositDir.push(Utils.DIRECTION[1])
-	} else if (position[1] - target.position[0] < 1) {
+	} else if (position[1] - target.position[1] < 1) {
 		oppositDir.push(Utils.DIRECTION[0])
 	} else {
 		oppositDir.push(Utils.DIRECTION[0])
@@ -683,6 +683,7 @@ function orderAttack(character, time){
 		// via the character-specific wrapper (Alien/Soldier/Townfolk), resulting in the same
 		// Order instance (same orderId) being recorded twice in DramaManagerData.
 		var result = orderChase(character, time)
+		character.state.setState(Utils.CHARACTER_STATES.CHASE, character.order.target)
 		return [false, result]
 	}
 
@@ -927,7 +928,7 @@ function orderRunAway(character, target, time){
 	}))
 
 	// run away succeed
-	var distance = Math.abs(character.position[0] - target.position[1]) + Math.abs(character.position[1] - target.position[1])
+	var distance = Math.abs(character.position[0] - target.position[0]) + Math.abs(character.position[1] - target.position[1])
 	if ( distance >= character.visualRange * Utils.RUN_AWAY_SUCCESS_DISTANCE_RATIO) {
 		var target = character.state.target
 
