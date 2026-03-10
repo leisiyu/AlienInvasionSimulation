@@ -25,7 +25,7 @@ var Soldier = function(name, position){
 	var attackRange = Math.floor(Math.random() * 5) + 1
 	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
 	
-	this.maxHp = Math.floor(Math.random() * 300) + 100
+	this.maxHp = Math.floor(Math.random() * 300) + 200
 	this.hp = this.maxHp
 	this.baseAttackValue = Math.floor(Math.random() * 40) + 10
 	this.attackValue = this.baseAttackValue
