@@ -25,7 +25,7 @@ var Soldier = function(name, position){
 	var attackRange = Math.floor(Math.random() * 5) + 1
 	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
 	
-	this.maxHp = Math.floor(Math.random() * 300) + 200
+	this.maxHp = Math.floor(Math.random() * 300) + 100
 	this.hp = this.maxHp
 	this.baseAttackValue = Math.floor(Math.random() * 40) + 10
 	this.attackValue = this.baseAttackValue
@@ -142,18 +142,16 @@ var Soldier = function(name, position){
 		// in neutral state
 		// console.log("soldier state " + soldierThis.charName + " " + soldierThis.state.stateType)
 		// if (soldierThis.order != null && Utils.NEUTRAL_STATES.includes(soldierThis.state.stateType)) {
+		var orderResult = true
 		if (soldierThis.orders.length != 0){
 			// console.log("hahaha   soldier order" + " " + soldierThis.charName + " " + soldierThis.order.orderType + this.time)
 			soldierThis.order = CharacterBase.chooseOrderWithHighestPriority(soldierThis.orders)
 			soldierThis.order.excute()
 			switch(soldierThis.order.orderType){
-				case ORDER_TYPE.MOVE:
-					// soldierThis.chase(this.time)
-					break
 				case ORDER_TYPE.ATTACK:
 					var isSuccessfullyAttack = soldierThis.orderAttack(this.time)
-
-					if (isSuccessfullyAttack) {
+					orderResult = isSuccessfullyAttack[0] || isSuccessfullyAttack[1]
+					if (isSuccessfullyAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var attackType = soldierThis.criticalHitProbability.randomlyPick()
@@ -170,11 +168,12 @@ var Soldier = function(name, position){
 					}
 					break
 				case ORDER_TYPE.CHASE:
-					var isSuccessfullyChase = soldierThis.orderChase(this.time)
+					orderResult = soldierThis.orderChase(this.time)
 					
 					break
 				case ORDER_TYPE.HEAL:
 					var isSuccessfullyHeal = soldierThis.orderHeal(this.time)
+					orderResult = isSuccessfullyHeal[0]
 					if (isSuccessfullyHeal[0]) {
 						soldierThis.healingIdx++
 						var msg = {
@@ -189,8 +188,9 @@ var Soldier = function(name, position){
 					break
 				case ORDER_TYPE.KILL:
 					var isSuccessfullyAttack = soldierThis.orderAttack(this.time)
+					orderResult = isSuccessfullyAttack[0] || isSuccessfullyAttack[1]
 
-					if (isSuccessfullyAttack) {
+					if (isSuccessfullyAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var msg = {
@@ -205,10 +205,11 @@ var Soldier = function(name, position){
 					}
 					break
 				case ORDER_TYPE.RUN_AWAY:
-					soldierThis.orderRunAway(this.time)
+					orderResult = soldierThis.orderRunAway(this.time)
 					break
 			}
-		} else {
+		} 
+		if ((soldierThis.orders.length != 0 && !orderResult) || soldierThis.orders.length == 0) {
 			// check the character's state
 			switch(soldierThis.state.stateType){
 				// case Utils.CHARACTER_STATES.HIDE:
@@ -800,6 +801,7 @@ Soldier.prototype.orderRunAway = function(time){
 	if (result) {
 		CharacterBase.executeOrderBase(this.charName, this.order, time)
 	}
+	return result
 }
 
 //------order-------

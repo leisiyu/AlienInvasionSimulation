@@ -28,7 +28,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
             agent = character1
             target = character2
             if (agent == null && target != null) {
-                agent = CharacterBase.findEnemy(target)
+                agent = CharacterBase.findEnemy(target, null, null, false)
             }
 
             if (agent != null){
@@ -41,7 +41,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
             agent = character1
             target = character2
             if (agent == null && target != null) {
-                agent = CharacterBase.findEnemy(target)
+                agent = CharacterBase.findEnemy(target, null, null, true)
             }
             if (agent != null){
                 orderChase(agent, target, partialMatchId, partialMatchType, time)
@@ -85,7 +85,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
 
 /// Move A to B
 function orderChase(agent, target, partialMatchId, partialMatchType, time){
-    var order = new Order(ORDER_TYPE.MOVE, target, partialMatchId, partialMatchType)
+    var order = new Order(ORDER_TYPE.CHASE, target, partialMatchId, partialMatchType)
     CharacterBase.addOrder(agent, target, order, time)
 }
 

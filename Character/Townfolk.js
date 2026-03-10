@@ -96,18 +96,16 @@ var Townfolk = function(name, position){
 		// check the character's state
 		townfolkThis.updateStates(time)
 		// if (townfolkThis.order != null && Utils.NEUTRAL_STATES.includes(townfolkThis.state.stateType)) {
+		var orderResult = true
 		if (townfolkThis.orders.length != 0){
 			// console.log("hahaha   townsfolk order" + " " + townfolkThis.charName + " " + townfolkThis.order.orderType + this.time)
 			townfolkThis.order = CharacterBase.chooseOrderWithHighestPriority(townfolkThis.orders)
 			townfolkThis.order.excute()
 			switch(townfolkThis.order.orderType){
-				case ORDER_TYPE.MOVE:
-					
-					break
 				case ORDER_TYPE.ATTACK:
 					var isSuccessfulAttack = townfolkThis.orderAttack(this.time)
-
-					if (isSuccessfulAttack) {
+					orderResult = isSuccessfulAttack[0] || isSuccessfulAttack[1]
+					if (isSuccessfulAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var attackType = townfolkThis.criticalHitProbability.randomlyPick()
@@ -124,11 +122,12 @@ var Townfolk = function(name, position){
 					}
 					break
 				case ORDER_TYPE.CHASE:
-					var isSuccessfullyChase = townfolkThis.orderChase(this.time)
+					orderResult = townfolkThis.orderChase(this.time)
 					
 					break
 				case ORDER_TYPE.HEAL:
 					var isSuccessfullyHeal = townfolkThis.orderHeal(this.time)
+					orderResult = isSuccessfullyHeal[0] 
 					if (isSuccessfullyHeal[0]) {
 						townfolkThis.healingIdx++
 						var msg = {
@@ -143,8 +142,8 @@ var Townfolk = function(name, position){
 					break
 				case ORDER_TYPE.KILL:
 					var isSuccessfulAttack = townfolkThis.orderAttack(this.time)
-
-					if (isSuccessfulAttack) {
+					orderResult = isSuccessfulAttack[0] || isSuccessfulAttack[1]
+					if (isSuccessfulAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var msg = {
@@ -159,10 +158,11 @@ var Townfolk = function(name, position){
 					}
 					break
 				case ORDER_TYPE.RUN_AWAY:
-					townfolkThis.orderRunAway(this.time)
+					orderResult = townfolkThis.orderRunAway(this.time)
 					break
 			}
-		} else {
+		} 
+		if ((townfolkThis.orders.length != 0 && !orderResult) || townfolkThis.orders.length == 0) {
 			switch(townfolkThis.state.stateType){
 				case Utils.CHARACTER_STATES.HIDE:
 					townfolkThis.hideOrWander(this.time)
@@ -776,6 +776,7 @@ Townfolk.prototype.orderRunAway = function(time){
 	if (result) {
 		CharacterBase.executeOrderBase(this.charName, this.order, time)
 	}
+	return result
 }
 //-----------order end ---------------
 

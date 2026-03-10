@@ -420,7 +420,7 @@ function getApproachTargetDirection(position, targetPosition, targetWidth = 1, t
 
 	if (position[0] - targetPosition[0] > targetWidth) {
 		towardsDir.push(Utils.DIRECTION[2])
-	} else if (position[0] - targetPosition[0] < targetWidth) {
+	} else if (position[0] - targetPosition[0] < -targetWidth) {
 		towardsDir.push(Utils.DIRECTION[3])
 	} else {
 		towardsDir.push(Utils.DIRECTION[2])
@@ -429,7 +429,7 @@ function getApproachTargetDirection(position, targetPosition, targetWidth = 1, t
 
 	if (position[1] - targetPosition[1] > targetHeight) {
 		towardsDir.push(Utils.DIRECTION[0])
-	} else if (position[1] - targetPosition[1] < targetHeight) {
+	} else if (position[1] - targetPosition[1] < -targetHeight) {
 		towardsDir.push(Utils.DIRECTION[1])
 	} else {
 		towardsDir.push(Utils.DIRECTION[0])
@@ -462,10 +462,10 @@ function addOrder(character, target, order, time){
 		switch(order.orderType){
 			case ORDER_TYPE.ATTACK:
 			case ORDER_TYPE.CHASE:
-				target = findEnemy(character, order, time)
+				target = findEnemy(character, order, time, false)
 				break
-			case ORDER_TYPE.KILLED:
-				target = findEnemy(character, order, time)
+			case ORDER_TYPE.KILL:
+				target = findEnemy(character, order, time, false)
 				break
 			case ORDER_TYPE.MOVE:
 				// TO DO: find????
@@ -525,7 +525,10 @@ function findEnemy(agent, order, time, needNeutralState = true){
 	}
 
 	// check if there's a target in the last run
-	var target = DramaManagerData.getTargetFromLastOrder(agent, order, time)
+	var target 
+	if (order != null) {
+		target = DramaManagerData.getTargetFromLastOrder(agent, order, time)
+	}
 	if (target != null
 		&& target.state.stateType != Utils.CHARACTER_STATES.DIED) {
 
@@ -537,7 +540,7 @@ function findEnemy(agent, order, time, needNeutralState = true){
     /// if target is an alien, find solders and armed civilians
     /// if target is a human, find aliens
 
-    var range = 15
+    var range = 20
 	var startX = agent.position[0] - range < 0 ? 0 : agent.position[0] - range
 	var endX = agent.position[0] + range >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : agent.position[0] + range
 	var startY = agent.position[1] - range < 0 ? 0 : agent.position[1] - range
@@ -641,9 +644,15 @@ function findAlly(agent, order, time){
 
 function orderAttack(character, time){
 	if (character.order.target == null) {
-		var target = findEnemy(character, character.order, time)
+		var target = findEnemy(character, character.order, time, false)
 		if (target == null) {
-			return false
+			// for (let j = 0; j < character.speed; j++){
+			// 	var availableDirections = Utils.DIRECTION
+			// 	if (availableDirections.length > 0) {
+			// 		character.moveOneStep(availableDirections, time)
+			// 	}
+			// }
+			return [false]
 		} else {
 			character.order.updateTarget(target)
 		}
@@ -652,7 +661,7 @@ function orderAttack(character, time){
 	// check if the character died
 	if (character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
 		// console.log("order target died " + character.order.target.charName + " " + character.order.target.state.stateType + " " + time)
-		return false
+		return [false]
 	}		
 
 	// no need to check self hp
@@ -665,7 +674,7 @@ function orderAttack(character, time){
 		// incapacitated, can not move
 		if (character.healthState < Utils.HEALTH_STATES.INCAPACITATED && character.healthState > Utils.HEALTH_STATES.DIED) {
 			// console.log("order agent incapacitated")
-			return false
+			return [false]
 		}
 		// this frame still need to move
 		// console.log("order: attack -> chase")
@@ -673,8 +682,8 @@ function orderAttack(character, time){
 		// Using character.orderChase(time) here would invoke CharacterBase.executeOrderBase again
 		// via the character-specific wrapper (Alien/Soldier/Townfolk), resulting in the same
 		// Order instance (same orderId) being recorded twice in DramaManagerData.
-		orderChase(character, time)
-		return false
+		var result = orderChase(character, time)
+		return [false, result]
 	}
 
 	Logger.info({
@@ -688,7 +697,7 @@ function orderAttack(character, time){
 	// console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
 
-	return true
+	return [true, true]
 }
 
 
@@ -697,6 +706,15 @@ function orderChase(character, time, usePosInfo = false){
 	// but in the first a few attemps, the target's position info is not allowed to use
 	// so the "usePosInfo" is default to be false
 	// after that can lead the agent to the exact position
+
+	if (character.order.target == null) {
+		var target = findEnemy(character, character.order, time, false)
+		if (target == null) {
+			return false
+		} else {
+			character.order.updateTarget(target)
+		}
+	}
 
 	// console.log("character base: order chase")
 	if (character.order.target == null || character.order.target.state.stateType == Utils.CHARACTER_STATES.DIED) {
@@ -748,18 +766,7 @@ function orderChase(character, time, usePosInfo = false){
 			
 		for (let j = 0; j < character.speed; j++){
 			var availableDirections = getApproachTargetDirection(character.position, position)
-			// var horizontalOffset = position[0] - character.position[0]
-			// if ( horizontalOffset > targetWidth) {
-			// 	availableDirections.push(Utils.DIRECTION[3])
-			// } else if (horizontalOffset < -targetWidth) {
-			// 	availableDirections.push(Utils.DIRECTION[2])
-			// }
-			// var verticalOffset = position[1] - character.position[1]
-			// if (verticalOffset > targetHeight) {
-			// 	availableDirections.push(Utils.DIRECTION[1])
-			// } else if (verticalOffset < -targetHeight) {
-			// 	availableDirections.push(Utils.DIRECTION[0])
-			// }
+			
 			if (availableDirections.length > 0) {
 				character.moveOneStep(availableDirections, time)
 			}

@@ -23,7 +23,7 @@ var Alien = function(name, position){
 	var attackRange = Math.floor(Math.random() * 5) + 1
 	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
 	
-	this.maxHp = Math.floor(Math.random() * 400) + 100
+	this.maxHp = Math.floor(Math.random() * 300) + 100
 	// this.maxHp = 200  // test
 	this.hp = this.maxHp
 	// this.inventory = []
@@ -129,6 +129,7 @@ var Alien = function(name, position){
 
 		// console.log("alien state " + alienThis.charName + " " + alienThis.state.stateType)
 		// if (alienThis.orders.length != 0 & Utils.NEUTRAL_STATES.includes(alienThis.state.stateType)) {
+		var orderResult = true
 		if (alienThis.orders.length != 0) {
 			// has order
 			// in neutral state
@@ -136,13 +137,11 @@ var Alien = function(name, position){
 			// console.log("alien orders " + alienThis.orders.length + " " + alienThis.order.orderType + " " + alienThis.order.target.charName)
 			alienThis.order.excute()
 			switch(alienThis.order.orderType){
-				case ORDER_TYPE.MOVE:
-					// alienThis.chase(this.time)
-					break
 				case ORDER_TYPE.ATTACK:
 					var isSuccessfulAttack = alienThis.orderAttack(this.time)
+					orderResult = isSuccessfulAttack[0] || isSuccessfulAttack[1]
 					// console.log("order attack " + isSuccessfulAttack)
-					if (isSuccessfulAttack) {
+					if (isSuccessfulAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var attackType = alienThis.criticalHitProbability.randomlyPick()
@@ -159,13 +158,14 @@ var Alien = function(name, position){
 					}
 					break
 				case ORDER_TYPE.CHASE:
-					var isSuccessfulChase = alienThis.orderChase(this.time)	
+					orderResult = alienThis.orderChase(this.time)	
 
 					break
 				case ORDER_TYPE.KILL:
 					var isSuccessfullyAttack = alienThis.orderAttack(this.time)
+					orderResult = isSuccessfullyAttack[0] || isSuccessfullyAttack[1]
 					// console.log("order kill " + isSuccessfulAttack)
-					if (isSuccessfullyAttack) {
+					if (isSuccessfullyAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
 						var msg = {
@@ -180,10 +180,11 @@ var Alien = function(name, position){
 					}
 					break
 				case ORDER_TYPE.RUN_AWAY:
-					alienThis.orderRunAway(this.time)
+					orderResult = alienThis.orderRunAway(this.time)
 					break
 			}
-		} else {
+		} 
+		if ((alienThis.orders.length != 0 && !orderResult) || alienThis.orders.length == 0) {
 			// check the character's state
 			switch(alienThis.state.stateType){
 				case Utils.CHARACTER_STATES.PATROL:
@@ -823,6 +824,7 @@ Alien.prototype.orderRunAway = function(time){
 	if (result) {
 		CharacterBase.executeOrderBase(this.charName, this.order, time)
 	}
+	return result
 }
 //-------order end-------
 
