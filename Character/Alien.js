@@ -23,7 +23,7 @@ var Alien = function(name, position){
 	var attackRange = Math.floor(Math.random() * 5) + 1
 	this.attackRange = this.visualRange < attackRange ? this.visualRange : attackRange
 	
-	this.maxHp = Math.floor(Math.random() * 300) + 100
+	this.maxHp = Math.floor(Math.random() * 400) + 100
 	// this.maxHp = 200  // test
 	this.hp = this.maxHp
 	// this.inventory = []
@@ -783,7 +783,7 @@ Alien.prototype.getRunAwayDirection = function(){
 			oppositDir.push(Utils.DIRECTION[1])
 		}
 		
-	} else if (this.position[1] - this.state.target.position[0] < 1 && this.position[1] - 1 > 0) {
+	} else if (this.position[1] - this.state.target.position[1] < 1 && this.position[1] - 1 > 0) {
 		if (this.checkIfPositionAccessible([this.position[0], this.position[1] - 1])) {
 			oppositDir.push(Utils.DIRECTION[0])
 		}	
