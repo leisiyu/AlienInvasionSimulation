@@ -10,7 +10,7 @@ function checkPartialMatchPool(pool, time){
     for (let i = 0; i < pool.length; i++) {
         var partialMatch = pool[i]
         if (partialMatch.type == "story") {
-            tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
+            var tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             // console.log("partial match: " + partialMatch.eventName + " " + tobeIntervenedEvents.length)
             if (tobeIntervenedEvents) {
                 intervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
@@ -78,7 +78,7 @@ function findLowestLevelJson(nextEvents){
     if (lowestJsons.length == 0) {
         return lowestJsons
     } else {
-        lowerJsons = findLowestLevelJson(lowestJsons)
+        var lowerJsons = findLowestLevelJson(lowestJsons)
         if (lowerJsons.length != 0) {
            lowestJsons = lowerJsons
         }
