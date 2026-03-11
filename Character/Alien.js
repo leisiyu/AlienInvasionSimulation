@@ -783,7 +783,7 @@ Alien.prototype.getRunAwayDirection = function(){
 			oppositDir.push(Utils.DIRECTION[1])
 		}
 		
-	} else if (this.position[1] - this.state.target.position[1] < 1 && this.position[1] - 1 > 0) {
+	} else if (this.position[1] - this.state.target.position[1] < 0 && this.position[1] - 1 > 0) {
 		if (this.checkIfPositionAccessible([this.position[0], this.position[1] - 1])) {
 			oppositDir.push(Utils.DIRECTION[0])
 		}	
