@@ -122,9 +122,9 @@ function findLowestPartialMatch(currentPartialMatch, pool){
                 //     && partial.actors[0] == currentPartialMatch.actors[0]
                 //     && (partial.actors[1] == undefined || currentPartialMatch.actors[1] == undefined || (partial.actors[1] == currentPartialMatch.actors[1]))
                 if (partial.highLevelEventJson["tag"] == lowerLevelEventJson["tag"]
-                    && partial.actors[partial.mainCharacters[0]] == currentPartialMatch.actors[currentPartialMatch.mainCharacters[0]]
-                    && ((partial.mainCharacters[1] == undefined && currentPartialMatch.mainCharacters[1] == undefined) 
-                        || partial.actors[partial.mainCharacters[1]] == currentPartialMatch.actors[currentPartialMatch.mainCharacters[1]])
+                    && partial.actors[partial.highLevelEventJson["main_characters"][0]] == currentPartialMatch.actors[currentPartialMatch.highLevelEventJson["main_characters"][0]]
+                    && ((partial.highLevelEventJson["main_characters"][1] == undefined && currentPartialMatch.highLevelEventJson["main_characters"][1] == undefined) 
+                        || partial.actors[partial.highLevelEventJson["main_characters"][1]] == currentPartialMatch.actors[currentPartialMatch.highLevelEventJson["main_characters"][1]])
                 ) {
                     nextLevelPartialMatch = partial
                     nextLevelPartialMatch = findLowestPartialMatch(nextLevelPartialMatch, pool)
