@@ -110,9 +110,13 @@ var Townfolk = function(name, position){
 						// state type maybe changed in the attack function
 						var attackType = townfolkThis.criticalHitProbability.randomlyPick()
 						var attackRatio = attackType == Utils.ATTACK_TYPE[0] ? 1 : Utils.CRITICAL_HIT
+						var attackBase = townfolkThis.attackValue
+						if (isSuccessfulAttack.length > 2 && isSuccessfulAttack[2] != null) {
+							attackBase = isSuccessfulAttack[2].value
+						}
 						var msg = {
 							msgType: "attacked",
-							atkValue: Math.floor(townfolkThis.attackValue * attackRatio),
+							atkValue: Math.floor(attackBase * attackRatio),
 							attacker: townfolkThis.charName,
 						}
 						this.sendMsg(townfolkThis.order.target.simEvent.guid(), {
@@ -146,9 +150,13 @@ var Townfolk = function(name, position){
 					if (isSuccessfulAttack[0]) {
 						// notify the attacked character
 						// state type maybe changed in the attack function
+						var attackBase = townfolkThis.attackValue
+						if (isSuccessfulAttack.length > 2 && isSuccessfulAttack[2] != null) {
+							attackBase = isSuccessfulAttack[2].value
+						}
 						var msg = {
 							msgType: "attacked",
-							atkValue: Math.floor(townfolkThis.attackValue * Utils.CRITICAL_HIT),
+							atkValue: Math.floor(attackBase * Utils.CRITICAL_HIT),
 							attacker: townfolkThis.charName,
 						}
 						this.sendMsg(townfolkThis.order.target.simEvent.guid(), {
@@ -168,6 +176,9 @@ var Townfolk = function(name, position){
 					townfolkThis.hideOrWander(this.time)
 					break
 				case Utils.CHARACTER_STATES.WANDER:
+					townfolkThis.wander(this.time)
+					break
+				case Utils.CHARACTER_STATES.PATROL:
 					townfolkThis.wander(this.time)
 					break
 				case Utils.CHARACTER_STATES.RUN_AWAY:
@@ -359,6 +370,13 @@ Townfolk.prototype.getAttacked = function(time, attacker, atkValue){
 
 // hide only happen in a building
 Townfolk.prototype.hideOrWander = function(time){
+
+	if (this.hasWeapon()) {
+		this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
+		this.wander(time)
+		return
+	}
+
 	// townfolk may wander/hide in a building
 	var newState = this.hideProbability.randomlyPick()
 	var oldState = this.state.stateType
@@ -404,7 +422,7 @@ Townfolk.prototype.updateStates = function(time){
 	
 	if (isInBuilding[0]) {
 		if (this.hasWeapon()) {
-			 this.state.setState(Utils.CHARACTER_STATES.WANDER, null)
+			 this.state.setState(Utils.CHARACTER_STATES.PATROL, null)
 		} else {
 			var newState = this.hideProbability.randomlyPick()
 			this.state.setState(newState, null)

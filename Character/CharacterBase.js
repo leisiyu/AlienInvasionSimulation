@@ -467,11 +467,6 @@ function addOrder(character, target, order, time){
 			case ORDER_TYPE.KILL:
 				target = findEnemy(character, order, time, false)
 				break
-			case ORDER_TYPE.MOVE:
-				// TO DO: find????
-				// enemy or ally
-				// chasing is enemy
-				break
 			case ORDER_TYPE.HEAL:
 				target = findAlly(character, order, time)
 				break
@@ -540,7 +535,7 @@ function findEnemy(agent, order, time, needNeutralState = true){
     /// if target is an alien, find solders and armed civilians
     /// if target is a human, find aliens
 
-    var range = 20
+    var range = 15
 	var startX = agent.position[0] - range < 0 ? 0 : agent.position[0] - range
 	var endX = agent.position[0] + range >= Utils.MAP_SIZE[0] ? Utils.MAP_SIZE[0] - 1 : agent.position[0] + range
 	var startY = agent.position[1] - range < 0 ? 0 : agent.position[1] - range
@@ -687,13 +682,69 @@ function orderAttack(character, time){
 		return [false, result]
 	}
 
-	Logger.info({
-		N1: character.charName,
-		L: "attacks",
-		N2: target.charName,
-		T: time,
-		Note: "order"
-	})
+	
+
+	if (character.inventory != null && character.inventory.length > 0){
+		for (let i = 0; i < character.inventory.length; i++){
+            var weapon = character.inventory[i]
+            if (weapon.gearType == Utils.GEAR_TYPES[1]) {
+                // const Logger = require('../Logger.js').Logger
+                Logger.info({
+                    N1: character.charName,
+                    L: "shoots",
+                    N2: target.charName,
+                    T: time,
+                })
+				Logger.statesInfo(JSON.stringify({
+					N: character.charName,
+					S: Utils.CHARACTER_STATES.ATTACK, 
+					P: character.position,
+					T: time
+				}))
+                var isAvailable = weapon.use(time)
+                if (!isAvailable) {
+                    character.inventory.splice(i, 1)
+                    Logger.info({
+                        "N1": weapon.name,
+                        "L": "is broken",
+                        "N2": "",
+                        "T": time,
+                    })
+                }
+				Logger.statesInfo(JSON.stringify({
+					N: character.charName,
+					S: Utils.CHARACTER_STATES.ATTACK, 
+					P: character.position,
+					T: time
+				}))
+				character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
+                return [true, true, weapon]
+            }
+        }
+		Logger.info({
+			N1: character.charName,
+			L: "attacks",
+			N2: target.charName,
+			T: time,
+			Note: "order"
+		})
+		Logger.statesInfo(JSON.stringify({
+			N: character.charName,
+			S: Utils.CHARACTER_STATES.ATTACK, 
+			P: character.position,
+			T: time
+		}))
+		character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
+		return [true, true]
+	} else {
+		Logger.info({
+			N1: character.charName,
+			L: "attacks",
+			N2: target.charName,
+			T: time,
+			Note: "order"
+		})
+	}
 
 	// console.log("order success: attack")
 	character.state.setState(Utils.CHARACTER_STATES.ATTACK, character.order.target)
