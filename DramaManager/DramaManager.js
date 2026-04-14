@@ -2,7 +2,7 @@
 // Weak action based intra-manifold
 const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
 // const HighLevelEvents = require("../StorySifter/HighLevelEventsTest.json")
-const Intervention = require("./Intervention.js")
+const IntraManifoldABIntervention = require("./IntraManifoldABIntervention.js")
 
 // check in every beat
 function checkPartialMatchPool(pool, time){
@@ -24,7 +24,7 @@ function intervene(nextEvents, partialMatchId, partialMatchType, time){
         var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
 
         // console.log("partial match: " + nextEvent["L"] + " " + nextEvent["N2"])
-        Intervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
+        IntraManifoldABIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
     } else {
         console.log("No next lowest event found for intervention.")
     }
