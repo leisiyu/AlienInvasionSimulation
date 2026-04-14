@@ -30,7 +30,7 @@ function updateEvents(totalTimeSteps){
 
         // record PCF g(r) each beat with binWidth = 3
         // PCF.recordAggregation(scheduler.current_time, { binWidth: 5 })
-        if (Util.DOES_INTERVENTE){
+        if (Util.INTRA_MANIFOLD_AB_ENABLED){
             // Lazy require to avoid circular dependency during initialization
             const Pool = require('./StorySifter/Pool')
             DramaManager.checkPartialMatchPool(Pool.partialMatchPool, scheduler.current_time)

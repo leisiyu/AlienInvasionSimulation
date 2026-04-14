@@ -207,7 +207,7 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // Clark–Evans R over all beats in this run
     results["averageAggregation"] = ClarkEvans.getAverageR()
     // Only store the R values (one per beat), not the full objects
-    results["allR"] = ClarkEvans.getAggregatedRResults().map(r => r.R)
+    // results["allR"] = ClarkEvans.getAggregatedRResults().map(r => r.R)
 
     // Pair Correlation Function g(r), averaged over all beats (binWidth = 3)
     // var averagePCF = PCF.getAverageG()
@@ -319,8 +319,9 @@ Logger.getDirNameWithoutIdx = function(){
     // var dirName = __dirname + "/StableTest/M" + Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // var dirName = __dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO)
     // var dirName = __dirname + "/SimulatorTime/" + Utils.TIME_STEPS
-    var dramaManagerSwitch = Utils.DOES_INTERVENTE ? "DramaManagerOn" : "DramaManagerOff"
-    var dirName = __dirname + "/DM_Test/" + dramaManagerSwitch 
+    var dramaManagerIntraSwitch = Utils.INTRA_MANIFOLD_AB_ENABLED ? "IntraABOn" : "IntraABOff"
+    var dramaManagerInterSwitch = Utils.INTER_MANIFOLD_ENABLED ? "InterOn" : "InterOff"
+    var dirName = __dirname + "/DM_Test/" + dramaManagerIntraSwitch + "_" + dramaManagerInterSwitch 
 
 
     if (!fs.existsSync( dirName)) {
