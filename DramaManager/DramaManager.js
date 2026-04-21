@@ -3,6 +3,8 @@
 const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
 // const HighLevelEvents = require("../StorySifter/HighLevelEventsTest.json")
 const IntraManifoldABIntervention = require("./IntraManifoldABIntervention.js")
+const InterManifoldIntervention = require("./InterManifoldIntervention.js")
+const Utils = require("../Utils.js")
 
 // check in every beat
 function checkPartialMatchPool(pool, time){
@@ -13,13 +15,27 @@ function checkPartialMatchPool(pool, time){
             var tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             // console.log("partial match: " + partialMatch.eventName + " " + tobeIntervenedEvents.length)
             if (tobeIntervenedEvents) {
-                intervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
+                if (Utils.INTRA_MANIFOLD_AB_ENABLED) {
+                    intraABIntervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
+                }
+                if (Utils.INTER_MANIFOLD_ENABLED) {
+                    interManifoldIntervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
+                }
             }
         }
     }
 }
 
-function intervene(nextEvents, partialMatchId, partialMatchType, time){
+function interManifoldIntervene(nextEvents, partialMatchId, partialMatchType, time){
+    if (nextEvents.length != 0) {
+        var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
+        InterManifoldIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
+    } else {
+        console.log("No next lowest event found for intervention.")
+    }
+}
+
+function intraABIntervene(nextEvents, partialMatchId, partialMatchType, time){
     if (nextEvents.length != 0) {
         var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
 
@@ -139,6 +155,11 @@ function findLowestPartialMatch(currentPartialMatch, pool){
     return nextLevelPartialMatch
 }
 
+function addObjectOnMap(){
+    InterManifoldIntervention.addObjectOnMap()
+}
+
 module.exports = {
     checkPartialMatchPool,
+    addObjectOnMap,
 }

@@ -184,6 +184,8 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
     finalResults = finalResults + "Simulation time: " + timeSteps + '\n\n'
     finalResults = finalResults + "Issued order number:" + DramaManagerData.getIssuedOrderNumber() + '\n'
     finalResults = finalResults + "Executed order number: " + DramaManagerData.getExecutedOrderNumber() + '\n'
+    finalResults = finalResults + "Added agents number: " + CharactersData.getNewAddedCharacters().length + '\n'
+    finalResults = finalResults + "Population: " + CharactersData.charactersArray.length + '\n'
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
@@ -213,6 +215,9 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // var averagePCF = PCF.getAverageG()
     // results["pcfRadii"] = averagePCF.radii
     // results["pcfG"] = averagePCF.g
+
+    results["addedAgentsNumber"] = CharactersData.getNewAddedCharacters().length
+    results["population"] = CharactersData.charactersArray.length
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {

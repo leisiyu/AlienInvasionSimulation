@@ -202,6 +202,57 @@ function getNEarestWeaponPos(pos){
     } 
 }
 
+function getTheNearestPosOnEdge(pos){
+    var edges = []
+    edges.push([0, pos[1]])
+    edges.push([Utils.MAP_SIZE[0] - 1, pos[1]])
+    edges.push([pos[0], 0])
+    edges.push([pos[0], Utils.MAP_SIZE[1] - 1])
+    
+    var distances = []
+    for (let i = 0; i < edges.length; i++) {
+        var distance = Math.abs(edges[i][0] - pos[0]) + Math.abs(edges[i][1] - pos[1])
+        distances.push(distance)
+    }
+    var minDistance = Math.min(...distances)
+    var edgeIdx = distances.indexOf(minDistance)
+    if (edgeIdx != -1) {
+        return edges[edgeIdx]
+    }
+    return [0, 0]
+}
+function getTheNearestInsideBuildingPos(pos){
+    var distances = []
+    for (let i = 0; i < getAllBuildings().length; i++) {
+        var building = map.buildings[i]
+        var distanceX = pos[0] < building.position[0] ? building.position[0] - pos[0] : pos[0] - building.position[0] - building.size[0]
+        var distanceY = pos[1] < building.position[1] ? building.position[1] - pos[1] : pos[1] - building.position[1] - building.size[1]
+        var distance = distanceX + distanceY
+        distances.push(distance)
+    }
+    var minDistance = Math.min(...distances)
+    var buildingIdx = distances.indexOf(minDistance)
+    if (buildingIdx != -1) {
+        var building = map.buildings[buildingIdx]
+        return [building.position[0] + Math.floor(Math.random * building.size[0]), building.position[1] + Math.floor(Math.random * building.size[1])]
+    }
+    return [0, 0]
+}
+
+// used for inter-manifold intervention
+// generate a new gear on the map
+function addGearObjectOnMap(gearObject){
+    var position = getTheNearestInsideBuildingPos(gearObject.targetPosition)
+    var valueMin = Utils.HEALS[gearObject.objectSubType].value[0]
+    var valueMax = Utils.HEALS[gearObject.objectSubType].value[1]
+    var randomValue = Math.floor(Math.random() * (valueMax - valueMin + 1)) + valueMin
+    var gear = new Gear(Utils.GEAR_TYPES[0], gearObject.objectSubType, randomValue, Utils.HEALS[gearObject.objectSubType].durability)
+    gear.name = gearObject.objectName
+    gear.updateMapPosition(position)
+
+    gearsOnMap.push(gear)
+}
+
 module.exports = {
     generateMap,
     getMap,
@@ -217,4 +268,7 @@ module.exports = {
     addGearOnMap,
     getNearestMedikitPos,
     getNEarestWeaponPos,
+    getTheNearestPosOnEdge,
+    getTheNearestInsideBuildingPos,
+    addGearObjectOnMap,
 }
