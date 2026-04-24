@@ -216,8 +216,10 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // results["pcfRadii"] = averagePCF.radii
     // results["pcfG"] = averagePCF.g
 
-    results["addedAgentsNumber"] = CharactersData.getNewAddedCharacters().length
+    results["addedMedikitsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.GEAR)
+    results["addedAgentsNumber1"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.AGENT)
     results["population"] = CharactersData.charactersArray.length
+    
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {

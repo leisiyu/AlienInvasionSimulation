@@ -5,20 +5,26 @@ const CharacterBase = require("../Character/CharacterBase.js")
 const Soldier = require("../Character/Soldier.js").Soldier
 const Alien = require("../Character/Alien.js").Alien
 const Townfolk = require("../Character/Townfolk.js").Townfolk
+const DramaManagerData = require("./DramaManagerData.js")
+const Priority = require("./Priority.js")
 
 const InterventionNumEachBeat = 3
+// When the two candidates’ occurrence weights differ by less than this, nearer placement wins; otherwise the higher weight wins. Tune vs Priority’s WEIGHT_ISSUED_TIMES and typical log-ratio magnitudes.
+const InterventionOccurrenceWeightMargin = 8
 const newObjects = []
 var newObjectIdx = 1
 
 
 // objectType: agent or gear
 // objectSubType: agent type or gear type
-function SingleObject(objectType, objectSubType, objectName, targetPosition, time){
+function SingleObject(objectType, objectSubType, objectName, targetPosition, partialMatchId, partialMatchType, time){
     this.objectType = objectType
     this.objectSubType = objectSubType
     this.objectName = objectName
     this.targetPosition = targetPosition
     this.position = [0,0]
+    this.partialMatchId = partialMatchId
+    this.partialMatchType = partialMatchType
     this.time = time
 }
 
@@ -60,7 +66,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                         break;
                 }
 
-                generateNewAgentInfo(newAgentType, agent.position, time)
+                generateNewAgentInfo(newAgentType, agent.position, partialMatchId, partialMatchType, time)
             } else if (agent == null && target != null){
                 var newAgentType = Utils.CHARACTER_TYPE.SOLDIER
                 switch (target.objType){
@@ -74,7 +80,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
-                generateNewAgentInfo(newAgentType, target.position, time)
+                generateNewAgentInfo(newAgentType, target.position, partialMatchId, partialMatchType, time)
             }
             break;  
             
@@ -92,14 +98,14 @@ function intervene(event, partialMatchId, partialMatchType, time){
             if (agent != null && target == null){
                 var newAgentType = Utils.CHARACTER_TYPE.SOLDIER
 
-                generateNewAgentInfo(newAgentType, agent.position, time)
+                generateNewAgentInfo(newAgentType, agent.position, partialMatchId, partialMatchType, time)
             } else if (agent == null && target != null){
                 var newAgentType = Utils.CHARACTER_TYPE.SOLDIER
 
-                generateNewAgentInfo(newAgentType, target.position, time)
+                generateNewAgentInfo(newAgentType, target.position, partialMatchId, partialMatchType, time)
             } else if (agent != null && target != null){
                 if (CharacterBase.hasMediKit(agent.inventory)[0]){
-                    // generateNewMedikitInfo(agent.position, time)
+                    generateNewMedikitInfo(agent.position, partialMatchId, partialMatchType, time)
                 }
             }
             break;
@@ -127,7 +133,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                         break;
                 }
 
-                generateNewAgentInfo(newAgentType, agent.position, time)
+                generateNewAgentInfo(newAgentType, agent.position, partialMatchId, partialMatchType, time)
             } else if (agent == null && target != null){
                 var newAgentType = Utils.CHARACTER_TYPE.SOLDIER
                 switch (target.objType){
@@ -141,7 +147,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
-                generateNewAgentInfo(newAgentType, target.position, time)
+                generateNewAgentInfo(newAgentType, target.position, partialMatchId, partialMatchType, time)
             }
             
             break;
@@ -150,7 +156,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
 }
 
 
-function generateNewAgentInfo(agentType, position, time){
+function generateNewAgentInfo(agentType, position, partialMatchId, partialMatchType, time){
     var agentName = "n"
     // var agentPosition = [0,0]
     switch (agentType){
@@ -168,7 +174,7 @@ function generateNewAgentInfo(agentType, position, time){
             break;
     }
     newObjectIdx = newObjectIdx + 1
-    var newAgent = new SingleObject(Utils.OBJECT_TYPE.AGENT, agentType, agentName, position, time)
+    var newAgent = new SingleObject(Utils.OBJECT_TYPE.AGENT, agentType, agentName, position, partialMatchId, partialMatchType, time)
     newAgent.position = getObjectPosition(newAgent)
     newObjects.push(newAgent)
 }
@@ -186,12 +192,12 @@ function getObjectPosition(object){
     return objectPosition
 }
 
-function generateNewMedikitInfo(position, time){
+function generateNewMedikitInfo(targetPosition, partialMatchId, partialMatchType, time){
     var keys = Object.keys(Utils.HEALS)
     var medikitSubType = keys[Math.floor(keys.length * Math.random())]
     var medikitName = "n" + medikitSubType + newObjectIdx
     
-    var newMedikit = new SingleObject(Utils.OBJECT_TYPE.GEAR, medikitSubType, medikitName, position, time)
+    var newMedikit = new SingleObject(Utils.OBJECT_TYPE.GEAR, medikitSubType, medikitName, targetPosition, partialMatchId, partialMatchType, time)
     newMedikit.position = getObjectPosition(newMedikit)
 
     newObjects.push(newMedikit)
@@ -216,20 +222,21 @@ function calDistance(object) {
     return Math.abs(object.position[0] - object.targetPosition[0]) + Math.abs(object.position[1] - object.targetPosition[1])
 }
 
-function nearestAgentRankFirst(a, b) {
-    var da = calDistance(a)
-    var db = calDistance(b)
-    
-    return da - db
-    
+function interventionRank(a, b) {
+    var wa = Priority.calculateOccurenceWeight(a.partialMatchType)
+    var wb = Priority.calculateOccurenceWeight(b.partialMatchType)
+    if (Math.abs(wa - wb) < InterventionOccurrenceWeightMargin) {
+        return calDistance(a) - calDistance(b)
+    }
+    return wb - wa
 }
 
-// Pending objects closest to any living agent are added first (see nearestAgentRankFirst)
+// Pending inter-manifold spawns: strong occurrence-weight differences decide; otherwise nearest to target
 function addObjectOnMap(){
     if (newObjects.length == 0) {
         return
     }
-    newObjects.sort(nearestAgentRankFirst)
+    newObjects.sort(interventionRank)
 
     const Scheduler = require("../Scheduler.js")
 
@@ -240,49 +247,54 @@ function addObjectOnMap(){
             break
         }
 
-        // console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName)
-        if (object.objectType === Utils.OBJECT_TYPE.AGENT){
-            // check population first, avoid too many agents on the map
-            var agentPopulation = 0
-            var maxPopulationRatio = 1
-            switch (object.objectSubType){
-                case Utils.CHARACTER_TYPE.SOLDIER:
-                    agentPopulation = Utils.SOLIDERS_NUM * maxPopulationRatio
-                    break
-                case Utils.CHARACTER_TYPE.ALIEN:
-                    agentPopulation = Utils.ALIENS_NUM *  maxPopulationRatio
-                    break
-                case Utils.CHARACTER_TYPE.TOWNSFOLK:
-                    agentPopulation = Utils.TOWNFOLKS_NUM * maxPopulationRatio
-                    break
-            }
-            if (CharactersData.getPopulationByType(object.objectSubType) <= agentPopulation){
-                var agent = null
+        console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName)
+        if (!DramaManagerData.checkIsObjectCreatedBefore(object)){
+            if (object.objectType === Utils.OBJECT_TYPE.AGENT){
+                // check population first, avoid too many agents on the map
+                var agentPopulation = 0
+                var maxPopulationRatio = 1
                 switch (object.objectSubType){
                     case Utils.CHARACTER_TYPE.SOLDIER:
-                        var agent = new Soldier(object.objectName, object.position)
+                        agentPopulation = Utils.SOLIDERS_NUM * maxPopulationRatio
                         break
                     case Utils.CHARACTER_TYPE.ALIEN:
-                        var agent = new Alien(object.objectName, object.position)
+                        agentPopulation = Utils.ALIENS_NUM *  maxPopulationRatio
                         break
                     case Utils.CHARACTER_TYPE.TOWNSFOLK:
-                        var agent = new Townfolk(object.objectName, object.position)
+                        agentPopulation = Utils.TOWNFOLKS_NUM * maxPopulationRatio
                         break
                 }
-                if (agent != null){
-                    CharactersData.addNewCharacter(agent)
-                    Scheduler.scheduler.scheduleRepeatingIn(agent.simEvent, 1)
-                    index = index + 1
+                if (CharactersData.getPopulationByType(object.objectSubType) <= agentPopulation){
+                    var agent = null
+                    switch (object.objectSubType){
+                        case Utils.CHARACTER_TYPE.SOLDIER:
+                            var agent = new Soldier(object.objectName, object.position)
+                            break
+                        case Utils.CHARACTER_TYPE.ALIEN:
+                            var agent = new Alien(object.objectName, object.position)
+                            break
+                        case Utils.CHARACTER_TYPE.TOWNSFOLK:
+                            var agent = new Townfolk(object.objectName, object.position)
+                            break
+                    }
+                    if (agent != null){
+                        CharactersData.addNewCharacter(agent)
+                        Scheduler.scheduler.scheduleRepeatingIn(agent.simEvent, 1)
+                        DramaManagerData.recordInterManifoldIntervention(object)
+                        index = index + 1
+                    }
+                    
+                } else {
+                    continue
                 }
-                
-            } else {
-                continue
+               
+            } else if (object.objectType === Utils.OBJECT_TYPE.GEAR){
+                MapManager.addGearObjectOnMap(object)
+                DramaManagerData.recordInterManifoldIntervention(object)
+                index = index + 1
             }
-           
-        } else if (object.objectType === Utils.OBJECT_TYPE.GEAR){
-            MapManager.addGearObjectOnMap(object)
-            index = index + 1
         }
+        
     }
 }
 module.exports = {

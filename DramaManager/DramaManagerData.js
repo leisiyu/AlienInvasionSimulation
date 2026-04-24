@@ -10,6 +10,8 @@ var ExecutedOrderRecords = []
 // var intervenedStoryCount = 0
 var intervenedStoryTypeCount = {}
 
+var InterManifoldInterventionRecords = []
+
 function SingleRecord(agentName, order, time) {
     this.agentName = agentName
     this.order = order,
@@ -100,6 +102,43 @@ function getIssuedOrders(){
     return IssuedOrderRecords
 }
 
+//------ Inter-manifold intervention records ------
+// function InterManifoldSingleRecord(objectName, objectType, time) {
+//     this.objectName = objectName
+//     this.objectType = objectType,
+//     this.time = time
+// } 
+
+function recordInterManifoldIntervention(object){
+    InterManifoldInterventionRecords.push(object)
+}
+
+function getInterManifoldInterventionRecords(){
+    return InterManifoldInterventionRecords
+}
+
+function checkIsObjectCreatedBefore(object){
+    for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
+        var record = InterManifoldInterventionRecords[i]
+        if (record.partialMatchId == object.partialMatchId && record.partialMatchType == object.partialMatchType) {
+            return true
+        }
+    }
+    return false
+}
+
+function getInterManifoldInterventionCountByType(objType){
+    var count = 0
+    for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
+        var record = InterManifoldInterventionRecords[i]
+        if (record.objectType == objType) {
+            count++
+        }
+    }
+    return count
+}
+//------ Inter-manifold intervention records ------
+
 module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
@@ -112,5 +151,9 @@ module.exports = {
     getIssuedOrderNumber,
     getExecutedOrderNumber,
     getIssuedOrders,
-    getIntervenedStoryDetails
+    getIntervenedStoryDetails,
+    recordInterManifoldIntervention,
+    getInterManifoldInterventionRecords,
+    checkIsObjectCreatedBefore,
+    getInterManifoldInterventionCountByType
 }
