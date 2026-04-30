@@ -39,7 +39,9 @@ function updateEvents(totalTimeSteps){
                 // add object in each beat
                 DramaManager.addObjectOnMap()
             }
+
         }
+        Logger.recordPopulationInfo()
 
 		// TEST: Count neutral agents each beat
 		// Logger.countNeutralAgents(scheduler.current_time)
@@ -60,6 +62,8 @@ function updateEvents(totalTimeSteps){
             // var averagePCF = PCF.getAverageG()
             // console.log('Average PCF radii:', averagePCF.radii)
             // console.log('Average PCF g:', averagePCF.g)
+
+            Logger.writePopulationInfoToFile()
         }
 	}
 }

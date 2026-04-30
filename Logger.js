@@ -9,6 +9,7 @@ var Logger = {
     logQueue: [],
     statesLogQueue: [],
     neutralCountLogQueue: [],
+    populationInfoLogQueue: [],
     index: 0,
 }
 
@@ -287,10 +288,35 @@ Logger.outputOrderResults = function(){
             })
 }
 
+Logger.recordPopulationInfo = function(time){
+    var populationInfo = {
+        T: time,
+        totalAgentsGenerated: CharactersData.getTotalAgentsGenerated(),
+        aliveCount: CharactersData.getPopulationByType(),
+        aliveAliensCount: CharactersData.getPopulationByType(Utils.CHARACTER_TYPE.ALIEN),
+        aliveSoldiersCount: CharactersData.getPopulationByType(Utils.CHARACTER_TYPE.SOLDIER),
+        aliveTownsfolksCount: CharactersData.getPopulationByType(Utils.CHARACTER_TYPE.TOWNSFOLK),
+        generatedCount: CharactersData.getNewAddedCharacters().length,
+        generatedAliensCount: CharactersData.getNewAddedCharacterCountByType(Utils.CHARACTER_TYPE.ALIEN),
+        generatedSoldiersCount: CharactersData.getNewAddedCharacterCountByType(Utils.CHARACTER_TYPE.SOLDIER),
+        generatedTownsfolksCount: CharactersData.getNewAddedCharacterCountByType(Utils.CHARACTER_TYPE.TOWNSFOLK),
+    }
+
+    this.populationInfoLogQueue.push(JSON.stringify(populationInfo))
+}
+
+Logger.writePopulationInfoToFile = function(){
+    var dirName = this.getDirName()
+    fs.writeFileSync(dirName + "/PopulationInfo" + ".txt", this.populationInfoLogQueue.join("\n"), (err) => {
+        if (err) throw err;
+    })
+}
+
 Logger.clearQueue = function(){
     Logger.logQueue = []
     Logger.statesLogQueue = []
     Logger.neutralCountLogQueue = []
+    Logger.populationInfoLogQueue = []
 }
 
 var dirNameIdx = ""

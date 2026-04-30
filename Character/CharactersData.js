@@ -16,10 +16,12 @@ function getCharacterByName(name){
 function getPopulationByType(type){
     var population = 0
     for (let i = 0; i < charactersArray.length; i++) {
-        if (charactersArray[i].objType == type
-            && charactersArray[i].state.stateType != Utils.CHARACTER_STATES.DIED
-        ) {
-            population = population + 1
+        if (charactersArray[i].state.stateType != Utils.CHARACTER_STATES.DIED) {
+            if (type == null) {
+                population = population + 1
+            } else if (charactersArray[i].objType == type) {
+                population = population + 1
+            }
         }
     }
     return population
@@ -34,10 +36,27 @@ function getNewAddedCharacters(){
     return newAddedCharacters
 }
 
+function getTotalAgentsGenerated(){
+    return charactersArray.length
+}
+
+function getNewAddedCharacterCountByType(type){
+    var count = 0
+    for (let i = 0; i < newAddedCharacters.length; i++) {
+        if (type == null || newAddedCharacters[i].objType == type) {
+            count++
+        }
+    }
+    return count
+}
+
+
 module.exports = {
     charactersArray,
     getCharacterByName,
     getPopulationByType,
     addNewCharacter,
     getNewAddedCharacters,
+    getTotalAgentsGenerated,
+    getNewAddedCharacterCountByType,
 }
