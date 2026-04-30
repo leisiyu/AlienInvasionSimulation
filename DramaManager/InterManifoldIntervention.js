@@ -61,7 +61,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                     case Utils.CHARACTER_TYPE.TOWNSFOLK:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
-                    case Utils.CHARACTER_TYPE.TOWNSFOLK:
+                    case Utils.CHARACTER_TYPE.SOLDIER:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
@@ -76,7 +76,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                     case Utils.CHARACTER_TYPE.TOWNSFOLK:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
-                    case Utils.CHARACTER_TYPE.TOWNSFOLK:
+                    case Utils.CHARACTER_TYPE.SOLDIER:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
@@ -128,7 +128,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                     case Utils.CHARACTER_TYPE.TOWNSFOLK:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
-                    case Utils.CHARACTER_TYPE.TOWNSFOLK:
+                    case Utils.CHARACTER_TYPE.SOLDIER:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
@@ -264,7 +264,7 @@ function addObjectOnMap(){
                         agentPopulation = Utils.TOWNFOLKS_NUM * maxPopulationRatio
                         break
                 }
-                if (CharactersData.getPopulationByType(object.objectSubType) <= agentPopulation){
+                if (CharactersData.getPopulationByType(object.objectSubType) < agentPopulation){
                     var agent = null
                     switch (object.objectSubType){
                         case Utils.CHARACTER_TYPE.SOLDIER:
