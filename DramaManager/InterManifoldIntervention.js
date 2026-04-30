@@ -104,7 +104,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
 
                 generateNewAgentInfo(newAgentType, target.position, partialMatchId, partialMatchType, time)
             } else if (agent != null && target != null){
-                if (CharacterBase.hasMediKit(agent.inventory)[0]){
+                if (!CharacterBase.hasMediKit(agent.inventory)[0]){
                     generateNewMedikitInfo(agent.position, partialMatchId, partialMatchType, time)
                 }
             }
@@ -143,7 +143,7 @@ function intervene(event, partialMatchId, partialMatchType, time){
                     case Utils.CHARACTER_TYPE.TOWNSFOLK:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
-                    case Utils.CHARACTER_TYPE.TOWNSFOLK:
+                    case Utils.CHARACTER_TYPE.SOLDIER:
                         newAgentType = Utils.CHARACTER_TYPE.ALIEN
                         break;
                 }
