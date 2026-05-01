@@ -10,6 +10,7 @@ var Logger = {
     statesLogQueue: [],
     neutralCountLogQueue: [],
     populationInfoLogQueue: [],
+    partialMatchCreatedEachBeatLogQueue: [],
     index: 0,
 }
 
@@ -73,6 +74,10 @@ Logger.statesInfo = function(infoStr){
 //     this.orderQueue.push(JSON.stringify(infoJson))
 // }
 
+
+Logger.recordPartialMatchCreatedEachBeat = function(count){
+    this.partialMatchCreatedEachBeatLogQueue.push(count)
+}
 
 Logger.setKeyFrame = function(){
     var keyFrame = {}
@@ -187,6 +192,8 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
     finalResults = finalResults + "Executed order number: " + DramaManagerData.getExecutedOrderNumber() + '\n'
     finalResults = finalResults + "Added agents number: " + CharactersData.getNewAddedCharacters().length + '\n'
     finalResults = finalResults + "Population: " + CharactersData.charactersArray.length + '\n'
+    finalResults = finalResults + "Partial match created each beat: " + this.partialMatchCreatedEachBeatLogQueue.join(", ") + '\n'
+    
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
         if (err) throw err;
@@ -218,9 +225,9 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // results["pcfG"] = averagePCF.g
 
     results["addedMedikitsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.GEAR)
-    results["addedAgentsNumber1"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.AGENT)
+    results["addedAgentsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.AGENT)
     results["population"] = CharactersData.charactersArray.length
-    
+    results["partialMatchCreatedEachBeat"] = this.partialMatchCreatedEachBeatLogQueue
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
@@ -317,6 +324,7 @@ Logger.clearQueue = function(){
     Logger.statesLogQueue = []
     Logger.neutralCountLogQueue = []
     Logger.populationInfoLogQueue = []
+    Logger.partialMatchCreatedEachBeatLogQueue = []
 }
 
 var dirNameIdx = ""

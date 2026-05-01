@@ -13,10 +13,12 @@ var totalCompleteNum = 0
 var totalHighLevelEvents = 0
 var totalMiniStories = 0
 var miniStoriesType = {}
-var totalAbandonedEvents = 0
+var totalUnlessForeverEvents = 0
 var initiatedHighLevelEvents = 0
 var initiatedStories = 0
 var partialMatchId = 0
+var totalAbandonedEvents = 0
+var newAddedPartialMatchCount = 0
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -71,7 +73,8 @@ function matchNew(newEvent, successfulEvents){
                     var newHighEvent = new HighLevelEventModel(eventName, newEvent, i, currentEventModel, matchId)
                     partialMatchPool.push(newHighEvent)
                     totalPartialMatchNum = totalPartialMatchNum + 1
-    
+                    newAddedPartialMatchCount = newAddedPartialMatchCount + 1
+
                     if (currentEventModel["type"] == "high-level") {
                         initiatedHighLevelEvents = initiatedHighLevelEvents + 1
                     } else if (currentEventModel["type"] == "story") {
@@ -100,6 +103,9 @@ function updatePool(newEvent){
             removedEventsPool.push(obj)
             // console.log("new pool length " + removedEventsPool.length)
             // console.log("is End!!!" + JSON.stringify(obj.getJson()) + " " + i)
+            if (!result["isSuccessful"]) {
+                totalAbandonedEvents = totalAbandonedEvents + 1
+            }
         }
 
         if (result["isSuccessful"]) {
@@ -174,11 +180,12 @@ function getResults(){
     for (let i = 0; i < partialMatchPool.length; i++){
         var obj = partialMatchPool[i]
         if (obj.isUnlessForever()) {
-            totalAbandonedEvents = totalAbandonedEvents + 1
+            totalUnlessForeverEvents = totalUnlessForeverEvents + 1
         }
     }
-    result = result + "Unless Forever events: " + totalAbandonedEvents + "\n"
+    result = result + "Unless Forever events: " + totalUnlessForeverEvents + "\n"
 
+    result = result + "Total abandoned events: " + totalAbandonedEvents + "\n"
 
     result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
@@ -234,8 +241,11 @@ function cleanUpPool(time){
         var index = partialMatchPool.indexOf(obj)
         if (index != -1){
             partialMatchPool.splice(index, 1)
+            totalAbandonedEvents = totalAbandonedEvents + 1
         }
     }
+
+    newAddedPartialMatchCount = 0
 }
 
 function getMiniStoryNumByType(type){
@@ -265,6 +275,10 @@ function getTotalStoryNum(){
     return totalMiniStories
 }
 
+function getNewAddedPartialMatchCount() {
+    return newAddedPartialMatchCount
+  }
+
 module.exports = {
     matchNew,
     partialMatchPool,
@@ -273,5 +287,6 @@ module.exports = {
     getResultsJson,
     cleanUpPool,
     getMiniStoryNumByType,
-    getTotalStoryNum
+    getTotalStoryNum,
+    getNewAddedPartialMatchCount
 }

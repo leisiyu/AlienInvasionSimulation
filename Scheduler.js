@@ -46,6 +46,8 @@ function updateEvents(totalTimeSteps){
 		// TEST: Count neutral agents each beat
 		// Logger.countNeutralAgents(scheduler.current_time)
 
+
+        Logger.recordPartialMatchCreatedEachBeat(Pool.getNewAddedPartialMatchCount())
         // clean up the sifter pool
         Pool.cleanUpPool(scheduler.current_time)
         
