@@ -140,6 +140,9 @@ Exported constants/enums include:
     - flushes logger queues,
     - records Clark-Evans aggregation values,
     - runs drama-manager intervention checks (if enabled),
+    - records per-beat population snapshots into logger memory queue,
+    - records per-beat partial-match-created counts for stable-test output,
+    - writes `PopulationInfo.txt` at finalization,
     - cleans story pool,
     - emits final reports.
 
@@ -160,6 +163,9 @@ Exports:
 - `Logger.outputFinalResults(executionTime, timeSteps)`: write `Results.txt`.
 - `Logger.outputStableTestResults(executionTime, timeSteps)`: append batch/stability JSON line.
 - `Logger.outputOrderResults()`: write issued/executed order files.
+- `Logger.recordPartialMatchCreatedEachBeat(count)`: queue one per-beat created-partial-match count.
+- `Logger.recordPopulationInfo(time)`: queue one per-beat population snapshot object.
+- `Logger.writePopulationInfoToFile()`: flush queued population snapshots to `PopulationInfo.txt`.
 - `Logger.clearQueue()`: clear in-memory queues.
 - `Logger.getDirName()`: derive run directory and ensure it exists.
 - `Logger.getDirNameWithoutIdx()`: derive base output directory by drama-mode.
@@ -208,6 +214,11 @@ Purpose: weighted discrete random selection.
 
 - `charactersArray`: in-memory registry of all character objects.
 - `getCharacterByName(name)`: linear search over `charactersArray`.
+- `getPopulationByType(type = null)`: alive count by type, or total alive count when `type` is omitted/null.
+- `addNewCharacter(character)`: append a runtime-generated character and track it in new-additions buffer.
+- `getNewAddedCharacters()`: list of characters generated after initial setup.
+- `getTotalAgentsGenerated()`: total number of character objects ever created in this run.
+- `getNewAddedCharacterCountByType(type = null)`: count newly generated characters by type or in total.
 
 ### `Character/CharactersManager.js`
 
@@ -517,6 +528,7 @@ Purpose: finite-state-like matcher for one high-level event candidate.
 - `getMiniStoryNumByType(type)`
 - `updateMiniStoryNumByType(type)`
 - `getTotalStoryNum()`
+- `newAddedPartialMatchCount` (per-beat counter; incremented in `matchNew`, reset in `cleanUpPool`)
 
 Shared state:
 - `partialMatchPool` and counters for total partial matches/stories/abandoned events.
@@ -667,6 +679,13 @@ Purpose: pair-correlation `g(r)` spatial structure estimation.
 - **Low-level event log record**
   - Produced by `Logger.info(...)`, typical fields:
     - `N1`, `L`, `N2`, `T`, `id`, optional notes.
+
+- **Population snapshot record**
+  - Produced by `Logger.recordPopulationInfo(...)` each beat, then flushed by `Logger.writePopulationInfoToFile()` to `PopulationInfo.txt`.
+  - Fields include:
+    - `T`, `totalAgentsGenerated`,
+    - alive counts (`aliveCount`, `aliveAliensCount`, `aliveSoldiersCount`, `aliveTownsfolksCount`),
+    - newly generated counts (`generatedCount`, `generatedAliensCount`, `generatedSoldiersCount`, `generatedTownsfolksCount`).
 
 - **Partial-match pool**
   - `StorySifter/Pool.js`: `partialMatchPool[]` of `HighLevelEvent` objects.
