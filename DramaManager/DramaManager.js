@@ -15,34 +15,42 @@ function checkPartialMatchPool(pool, time){
             var tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             // console.log("partial match: " + partialMatch.eventName + " " + tobeIntervenedEvents.length)
             if (tobeIntervenedEvents) {
-                if (Utils.INTRA_MANIFOLD_AB_ENABLED) {
-                    intraABIntervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
+
+                var nextEvent 
+                if(tobeIntervenedEvents.length > 0){
+                    nextEvent = tobeIntervenedEvents[Math.floor(Math.random() * tobeIntervenedEvents.length)]
                 }
+
                 if (Utils.INTER_MANIFOLD_ENABLED) {
-                    interManifoldIntervene(tobeIntervenedEvents, partialMatch.matchId, partialMatch.eventName, time)
+                    interManifoldIntervene(nextEvent, partialMatch.matchId, partialMatch.eventName, time)
                 }
+
+                if (Utils.INTRA_MANIFOLD_AB_ENABLED) {
+                    intraABIntervene(nextEvent, partialMatch.matchId, partialMatch.eventName, time)
+                }
+                
             }
         }
     }
 }
 
-function interManifoldIntervene(nextEvents, partialMatchId, partialMatchType, time){
-    if (nextEvents.length != 0) {
-        var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
+function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, time){
+    if (nextEvent) {
+        // var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
         InterManifoldIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
     } else {
-        console.log("No next lowest event found for intervention.")
+        console.log("No next lowest event found for intervention. (inter)")
     }
 }
 
-function intraABIntervene(nextEvents, partialMatchId, partialMatchType, time){
-    if (nextEvents.length != 0) {
-        var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
+function intraABIntervene(nextEvent, partialMatchId, partialMatchType, time){
+    if (nextEvent) {
+        // var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
 
         // console.log("partial match: " + nextEvent["L"] + " " + nextEvent["N2"])
         IntraManifoldABIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
     } else {
-        console.log("No next lowest event found for intervention.")
+        console.log("No next lowest event found for intervention. (intra)")
     }
 }
 
