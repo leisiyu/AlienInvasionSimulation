@@ -236,8 +236,8 @@ function addObjectOnMap(){
     if (newObjects.length == 0) {
         return
     }
-    newObjects.sort(interventionRank)
 
+    newObjects.sort(interventionRank)
     const Scheduler = require("../Scheduler.js")
 
     var index = 0
@@ -247,7 +247,16 @@ function addObjectOnMap(){
             break
         }
 
-        console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName)
+        var objectPosition = object.position
+        if (!Utils.IS_GUIDED_INTER_MANIFOLD){
+            if (object.objectType === Utils.OBJECT_TYPE.AGENT){
+                objectPosition = MapManager.generateRandomPos()
+            }else if (object.objectType === Utils.OBJECT_TYPE.GEAR){
+                objectPosition = MapManager.generateRandomPosInBuilding()
+            }
+        }
+
+        console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName + " " + object.position + " " + object.targetPosition)
         if (!DramaManagerData.checkIsObjectCreatedBefore(object)){
             if (object.objectType === Utils.OBJECT_TYPE.AGENT){
                 // check population first, avoid too many agents on the map
@@ -268,13 +277,13 @@ function addObjectOnMap(){
                     var agent = null
                     switch (object.objectSubType){
                         case Utils.CHARACTER_TYPE.SOLDIER:
-                            var agent = new Soldier(object.objectName, object.position)
+                            var agent = new Soldier(object.objectName, objectPosition)
                             break
                         case Utils.CHARACTER_TYPE.ALIEN:
-                            var agent = new Alien(object.objectName, object.position)
+                            var agent = new Alien(object.objectName, objectPosition)
                             break
                         case Utils.CHARACTER_TYPE.TOWNSFOLK:
-                            var agent = new Townfolk(object.objectName, object.position)
+                            var agent = new Townfolk(object.objectName, objectPosition)
                             break
                     }
                     if (agent != null){
@@ -287,15 +296,16 @@ function addObjectOnMap(){
                 } else {
                     continue
                 }
-               
+            
             } else if (object.objectType === Utils.OBJECT_TYPE.GEAR){
-                MapManager.addGearObjectOnMap(object)
+                MapManager.addGearObjectOnMap(object, objectPosition)
                 DramaManagerData.recordInterManifoldIntervention(object)
                 index = index + 1
             }
-        }
-        
-    }
+        }          
+    } 
+
+    
 }
 module.exports = {
     intervene,
