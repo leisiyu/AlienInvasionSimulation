@@ -232,7 +232,7 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
     // fs.writeFileSync(__dirname + "/StableTest/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
-        fs.writeFileSync(dirName + "/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
+    fs.writeFileSync(dirName + "/" + mid + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
     // fs.writeFileSync(__dirname + "/Ratio/" + JSON.stringify(Utils.CHARACTER_RATIO) + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
         if (err) throw err;
         else {
@@ -344,6 +344,7 @@ Logger.getDirName = function(){
     // }
 
     var dirName = this.getDirNameWithoutIdx()
+
     dirName = dirName + "/" + dirNameIdx
 
     if (!fs.existsSync( dirName)) {
@@ -363,6 +364,10 @@ Logger.getDirNameWithoutIdx = function(){
     var dramaManagerIntraSwitch = Utils.INTRA_MANIFOLD_AB_ENABLED ? "IntraABOn" : "IntraABOff"
     var dramaManagerInterSwitch = Utils.INTER_MANIFOLD_ENABLED ? "InterOn" : "InterOff"
     var dirName = __dirname + "/DM_Test/" + dramaManagerIntraSwitch + "_" + dramaManagerInterSwitch 
+    if (Utils.INTER_MANIFOLD_ENABLED){
+        var interManifoldType = Utils.IS_GUIDED_INTER_MANIFOLD ? "Guided" : "Dumped"
+        dirName = dirName + "/" + interManifoldType
+    }
 
 
     if (!fs.existsSync( dirName)) {
