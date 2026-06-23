@@ -47,7 +47,8 @@ function updateEvents(totalTimeSteps){
 		// Logger.countNeutralAgents(scheduler.current_time)
 
 
-        Logger.recordPartialMatchCreatedEachBeat(Pool.getNewAddedPartialMatchCount())
+        // Logger.recordPartialMatchCreatedEachBeat(Pool.getNewAddedPartialMatchCount())
+        Logger.recordPartialStoryCreatedEachBeat(Pool.getNewAddedPartialStoryCount())
         // clean up the sifter pool
         Pool.cleanUpPool(scheduler.current_time)
         

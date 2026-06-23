@@ -8,8 +8,7 @@ var IssuedOrderRecords = []
 // If two orders issued to the same agent, the agent will only choose one to execute1
 var ExecutedOrderRecords = []
 // var intervenedStoryCount = 0
-var intervenedStoryTypeCount = {}
-
+var intervenedCompletedStoryTypeCount = {}
 var InterManifoldInterventionRecords = []
 
 function SingleRecord(agentName, order, time) {
@@ -46,30 +45,41 @@ function getTargetFromLastOrder(agent, order, time){
     return
 }
 
-function updateIntervenedStoryType(storyType){
-    if (intervenedStoryTypeCount[storyType] != null) {
-        intervenedStoryTypeCount[storyType] ++
+function updateIntervenedCompleteStoryType(storyType){
+    if (intervenedCompletedStoryTypeCount[storyType] != null) {
+        intervenedCompletedStoryTypeCount[storyType] ++
     } else {
-        intervenedStoryTypeCount[storyType] = 1
+        intervenedCompletedStoryTypeCount[storyType] = 1
     }
 }
 
 function getIntervenedStoryCountByType(storyType){
-    return intervenedStoryTypeCount[storyType] || 0
+    return intervenedCompletedStoryTypeCount[storyType] || 0
 }
 
 function getIntervenedStoryDetails(){
-    return intervenedStoryTypeCount
+    return intervenedCompletedStoryTypeCount
 }
 
 function getTotalIntervenedStoryCount(){
     var totalIntervenedStoryCount = 0
 
-    for (var key in intervenedStoryTypeCount) {
-        totalIntervenedStoryCount = totalIntervenedStoryCount + intervenedStoryTypeCount[key]
+    for (var key in intervenedCompletedStoryTypeCount) {
+        totalIntervenedStoryCount = totalIntervenedStoryCount + intervenedCompletedStoryTypeCount[key]
     }
 
     return totalIntervenedStoryCount
+}
+
+function getIntervenedPartialStoryNumber(){
+    var intervenedPartialStoryId = []
+    for (let i = 0; i < ExecutedOrderRecords.length; i++) {
+        var order = ExecutedOrderRecords[i].order
+        if (order.partialMatchId != null) {
+            intervenedPartialStoryId.push(order.partialMatchId)
+        }
+    }
+    return intervenedPartialStoryId.length
 }
 
 
@@ -144,7 +154,7 @@ module.exports = {
     recordExecutedOrders,
     getTargetFromLastOrder,
     checkIsIntervened,
-    updateIntervenedStoryType,
+    updateIntervenedCompleteStoryType,
     getTotalIntervenedStoryCount,
     getExecutedOrders,
     getIntervenedStoryCountByType,
@@ -155,5 +165,6 @@ module.exports = {
     recordInterManifoldIntervention,
     getInterManifoldInterventionRecords,
     checkIsObjectCreatedBefore,
-    getInterManifoldInterventionCountByType
+    getInterManifoldInterventionCountByType,
+    getIntervenedPartialStoryNumber
 }

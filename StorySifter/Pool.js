@@ -19,6 +19,7 @@ var initiatedStories = 0
 var partialMatchId = 0
 var totalAbandonedEvents = 0
 var newAddedPartialMatchCount = 0
+var newAddedPartialStoryCount = 0
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -79,6 +80,7 @@ function matchNew(newEvent, successfulEvents){
                         initiatedHighLevelEvents = initiatedHighLevelEvents + 1
                     } else if (currentEventModel["type"] == "story") {
                         initiatedStories = initiatedStories + 1
+                        newAddedPartialStoryCount = newAddedPartialStoryCount + 1
                     }
                 }
             }
@@ -118,7 +120,7 @@ function updatePool(newEvent){
                 updateMiniStoryNumByType(obj.eventName)
                 if (DramaManagerData.checkIsIntervened(obj)) {
                     // DramaManagerData.addIntervenedStoryCount()
-                    DramaManagerData.updateIntervenedStoryType(obj.eventName)
+                    DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
                     // console.log("hahahaha " + JSON.stringify(obj.getJson()))
                 }
             }
@@ -246,6 +248,7 @@ function cleanUpPool(time){
     }
 
     newAddedPartialMatchCount = 0
+    newAddedPartialStoryCount = 0
 }
 
 function getMiniStoryNumByType(type){
@@ -277,7 +280,11 @@ function getTotalStoryNum(){
 
 function getNewAddedPartialMatchCount() {
     return newAddedPartialMatchCount
-  }
+}
+
+function getNewAddedPartialStoryCount() {
+    return newAddedPartialStoryCount
+}
 
 module.exports = {
     matchNew,
@@ -288,5 +295,6 @@ module.exports = {
     cleanUpPool,
     getMiniStoryNumByType,
     getTotalStoryNum,
-    getNewAddedPartialMatchCount
+    getNewAddedPartialMatchCount,
+    getNewAddedPartialStoryCount
 }

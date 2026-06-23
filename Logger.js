@@ -11,6 +11,7 @@ var Logger = {
     neutralCountLogQueue: [],
     populationInfoLogQueue: [],
     partialMatchCreatedEachBeatLogQueue: [],
+    partialStoryCreatedEachBeatLogQueue: [],
     index: 0,
 }
 
@@ -77,6 +78,10 @@ Logger.statesInfo = function(infoStr){
 
 Logger.recordPartialMatchCreatedEachBeat = function(count){
     this.partialMatchCreatedEachBeatLogQueue.push(count)
+}
+
+Logger.recordPartialStoryCreatedEachBeat = function(count){
+    this.partialStoryCreatedEachBeatLogQueue.push(count)
 }
 
 Logger.setKeyFrame = function(){
@@ -192,7 +197,8 @@ Logger.outputFinalResults = function(excutionTime, timeSteps){
     finalResults = finalResults + "Executed order number: " + DramaManagerData.getExecutedOrderNumber() + '\n'
     finalResults = finalResults + "Added agents number: " + CharactersData.getNewAddedCharacters().length + '\n'
     finalResults = finalResults + "Population: " + CharactersData.charactersArray.length + '\n'
-    finalResults = finalResults + "Partial match created each beat: " + this.partialMatchCreatedEachBeatLogQueue.join(", ") + '\n'
+    // finalResults = finalResults + "Partial match created each beat: " + this.partialMatchCreatedEachBeatLogQueue.join(", ") + '\n'
+    finalResults = finalResults + "Partial story created each beat: " + this.partialStoryCreatedEachBeatLogQueue.join(", ") + '\n'
     
     fs.writeFileSync(dirName + '/Results.txt', finalResults, (err) => { 
         // In case of a error throw err. 
@@ -227,7 +233,8 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     results["addedMedikitsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.GEAR)
     results["addedAgentsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.AGENT)
     results["population"] = CharactersData.charactersArray.length
-    results["partialMatchCreatedEachBeat"] = this.partialMatchCreatedEachBeatLogQueue
+    // results["partialMatchCreatedEachBeat"] = this.partialMatchCreatedEachBeatLogQueue
+    results["partialStoryCreatedEachBeat"] = this.partialStoryCreatedEachBeatLogQueue
 
     var mid =  Utils.MAP_SIZE[0] + "." + Utils.MAP_SIZE[1] + "C" + Utils.TOTAL_CHARACTERS
     // fs.writeFileSync(__dirname + "/SimulatorTime/" + Utils.TIME_STEPS + ".txt", JSON.stringify(results) + "\n", {flag: 'a'}, (err) => {
@@ -325,6 +332,7 @@ Logger.clearQueue = function(){
     Logger.neutralCountLogQueue = []
     Logger.populationInfoLogQueue = []
     Logger.partialMatchCreatedEachBeatLogQueue = []
+    Logger.partialStoryCreatedEachBeatLogQueue = [] 
 }
 
 var dirNameIdx = ""
