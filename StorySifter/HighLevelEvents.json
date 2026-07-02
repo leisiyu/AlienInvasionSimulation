@@ -173,7 +173,7 @@
             }
         ],
         "tag": "survive from",
-        "type": "story",
+        "type": "high-level",
         "main_characters": [1, 0],
         "roll_back_check": [],
         "time_limit": 50

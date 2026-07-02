@@ -84,7 +84,7 @@ function getIntervenedPartialStoryNumber(){
 
 
 // TODO: have a check if only sub-sub events was intervened?
-function checkIsIntervened(partialMatch){
+function checkIsIntervenedStory(partialMatch){
     for (let i = 0; i < ExecutedOrderRecords.length; i++) {
         var order = ExecutedOrderRecords[i].order
         // console.log("check is intervened" + order.partialMatchId + " " + partialMatch.matchId)
@@ -95,6 +95,16 @@ function checkIsIntervened(partialMatch){
     }
     return false
 }
+
+// function checkIsIntervened(partialMatchId){
+//     // story level
+//     if (checkIsIntervenedStory(partialMatchId)) {
+//         return true
+//     }
+    
+//     // high-level
+
+// }
 
 function getExecutedOrders(){
     return ExecutedOrderRecords
@@ -153,7 +163,7 @@ module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
     getTargetFromLastOrder,
-    checkIsIntervened,
+    checkIsIntervenedStory,
     updateIntervenedCompleteStoryType,
     getTotalIntervenedStoryCount,
     getExecutedOrders,

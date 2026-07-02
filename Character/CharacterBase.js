@@ -293,23 +293,31 @@ function heal(healIdx, charName, targetName, medikit, inventory, position, time,
 		removeGearFromInventory(medikit, inventory)
 		// if medikit is used up, healing finished, return
 		healIdx = Utils.HEAL_STEP
-		Logger.info({
+		var finishedLog = {
             N1: charName,
             L: "finished healing",
             N2: targetName,
             T: time,
-        })
+        }
+		if (isOrder) {
+			finishedLog["Note"] = "order"
+		}
+		Logger.info(finishedLog)
 		
 		return true
 	}
 
 	if (healIdx >= Utils.HEAL_STEP) {
-		Logger.info({
+		var finishedLog = {
             N1: charName,
             L: "finished healing",
             N2: targetName,
             T: time,
-        })
+        }
+		if (isOrder) {
+			finishedLog["Note"] = "order"
+		}
+		Logger.info(finishedLog)
 		return true
 	} else {
 		var logInfo = {
@@ -694,6 +702,7 @@ function orderAttack(character, time){
                     L: "shoots",
                     N2: target.charName,
                     T: time,
+					Note: "order"
                 })
 				Logger.statesInfo(JSON.stringify({
 					N: character.charName,
@@ -709,6 +718,7 @@ function orderAttack(character, time){
                         "L": "is broken",
                         "N2": "",
                         "T": time,
+						"Note": "order"
                     })
                 }
 				Logger.statesInfo(JSON.stringify({
@@ -869,7 +879,7 @@ function orderHeal(character, time, usePosInfo = false){
 			return [false]
 		}
 	
-		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, time, true)
+		heal(character.healingIdx, character.charName, character.order.target.charName, medikitResult[1], character.inventory, character.position, time, true)
 		character.state.setState(Utils.CHARACTER_STATES.HEAL, target)
 
 		// Logger.orderInfo({
@@ -901,6 +911,13 @@ function orderHeal(character, time, usePosInfo = false){
 			}
 		}
 
+		Logger.info({
+			N1: character.charName,
+			L: "is moving to",
+			N2: target.charName,
+			T: time,
+			Note: "order"
+		})
 		// Logger.orderInfo({
 		// 	Type: character.order.orderType,
 		// 	Agent: character.charName,
@@ -927,6 +944,14 @@ function orderHeal(character, time, usePosInfo = false){
 			}
 		}
 		
+
+		Logger.info({
+			N1: character.charName,
+			L: "is looking for",
+			N2: target.charName,
+			T: time,
+			Note: "order"
+		})
 		// Logger.orderInfo({
 		// 	Type: character.order.orderType,
 		// 	Agent: character.charName,
@@ -996,15 +1021,13 @@ function orderRunAway(character, target, time){
 
 function orderFindMedikit(character, time, usePosInfo){
 	
-	// Logger.orderInfo({
-	// 	Type: character.order.orderType,
-	// 	Agent: character.charName,
-	// 	Target: character.order.target.charName,
-	// 	Note: "find medikit first",
-	// 	MatchID: character.order.partialMatchId,
-	// 	OrderId: character.order.orderId,
-	// 	T: time
-	// })
+	Logger.info({
+		N1: character.charName,
+		L: "is looking for",
+		N2: "medikit",
+		T: time,
+		Note: "order"
+	})
 
 	if (usePosInfo){
 		var medikit = MapManager.getNearestMedikitPos(character.position)
@@ -1015,6 +1038,7 @@ function orderFindMedikit(character, time, usePosInfo){
 				character.moveOneStep(availableDirections, time)
 			}
 		}
+		
 		return
 	}
 
@@ -1041,6 +1065,15 @@ function orderFindAWeapon(character, time, usePosInfo = false){
 	// 	OrderId: character.order.orderId,
 	// 	T: time
 	// })
+
+
+	Logger.info({
+		N1: character.charName,
+		L: "is looking for",
+		N2: "weapon",
+		T: time,
+		Note: "order"
+	})
 
 	if (usePosInfo){
 		var weapon = MapManager.getNEarestWeaponPos(character.position)

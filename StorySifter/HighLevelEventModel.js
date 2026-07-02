@@ -25,6 +25,7 @@ class HighLevelEvent {
         this.meetUnlessForeverConditionTimes = 0
         this.type = highLevelEventJson["type"]
         this.matchId = matchId
+        this.isIntervened = newEvent["Note"] === "order" || newEvent["Note"] === "intervened"
 
         this.checkUnlessForever(newEvent)
     }
@@ -194,6 +195,11 @@ class HighLevelEvent {
             this.eventIDs.push(newEvent["id"])
             this.updateEventIdx()
             // console.log("update time to " + newEvent["T"])
+            
+            // if the event is intervened, set the isIntervened flag to true
+            if (newEvent["Note"] == "order" || newEvent["Note"] == "intervened") {
+                this.isIntervened = true
+            }
 
             // check if there's a new character involved
             if (currentEvent["char1Idx"] != undefined 
@@ -266,7 +272,8 @@ class HighLevelEvent {
         // console.log("haha2   " + this.actors)
         var character1 = this.actors[this.highLevelEventJson["main_characters"][0]]
         var character2 = this.highLevelEventJson["main_characters"].length > 1 ? this.actors[this.highLevelEventJson["main_characters"][1]] : ""
-        return {
+
+        var resultJson = {
             "N1": character1,
             "L": this.highLevelEventJson["tag"],
             "N2": character2,
@@ -274,6 +281,12 @@ class HighLevelEvent {
             "ids": this.eventIDs,
             "type": this.highLevelEventJson['type']
         }
+
+        if (this.isIntervened) {
+            resultJson["Note"] = "intervened"
+        }
+
+        return resultJson
     }
 
     getNextEvents(){
@@ -349,6 +362,10 @@ class HighLevelEvent {
             }
         }
         return false
+    }
+
+    setIsIntervened(isIntervened){
+        this.isIntervened = isIntervened
     }
 }
 

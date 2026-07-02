@@ -256,7 +256,7 @@ function addObjectOnMap(){
             }
         }
 
-        console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName + " " + object.position + " " + object.targetPosition)
+        // console.log("object: " + object.objectType + " " + object.objectSubType + " " + object.objectName + " " + object.position + " " + object.targetPosition)
         if (!DramaManagerData.checkIsObjectCreatedBefore(object)){
             if (object.objectType === Utils.OBJECT_TYPE.AGENT){
                 // check population first, avoid too many agents on the map

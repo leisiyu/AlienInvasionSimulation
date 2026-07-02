@@ -22,7 +22,7 @@ function checkPartialMatchPool(pool, time){
                 }
 
                 if (Utils.INTER_MANIFOLD_ENABLED) {
-                    interManifoldIntervene(nextEvent, partialMatch.matchId, partialMatch.eventName, time)
+                    interManifoldIntervene(nextEvent, partialMatch.matchId, partialMatch.eventName, time, pool)
                 }
 
                 if (Utils.INTRA_MANIFOLD_AB_ENABLED) {
@@ -34,10 +34,16 @@ function checkPartialMatchPool(pool, time){
     }
 }
 
-function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, time){
+function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, time, pool){
     if (nextEvent) {
         // var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
         InterManifoldIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
+        for (let i = 0; i < pool.length; i++){
+            var obj = pool[i]
+            if (obj.matchId == partialMatchId){
+                obj.setIsIntervened(true)
+            }
+        }
     } else {
         console.log("No next lowest event found for intervention. (inter)")
     }

@@ -20,6 +20,8 @@ var partialMatchId = 0
 var totalAbandonedEvents = 0
 var newAddedPartialMatchCount = 0
 var newAddedPartialStoryCount = 0
+var newCreatedPartialStoryFromSuccessfulIntervention = 0
+var intervenedPartialStory = []
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -81,6 +83,11 @@ function matchNew(newEvent, successfulEvents){
                     } else if (currentEventModel["type"] == "story") {
                         initiatedStories = initiatedStories + 1
                         newAddedPartialStoryCount = newAddedPartialStoryCount + 1
+
+                        
+                        if (newEvent["Note"] != undefined && (newEvent["Note"] == "order" || newEvent["Note"] == "intervened")) {
+                            newCreatedPartialStoryFromSuccessfulIntervention = newCreatedPartialStoryFromSuccessfulIntervention + 1
+                        }
                     }
                 }
             }
@@ -118,7 +125,7 @@ function updatePool(newEvent){
                 totalMiniStories = totalMiniStories + 1
                 // miniStoriesType.push(obj.eventName)
                 updateMiniStoryNumByType(obj.eventName)
-                if (DramaManagerData.checkIsIntervened(obj)) {
+                if (DramaManagerData.checkIsIntervenedStory(obj)) {
                     // DramaManagerData.addIntervenedStoryCount()
                     DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
                     // console.log("hahahaha " + JSON.stringify(obj.getJson()))
@@ -144,6 +151,7 @@ function updatePool(newEvent){
     const Logger = require('../Logger').Logger
     for (let i = 0; i < successEvents.length; i++) {
         var obj = successEvents[i]
+        
         Logger.info(obj.getJson())
     }
 
@@ -166,6 +174,15 @@ function eventFinish(highLevelEventJson){
     // }) 
 
 }
+
+// function updateSingleMatchIsIntervened(matchId, isIntervened){
+//     for (let i = 0; i < partialMatchPool.length; i++){
+//         var obj = partialMatchPool[i]
+//         if (obj.matchId == matchId){
+//             obj.setIsIntervened(isIntervened)
+//         }
+//     }
+// }
 
 
 
@@ -206,7 +223,9 @@ function getResultsJson(){
         "completedStories": totalMiniStories,
         "completedStoriesDetail": miniStoriesType,
         "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount(),
-        "intervenedDetails": DramaManagerData.getIntervenedStoryDetails()
+        "intervenedDetails": DramaManagerData.getIntervenedStoryDetails(),
+        "newCreatedPartialStoryFromSuccessfulIntervention": newCreatedPartialStoryFromSuccessfulIntervention,
+        "intervenedPartialStoryNum": getIntervenedPartialStoryNum()
     }
 
     return result
@@ -218,6 +237,8 @@ function getResultsJson(){
 // a new character then can be allocated to the partial match
 // also check the unless conditions
 function cleanUpPool(time){
+    updateIntervenedPartialStory()
+
     var deletedObjs = []
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
@@ -286,6 +307,26 @@ function getNewAddedPartialStoryCount() {
     return newAddedPartialStoryCount
 }
 
+function getNewCreatedPartialStoryFromSuccessfulIntervention() {
+    return newCreatedPartialStoryFromSuccessfulIntervention
+}
+
+function updateIntervenedPartialStory() {
+    for (let i = 0; i < partialMatchPool.length; i++) {
+        var obj = partialMatchPool[i]
+        if (obj.type == "story" ){
+            // && obj.isIntervened) {
+            if (intervenedPartialStory.indexOf(obj.matchId) == -1) {
+                intervenedPartialStory.push(obj.matchId)
+            }
+        }
+    }
+}
+
+function getIntervenedPartialStoryNum() {
+    return intervenedPartialStory.length
+}
+
 module.exports = {
     matchNew,
     partialMatchPool,
@@ -296,5 +337,8 @@ module.exports = {
     getMiniStoryNumByType,
     getTotalStoryNum,
     getNewAddedPartialMatchCount,
-    getNewAddedPartialStoryCount
+    getNewAddedPartialStoryCount,
+    getNewCreatedPartialStoryFromSuccessfulIntervention,
+    getIntervenedPartialStoryNum,
+    // updateSingleMatchIsIntervened
 }
