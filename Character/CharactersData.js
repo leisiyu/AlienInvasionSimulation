@@ -50,6 +50,15 @@ function getNewAddedCharacterCountByType(type){
     return count
 }
 
+function checkIsNewAddedAgent(agentName){
+    for (let i = 0; i < newAddedCharacters.length; i++) {
+        if (agentName == newAddedCharacters[i].charName) {
+            return true
+        }
+    }
+    return false
+}
+
 
 module.exports = {
     charactersArray,
@@ -59,4 +68,5 @@ module.exports = {
     getNewAddedCharacters,
     getTotalAgentsGenerated,
     getNewAddedCharacterCountByType,
+    checkIsNewAddedAgent
 }
