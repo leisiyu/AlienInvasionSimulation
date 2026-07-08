@@ -159,6 +159,17 @@ function getInterManifoldInterventionCountByType(objType){
 }
 //------ Inter-manifold intervention records ------
 
+function checkIsInterManifoldIntervened(actors){
+    const CharactersData = require("../Character/CharactersData.js")
+    for (let i = 0; i < actors.length; i++) {
+        var actor = actors[i]
+        if (CharactersData.checkIsNewAddedAgent(actor)) {
+            return true
+        }
+    }
+    return false
+}
+
 module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
@@ -176,5 +187,6 @@ module.exports = {
     getInterManifoldInterventionRecords,
     checkIsObjectCreatedBefore,
     getInterManifoldInterventionCountByType,
-    getIntervenedPartialStoryNumber
+    getIntervenedPartialStoryNumber,
+    checkIsInterManifoldIntervened
 }
