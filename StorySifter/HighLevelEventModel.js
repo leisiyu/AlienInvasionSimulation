@@ -3,6 +3,7 @@ const HighLevelEventsPatterns = require("./HighLevelEvents.json")
 const SifterUtil = require("./SifterUtil")
 const Utils = require("../Utils")
 const CharacterData = require("../Character/CharactersData")
+const DramaManagerData = require("../DramaManager/DramaManagerData")
 
 class HighLevelEvent {
     constructor(eventName, newEvent, firstEventIdx, highLevelEventJson, matchId){
@@ -25,7 +26,10 @@ class HighLevelEvent {
         this.meetUnlessForeverConditionTimes = 0
         this.type = highLevelEventJson["type"]
         this.matchId = matchId
-        this.isIntervened = newEvent["Note"] === "order" || newEvent["Note"] === "intervened"
+        this.isIntervened = newEvent["Note"] === "intra" || newEvent["Note"] === "inter_intra" || newEvent["Note"] === "inter" || DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors)
+        this.isInduced = false   // whether the event is induced by the intervention
+        this.isInterManifold = DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors) || newEvent["Note"] === "inter" || newEvent["Note"] === "inter_intra"
+        this.isIntraManifold = newEvent["Note"] === "intra" || newEvent["Note"] === "inter_intra"
 
         this.checkUnlessForever(newEvent)
     }
@@ -103,6 +107,7 @@ class HighLevelEvent {
                         || event["char2Idx"]["type"] == Utils.GEAR_TYPES[1])
                     && newEvent["L"] == event["tag"])) {
                         this.eventIDs.push(newEvent["id"])
+                        this.checkInterventionStatus(newEvent)
                         return {"isEnd": false, "isSuccessful": false}
                     }
                 }
@@ -142,9 +147,8 @@ class HighLevelEvent {
                 break
             }
         }
-        // if (this.eventName == "vigilante") {
-        //     console.log("hahaha222 " + this.eventIDs + " " + this.index + " " + this.totalEventsNum)
-        // }
+        
+
         if (!isMatchOneEventOption) {
             return {"isEnd": false, "isSuccessful": false}
         }
@@ -195,11 +199,6 @@ class HighLevelEvent {
             this.eventIDs.push(newEvent["id"])
             this.updateEventIdx()
             // console.log("update time to " + newEvent["T"])
-            
-            // if the event is intervened, set the isIntervened flag to true
-            if (newEvent["Note"] == "order" || newEvent["Note"] == "intervened") {
-                this.isIntervened = true
-            }
 
             // check if there's a new character involved
             if (currentEvent["char1Idx"] != undefined 
@@ -214,6 +213,9 @@ class HighLevelEvent {
                 && SifterUtil.checkCharacterType(newEvent["N2"], currentEvent["char2Idx"]["type"])) {
                 this.actors.push(newEvent["N2"])
             }
+
+            // if the event is intervened, set the isIntervened flag to true
+            this.checkInterventionStatus(newEvent)
 
             return {"isMatch": true, "isEnd": false, "isSuccessful": false}
         }
@@ -267,6 +269,14 @@ class HighLevelEvent {
     isUnlessForever(){
         return this.meetUnlessForeverConditionTimes > 1
     }
+
+    checkInterventionStatus(newEvent){
+        this.isInterManifold = this.isInterManifold ||DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors) || newEvent["Note"] == "inter" || newEvent["Note"] == "inter_intra"
+        this.isIntraManifold = this.isIntraManifold || newEvent["Note"] == "intra" || newEvent["Note"] == "inter_intra"
+        if (this.isIntervened || this.isInterManifold || this.isIntraManifold){
+            this.isIntervened = true
+        }
+    }
         
     getJson(){
         // console.log("haha2   " + this.actors)
@@ -282,8 +292,12 @@ class HighLevelEvent {
             "type": this.highLevelEventJson['type']
         }
 
-        if (this.isIntervened) {
-            resultJson["Note"] = "intervened"
+        if (this.isInterManifold && !this.isIntraManifold) {
+            resultJson["Note"] = "inter"
+        } else if (this.isIntraManifold && !this.isInterManifold) {
+            resultJson["Note"] = "intra"
+        } else if (this.isInterManifold && this.isIntraManifold) {
+            resultJson["Note"] = "inter_intra"
         }
 
         return resultJson
@@ -366,6 +380,14 @@ class HighLevelEvent {
 
     setIsIntervened(isIntervened){
         this.isIntervened = isIntervened
+    }
+
+    setIsInterManifold(isInterManifold){
+        this.isInterManifold = isInterManifold
+    }
+
+    setIsInduced(isInduced){
+        this.isInduced = isInduced
     }
 }
 

@@ -14,7 +14,7 @@ function checkPartialMatchPool(pool, time){
         if (partialMatch.type == "story") {
             var tobeIntervenedEvents = findNextLowestEvents(partialMatch, pool)
             // console.log("partial match: " + partialMatch.eventName + " " + tobeIntervenedEvents.length)
-            if (tobeIntervenedEvents) {
+            if (tobeIntervenedEvents && tobeIntervenedEvents.length > 0) {
 
                 var nextEvent 
                 if(tobeIntervenedEvents.length > 0){
@@ -42,6 +42,7 @@ function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, tim
             var obj = pool[i]
             if (obj.matchId == partialMatchId){
                 obj.setIsIntervened(true)
+                obj.setIsInterManifold(true)
             }
         }
     } else {

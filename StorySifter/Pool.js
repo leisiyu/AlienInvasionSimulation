@@ -21,7 +21,7 @@ var totalAbandonedEvents = 0
 var newAddedPartialMatchCount = 0
 var newAddedPartialStoryCount = 0
 var newCreatedPartialStoryFromSuccessfulIntervention = 0
-var intervenedPartialStory = []
+var intervenedPartialStory = [] // unique intervened story matchIds ever observed in pool
 
 function generatePartialMatchID(){
     partialMatchId++
@@ -30,6 +30,7 @@ function generatePartialMatchID(){
 
 
 function matchNew(newEvent, successfulEvents){
+
     for (var eventName in HighLevelEvents) {
         var currentEventModel = HighLevelEvents[eventName]
         var isBelongToOneMatch = false
@@ -85,8 +86,10 @@ function matchNew(newEvent, successfulEvents){
                         newAddedPartialStoryCount = newAddedPartialStoryCount + 1
 
                         
-                        if (newEvent["Note"] != undefined && (newEvent["Note"] == "order" || newEvent["Note"] == "intervened")) {
+                        if ((newEvent["Note"] != undefined && (newEvent["Note"] == "inter" || newEvent["Note"] == "intra" || newEvent["Note"] == "inter_intra"))
+                            || DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(newHighEvent.actors)) {
                             newCreatedPartialStoryFromSuccessfulIntervention = newCreatedPartialStoryFromSuccessfulIntervention + 1
+                            newHighEvent.setIsInduced(true)
                         }
                     }
                 }
@@ -95,6 +98,7 @@ function matchNew(newEvent, successfulEvents){
             
         }
     }
+    updateIntervenedPartialStory()
 }
 
 function updatePool(newEvent){
@@ -125,16 +129,27 @@ function updatePool(newEvent){
                 totalMiniStories = totalMiniStories + 1
                 // miniStoriesType.push(obj.eventName)
                 updateMiniStoryNumByType(obj.eventName)
-                if (DramaManagerData.checkIsIntervenedStory(obj)) {
-                    // DramaManagerData.addIntervenedStoryCount()
+                // if (DramaManagerData.checkIsIntraIntervenedStory(obj)) {
+                //     // DramaManagerData.addIntervenedStoryCount()
+                //     DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
+                //     // console.log("hahahaha " + JSON.stringify(obj.getJson()))
+                // }
+                if (obj.isIntervened) {
                     DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
-                    // console.log("hahahaha " + JSON.stringify(obj.getJson()))
+                    if (obj.isInterManifold){
+                        DramaManagerData.recordInterManifoldIntervention(obj)
+                    }
+                    if (obj.isIntraManifold){
+                        DramaManagerData.recordIntraManifoldIntervention(obj)
+                    }
                 }
             }
             successEvents.push(obj)
             // eventFinish(obj.getJson())
         }
     }
+
+    updateIntervenedPartialStory()
 
     for (let i = 0; i < removedEventsPool.length; i++) {
         var obj = removedEventsPool[i]
@@ -157,6 +172,7 @@ function updatePool(newEvent){
 
 
     // console.log("pool " + partialMatchPool.length)
+
     return successEvents
 }
 
@@ -206,9 +222,11 @@ function getResults(){
 
     result = result + "Total abandoned events: " + totalAbandonedEvents + "\n"
 
-    result = result + "Intervened stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
+    result = result + "Total Intervened completed stories number: " + DramaManagerData.getTotalIntervenedStoryCount() + "\n"
 
-    result = result + "Intervened Details:" + JSON.stringify(DramaManagerData.getIntervenedStoryDetails())
+    result = result + "Intervened Details:" + JSON.stringify(DramaManagerData.getIntervenedCompletedStoryDetails()) + "\n"
+
+    result = result + "Induced stories number: " + newCreatedPartialStoryFromSuccessfulIntervention + "\n"
 
     return result
 }
@@ -223,9 +241,11 @@ function getResultsJson(){
         "completedStories": totalMiniStories,
         "completedStoriesDetail": miniStoriesType,
         "intervenedStories": DramaManagerData.getTotalIntervenedStoryCount(),
-        "intervenedDetails": DramaManagerData.getIntervenedStoryDetails(),
+        "intervenedDetails": DramaManagerData.getIntervenedCompletedStoryDetails(),
         "newCreatedPartialStoryFromSuccessfulIntervention": newCreatedPartialStoryFromSuccessfulIntervention,
-        "intervenedPartialStoryNum": getIntervenedPartialStoryNum()
+        "intervenedPartialStoryNum": getIntervenedPartialStoryNum(),
+        "interManifoldInterventionNum": DramaManagerData.getInterManifoldInterventionCountByType(),
+        "intraManifoldInterventionNum": DramaManagerData.getIntraManifoldInterventionCount(),
     }
 
     return result
@@ -314,8 +334,7 @@ function getNewCreatedPartialStoryFromSuccessfulIntervention() {
 function updateIntervenedPartialStory() {
     for (let i = 0; i < partialMatchPool.length; i++) {
         var obj = partialMatchPool[i]
-        if (obj.type == "story" ){
-            // && obj.isIntervened) {
+        if (obj.type == "story" && (obj.isIntervened || obj.isIntraManifold || obj.isInterManifold)) {
             if (intervenedPartialStory.indexOf(obj.matchId) == -1) {
                 intervenedPartialStory.push(obj.matchId)
             }

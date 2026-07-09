@@ -8,8 +8,11 @@ var IssuedOrderRecords = []
 // If two orders issued to the same agent, the agent will only choose one to execute1
 var ExecutedOrderRecords = []
 // var intervenedStoryCount = 0
-var intervenedCompletedStoryTypeCount = {}
+var totalIntervenedCompletedStoryTypeCount = {}
 var InterManifoldInterventionRecords = []
+var successfulInterManifoldInterventionRecords = []
+var IntraManifoldInterventionRecords = []
+var successfulIntraManifoldInterventionRecords = []
 
 function SingleRecord(agentName, order, time) {
     this.agentName = agentName
@@ -45,33 +48,34 @@ function getTargetFromLastOrder(agent, order, time){
     return
 }
 
-function updateIntervenedCompleteStoryType(storyType){
-    if (intervenedCompletedStoryTypeCount[storyType] != null) {
-        intervenedCompletedStoryTypeCount[storyType] ++
+// For all types of interventions
+function updateIntervenedCompleteStoryType(storyType, isIntra = true){
+    if (totalIntervenedCompletedStoryTypeCount[storyType] != null) {
+        totalIntervenedCompletedStoryTypeCount[storyType] ++
     } else {
-        intervenedCompletedStoryTypeCount[storyType] = 1
+        totalIntervenedCompletedStoryTypeCount[storyType] = 1
     }
 }
 
-function getIntervenedStoryCountByType(storyType){
-    return intervenedCompletedStoryTypeCount[storyType] || 0
+function getIntervenedCompleteStoryCountByType(storyType){
+    return totalIntervenedCompletedStoryTypeCount[storyType] || 0
 }
 
-function getIntervenedStoryDetails(){
-    return intervenedCompletedStoryTypeCount
+function getIntervenedCompletedStoryDetails(){
+    return totalIntervenedCompletedStoryTypeCount
 }
 
 function getTotalIntervenedStoryCount(){
     var totalIntervenedStoryCount = 0
 
-    for (var key in intervenedCompletedStoryTypeCount) {
-        totalIntervenedStoryCount = totalIntervenedStoryCount + intervenedCompletedStoryTypeCount[key]
+    for (var key in totalIntervenedCompletedStoryTypeCount) {
+        totalIntervenedStoryCount = totalIntervenedStoryCount + totalIntervenedCompletedStoryTypeCount[key]
     }
 
     return totalIntervenedStoryCount
 }
 
-function getIntervenedPartialStoryNumber(){
+function getIntraIntervenedPartialStoryNumber(){
     var intervenedPartialStoryId = []
     for (let i = 0; i < ExecutedOrderRecords.length; i++) {
         var order = ExecutedOrderRecords[i].order
@@ -83,8 +87,8 @@ function getIntervenedPartialStoryNumber(){
 }
 
 
-// TODO: have a check if only sub-sub events was intervened?
-function checkIsIntervenedStory(partialMatch){
+// Not in use now
+function checkIsIntraIntervenedStory(partialMatch){
     for (let i = 0; i < ExecutedOrderRecords.length; i++) {
         var order = ExecutedOrderRecords[i].order
         // console.log("check is intervened" + order.partialMatchId + " " + partialMatch.matchId)
@@ -122,6 +126,21 @@ function getIssuedOrders(){
     return IssuedOrderRecords
 }
 
+//------ Intra-manifold intervention records ------
+function recordIntraManifoldIntervention(object){
+    IntraManifoldInterventionRecords.push(object)
+}
+
+function getIntraManifoldInterventionRecords(){
+    return IntraManifoldInterventionRecords
+}
+
+function getIntraManifoldInterventionCount(){
+    return IntraManifoldInterventionRecords.length
+}
+
+//------ Inter-manifold intervention records ------
+
 //------ Inter-manifold intervention records ------
 // function InterManifoldSingleRecord(objectName, objectType, time) {
 //     this.objectName = objectName
@@ -151,7 +170,7 @@ function getInterManifoldInterventionCountByType(objType){
     var count = 0
     for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
         var record = InterManifoldInterventionRecords[i]
-        if (record.objectType == objType) {
+        if (ObjType == null || record.objectType == objType) {
             count++
         }
     }
@@ -159,7 +178,8 @@ function getInterManifoldInterventionCountByType(objType){
 }
 //------ Inter-manifold intervention records ------
 
-function checkIsInterManifoldIntervened(actors){
+
+function checkIsInterManifoldIntervenedByNewAgent(actors){
     const CharactersData = require("../Character/CharactersData.js")
     for (let i = 0; i < actors.length; i++) {
         var actor = actors[i]
@@ -174,19 +194,22 @@ module.exports = {
     recordIssuedOrder,
     recordExecutedOrders,
     getTargetFromLastOrder,
-    checkIsIntervenedStory,
+    checkIsIntraIntervenedStory,
     updateIntervenedCompleteStoryType,
     getTotalIntervenedStoryCount,
     getExecutedOrders,
-    getIntervenedStoryCountByType,
+    getIntervenedCompleteStoryCountByType,
     getIssuedOrderNumber,
     getExecutedOrderNumber,
     getIssuedOrders,
-    getIntervenedStoryDetails,
+    getIntervenedCompletedStoryDetails,
     recordInterManifoldIntervention,
     getInterManifoldInterventionRecords,
     checkIsObjectCreatedBefore,
     getInterManifoldInterventionCountByType,
-    getIntervenedPartialStoryNumber,
-    checkIsInterManifoldIntervened
+    getIntraIntervenedPartialStoryNumber,
+    checkIsInterManifoldIntervenedByNewAgent,
+    recordIntraManifoldIntervention,
+    getIntraManifoldInterventionRecords,
+    getIntraManifoldInterventionCount,
 }

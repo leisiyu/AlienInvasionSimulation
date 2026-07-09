@@ -300,7 +300,7 @@ function heal(healIdx, charName, targetName, medikit, inventory, position, time,
             T: time,
         }
 		if (isOrder) {
-			finishedLog["Note"] = "order"
+			finishedLog["Note"] = "intra"
 		}
 		Logger.info(finishedLog)
 		
@@ -315,7 +315,7 @@ function heal(healIdx, charName, targetName, medikit, inventory, position, time,
             T: time,
         }
 		if (isOrder) {
-			finishedLog["Note"] = "order"
+			finishedLog["Note"] = "intra"
 		}
 		Logger.info(finishedLog)
 		return true
@@ -327,7 +327,7 @@ function heal(healIdx, charName, targetName, medikit, inventory, position, time,
             T: time,
         }
 		if (isOrder) {
-			logInfo["Note"] = "order"
+			logInfo["Note"] = "intra"
 		}
 		Logger.info(logInfo)
 		return false
@@ -702,7 +702,7 @@ function orderAttack(character, time){
                     L: "shoots",
                     N2: target.charName,
                     T: time,
-					Note: "order"
+					Note: "intra"
                 })
 				Logger.statesInfo(JSON.stringify({
 					N: character.charName,
@@ -718,7 +718,7 @@ function orderAttack(character, time){
                         "L": "is broken",
                         "N2": "",
                         "T": time,
-						"Note": "order"
+						"Note": "intra"
                     })
                 }
 				Logger.statesInfo(JSON.stringify({
@@ -736,7 +736,7 @@ function orderAttack(character, time){
 			L: "attacks",
 			N2: target.charName,
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 		Logger.statesInfo(JSON.stringify({
 			N: character.charName,
@@ -752,7 +752,7 @@ function orderAttack(character, time){
 			L: "attacks",
 			N2: target.charName,
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 	}
 
@@ -792,7 +792,7 @@ function orderChase(character, time, usePosInfo = false){
 			L: "is moving to",
 			N2: character.order.target.getName(),
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 		var buildingSize = character.order.target.size
 		targetWidth = buildingSize[0]
@@ -803,7 +803,7 @@ function orderChase(character, time, usePosInfo = false){
 			L: "is chasing",
 			N2: character.order.target.charName,
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 	}
 	// Logger.orderInfo({
@@ -853,7 +853,7 @@ function orderChase(character, time, usePosInfo = false){
 		S: character.state.stateType, 
 		P: character.position,
 		T: time,
-		Note:"order"
+		Note:"intra"
 	}))
 	return true
 }
@@ -916,7 +916,7 @@ function orderHeal(character, time, usePosInfo = false){
 			L: "is moving to",
 			N2: target.charName,
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 		// Logger.orderInfo({
 		// 	Type: character.order.orderType,
@@ -950,7 +950,7 @@ function orderHeal(character, time, usePosInfo = false){
 			L: "is looking for",
 			N2: target.charName,
 			T: time,
-			Note: "order"
+			Note: "intra"
 		})
 		// Logger.orderInfo({
 		// 	Type: character.order.orderType,
@@ -977,7 +977,7 @@ function orderRunAway(character, target, time){
 		L: "runs away from",
 		N2: target.charName,
 		T: time,
-		Note: "order",
+		Note: "intra",
 	})
 	// Logger.orderInfo({
 	// 	Type: character.order.orderType,
@@ -1026,7 +1026,7 @@ function orderFindMedikit(character, time, usePosInfo){
 		L: "is looking for",
 		N2: "medikit",
 		T: time,
-		Note: "order"
+		Note: "intra"
 	})
 
 	if (usePosInfo){
@@ -1072,7 +1072,7 @@ function orderFindAWeapon(character, time, usePosInfo = false){
 		L: "is looking for",
 		N2: "weapon",
 		T: time,
-		Note: "order"
+		Note: "intra"
 	})
 
 	if (usePosInfo){
