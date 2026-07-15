@@ -271,7 +271,7 @@ class HighLevelEvent {
     }
 
     checkInterventionStatus(newEvent){
-        this.isInterManifold = this.isInterManifold ||DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors) || newEvent["Note"] == "inter" || newEvent["Note"] == "inter_intra"
+        this.isInterManifold = this.isInterManifold || DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors) || newEvent["Note"] == "inter" || newEvent["Note"] == "inter_intra"
         this.isIntraManifold = this.isIntraManifold || newEvent["Note"] == "intra" || newEvent["Note"] == "inter_intra"
         if (this.isIntervened || this.isInterManifold || this.isIntraManifold){
             this.isIntervened = true
@@ -358,6 +358,8 @@ class HighLevelEvent {
                 }
             }
         }
+
+        // this.isInterManifold = DramaManagerData.checkIsInterManifoldIntervenedByNewAgent(this.actors)
         return SifterUtil.ROLL_BACK_TYPE.NONE
     }
 

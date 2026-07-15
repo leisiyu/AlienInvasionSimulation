@@ -22,7 +22,7 @@ function checkPartialMatchPool(pool, time){
                     nextEvent = tobeIntervenedEvents[Math.floor(Math.random() * tobeIntervenedEvents.length)]
                 }
 
-                if (Utils.INTER_MANIFOLD_ENABLED) {
+                if (Utils.INTER_MANIFOLD_ENABLED && !partialMatch.isInterManifold) {
                     interManifoldIntervene(nextEvent, partialMatch.matchId, partialMatch.eventName, time, pool)
                 }
 
