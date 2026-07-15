@@ -230,8 +230,8 @@ Logger.outputStableTestResults = function(excutionTime, timeSteps){
     // results["pcfRadii"] = averagePCF.radii
     // results["pcfG"] = averagePCF.g
 
-    results["addedMedikitsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.GEAR)
-    results["addedAgentsNumber"] = DramaManagerData.getInterManifoldInterventionCountByType(Utils.OBJECT_TYPE.AGENT)
+    results["addedMedikitsNumber"] = DramaManagerData.getInterNewObjectNumberByType(Utils.OBJECT_TYPE.GEAR)
+    results["addedAgentsNumber"] = DramaManagerData.getInterNewObjectNumberByType(Utils.OBJECT_TYPE.AGENT)
     results["population"] = CharactersData.charactersArray.length
     // results["partialMatchCreatedEachBeat"] = this.partialMatchCreatedEachBeatLogQueue
     results["partialStoryCreatedEachBeat"] = this.partialStoryCreatedEachBeatLogQueue

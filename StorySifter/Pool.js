@@ -129,18 +129,13 @@ function updatePool(newEvent){
                 totalMiniStories = totalMiniStories + 1
                 // miniStoriesType.push(obj.eventName)
                 updateMiniStoryNumByType(obj.eventName)
-                // if (DramaManagerData.checkIsIntraIntervenedStory(obj)) {
-                //     // DramaManagerData.addIntervenedStoryCount()
-                //     DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
-                //     // console.log("hahahaha " + JSON.stringify(obj.getJson()))
-                // }
                 if (obj.isIntervened) {
                     DramaManagerData.updateIntervenedCompleteStoryType(obj.eventName)
                     if (obj.isInterManifold){
-                        DramaManagerData.recordInterManifoldIntervention(obj)
+                        DramaManagerData.recordInterManifoldCompletedIntervention(obj)
                     }
                     if (obj.isIntraManifold){
-                        DramaManagerData.recordIntraManifoldIntervention(obj)
+                        DramaManagerData.recordIntraManifoldCompletedIntervention(obj)
                     }
                 }
             }
@@ -246,6 +241,8 @@ function getResultsJson(){
         "intervenedPartialStoryNum": getIntervenedPartialStoryNum(),
         "interManifoldInterventionNum": DramaManagerData.getInterManifoldInterventionCountByType(),
         "intraManifoldInterventionNum": DramaManagerData.getIntraManifoldInterventionCount(),
+        "interManifoldCompletedInterventionNum": DramaManagerData.getInterManifoldCompletedInterventionCount(),
+        "intraManifoldCompletedInterventionNum": DramaManagerData.getIntraManifoldCompletedInterventionCount(),
     }
 
     return result
@@ -337,6 +334,12 @@ function updateIntervenedPartialStory() {
         if (obj.type == "story" && (obj.isIntervened || obj.isIntraManifold || obj.isInterManifold)) {
             if (intervenedPartialStory.indexOf(obj.matchId) == -1) {
                 intervenedPartialStory.push(obj.matchId)
+            }
+            if (obj.isInterManifold) {
+                DramaManagerData.recordInterManifoldIntervention(obj)
+            }
+            if (obj.isIntraManifold) {
+                DramaManagerData.recordIntraManifoldIntervention(obj)
             }
         }
     }

@@ -289,7 +289,8 @@ function addObjectOnMap(){
                     if (agent != null){
                         CharactersData.addNewCharacter(agent)
                         Scheduler.scheduler.scheduleRepeatingIn(agent.simEvent, 1)
-                        DramaManagerData.recordInterManifoldIntervention(object)
+                        // DramaManagerData.recordInterManifoldIntervention(object)
+                        DramaManagerData.recordInterNewObject(object)
                         index = index + 1
                     }
                     
@@ -299,7 +300,8 @@ function addObjectOnMap(){
             
             } else if (object.objectType === Utils.OBJECT_TYPE.GEAR){
                 MapManager.addGearObjectOnMap(object, objectPosition)
-                DramaManagerData.recordInterManifoldIntervention(object)
+                // DramaManagerData.recordInterManifoldIntervention(object)
+                DramaManagerData.recordInterNewObject(object)
                 index = index + 1
             }
         }          

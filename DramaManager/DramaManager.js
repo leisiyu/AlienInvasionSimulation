@@ -5,6 +5,7 @@ const HighLevelEvents = require("../StorySifter/HighLevelEvents.json")
 const IntraManifoldABIntervention = require("./IntraManifoldABIntervention.js")
 const InterManifoldIntervention = require("./InterManifoldIntervention.js")
 const Utils = require("../Utils.js")
+const DramaManagerData = require("./DramaManagerData.js")
 
 // check in every beat
 function checkPartialMatchPool(pool, time){
@@ -43,6 +44,7 @@ function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, tim
             if (obj.matchId == partialMatchId){
                 obj.setIsIntervened(true)
                 obj.setIsInterManifold(true)
+                DramaManagerData.recordInterManifoldIntervention(obj)
             }
         }
     } else {
