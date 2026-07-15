@@ -19,7 +19,7 @@ This repository is a multi-agent simulation system that models interactions amon
 - `Character/`: character data model, shared behavior, concrete agent classes, and creation manager.
 - `Map/`: map generation and spatial entities (`Road`, `Building`, `Gear`).
 - `StorySifter/`: pattern-based event abstraction from low-level logs.
-- `DramaManager/`: intervention system that issues orders to steer emergent story flow.
+- `DramaManager/`: dual-manifold intervention system — intra-manifold agent orders (`IntraManifoldABIntervention.js`) and inter-manifold map object spawning (`InterManifoldIntervention.js`).
 - `Aggregation/`: clustering/dispersion metrics (NND, Clark-Evans, PCF).
 - `analyze_data.py`, `visualize_neutral_data.py`, `enhanced_visualization.py`: post-processing scripts for neutral-agent logs.
 - `MyScript.sh`: batch runner for repeated simulation runs.
@@ -46,8 +46,9 @@ Core outputs per run:
 - raw event logs (`Log.txt`),
 - state snapshots (`StatesLog.txt`),
 - summary results (`Results.txt`),
-- order reports (`IssuedOrders.txt`, `ExecutedOrders.txt`),
+- order reports (`IssuedOrderResults.txt`, `ExecutedOrderResults.txt`),
 - map dump (`CityMap.txt`),
+- per-beat population snapshots (`PopulationInfo.txt`),
 - and optional stable-test aggregate lines.
 
 ## 3) Architecture and Major Modules
@@ -60,7 +61,7 @@ Core outputs per run:
 4. `Scheduler.js` runs tick loop (`jssim` scheduler).
 5. Agent updates produce low-level events through `Logger.info(...)`.
 6. `StorySifter` updates partial matches and emits high-level events.
-7. `DramaManager` (if enabled) inspects partial matches and issues agent orders.
+7. `DramaManager` (when enabled) inspects partial matches and applies intra- and/or inter-manifold interventions.
 8. `Aggregation` records clustering metrics per tick.
 9. `Logger` writes final result files.
 
@@ -71,7 +72,7 @@ Core outputs per run:
 - **World model:** `Map/*`
 - **Agent behavior:** `Character/*`
 - **Event extraction/story model:** `StorySifter/*`
-- **Narrative control:** `DramaManager/*`
+- **Narrative control:** `DramaManager/*` (intra-manifold orders + inter-manifold object placement)
 - **Spatial analysis:** `Aggregation/*`
 - **Persistence/output:** `Logger.js`
 
@@ -90,8 +91,11 @@ flowchart TD
     logEvents --> siftEvents[SiftEvents]
     siftEvents --> maybeIntervene{InterventionEnabled}
     maybeIntervene -->|Yes| dramaCheck[CheckPartialMatches]
-    dramaCheck --> issueOrders[IssueOrders]
+    dramaCheck --> intraInter{ManifoldFlags}
+    intraInter -->|InterOn| spawnObjects[QueueAndPlaceObjects]
+    intraInter -->|IntraABOn| issueOrders[IssueAgentOrders]
     maybeIntervene -->|No| cleanupPool[CleanupPool]
+    spawnObjects --> cleanupPool
     issueOrders --> cleanupPool
     cleanupPool --> aggregateMetrics[RecordAggregation]
     aggregateMetrics --> finishCheck{FinalTimestep}
@@ -126,8 +130,12 @@ Exported constants/enums include:
 - `CHARACTER_TYPE`, `CHARACTER_STATES`, `NEUTRAL_STATES`
 - `DIRECTION`
 - `GEAR_TYPES`, `HEALS`, `WEAPONS`, `HEAL_STEP`, `GEAR_STATE`
-- `HEALTH_STATES`
-- control flags such as `DOES_INTERVENTE`, `TOTAL_CHARACTERS`, `MAP_SIZE`, `TIME_STEPS`.
+- `HEALTH_STATES`, `OBJECT_TYPE`
+- control flags:
+  - `INTRA_MANIFOLD_AB_ENABLED` — enable weak action-based intra-manifold intervention (agent orders),
+  - `INTER_MANIFOLD_ENABLED` — enable inter-manifold intervention (spawn agents/gear on map),
+  - `IS_GUIDED_INTER_MANIFOLD` — when inter-manifold is on, use guided placement vs dumped placement,
+  - plus `TOTAL_CHARACTERS`, `MAP_SIZE`, `TIME_STEPS`.
 
 ### `Scheduler.js`
 
@@ -139,12 +147,14 @@ Exported constants/enums include:
     - executes all scheduled agent events every tick,
     - flushes logger queues,
     - records Clark-Evans aggregation values,
-    - runs drama-manager intervention checks (if enabled),
-    - records per-beat population snapshots into logger memory queue,
-    - records per-beat partial-match-created counts for stable-test output,
+    - when `INTRA_MANIFOLD_AB_ENABLED` or `INTER_MANIFOLD_ENABLED` is true:
+      - runs drama-manager partial-match intervention checks,
+      - when `INTER_MANIFOLD_ENABLED` is true, places queued inter-manifold objects each beat via `DramaManager.addObjectOnMap()`,
+    - records per-beat population snapshots via `Logger.recordPopulationInfo()`,
+    - cleans story pool (`Pool.cleanUpPool`),
     - writes `PopulationInfo.txt` at finalization,
-    - cleans story pool,
-    - emits final reports.
+    - emits final reports (`Results.txt`, stable-test aggregate, order result files).
+  - Note: per-beat partial-match/story-created recording helpers exist on `Logger` but are currently commented out in the scheduler loop.
 
 Exports:
 - `scheduler` (singleton `jssim.Scheduler`)
@@ -164,6 +174,7 @@ Exports:
 - `Logger.outputStableTestResults(executionTime, timeSteps)`: append batch/stability JSON line.
 - `Logger.outputOrderResults()`: write issued/executed order files.
 - `Logger.recordPartialMatchCreatedEachBeat(count)`: queue one per-beat created-partial-match count.
+- `Logger.recordPartialStoryCreatedEachBeat(count)`: queue one per-beat created-partial-story count.
 - `Logger.recordPopulationInfo(time)`: queue one per-beat population snapshot object.
 - `Logger.writePopulationInfoToFile()`: flush queued population snapshots to `PopulationInfo.txt`.
 - `Logger.clearQueue()`: clear in-memory queues.
@@ -219,6 +230,7 @@ Purpose: weighted discrete random selection.
 - `getNewAddedCharacters()`: list of characters generated after initial setup.
 - `getTotalAgentsGenerated()`: total number of character objects ever created in this run.
 - `getNewAddedCharacterCountByType(type = null)`: count newly generated characters by type or in total.
+- `checkIsNewAddedAgent(agentName)`: true when `agentName` was spawned after initial setup (used to detect inter-manifold-spawned actors in a partial match).
 
 ### `Character/CharactersManager.js`
 
@@ -265,6 +277,11 @@ Behavioral notes:
 - Uses nearest-target searches and state/range checks.
 - Integrates with map gear placement and logger output.
 - Supports both autonomous and drama-issued order paths.
+- Drama-issued order execution emits low-level `Logger.info(...)` events tagged with `Note: "intra"` so StorySifter can attribute events to intra-manifold intervention. Tagged events include:
+  - combat (`"shoots"`, `"attacks"`, broken-weapon `"is broken"`),
+  - movement (`"is chasing"`, `"is moving to"`),
+  - search (`"is looking for"` medikit, weapon, or ally),
+  - and healing (`"is healing"`).
 - `orderAttack` supports both weapon and melee execution paths:
   - logs `"shoots"` when a weapon is used (and consumes durability),
   - logs `"attacks"` when no weapon is available,
@@ -478,6 +495,11 @@ Purpose: older/alternative room-growth procedural map model.
 - `addGearOnMap(gear, pos)`
 - `getNearestMedikitPos(pos)`
 - `getNEarestWeaponPos(pos)`
+- `getTheNearestPosOnEdge(pos)`
+- `getTheNearestInsideBuildingPos(pos)`
+- `addGearObjectOnMap(gearObject, position = null)`: place an inter-manifold gear; when `position` is omitted, resolves placement via `getTheNearestInsideBuildingPos(gearObject.targetPosition)`.
+- `generateRandomPos()`: delegate to `TempMap.generateRandomPos()`.
+- `generateRandomPosInBuilding()`: delegate to `TempMap.generateRandomPosInBuilding()`.
 
 Purpose: top-level map facade and gear lifecycle manager.
 
@@ -514,6 +536,17 @@ Also exports:
   - `rollBack(actorIdx)`
   - `checkUnlessForCleanUpPool()`
 
+Instance fields include:
+- `isIntervened` (boolean): true when the partial match was steered by any intervention manifold.
+- `isIntraManifold` (boolean): set from low-level `Note` values `"intra"` or `"inter_intra"`.
+- `isInterManifold` (boolean): set from `Note` values `"inter"` / `"inter_intra"`, or when any actor is a newly spawned agent (`DramaManagerData.checkIsInterManifoldIntervenedByNewAgent`).
+- `isInduced` (boolean): true when a new partial *story* is spawned from an intervention-tagged seed event or a newly spawned actor.
+
+Key methods beyond pattern matching:
+- `checkInterventionStatus(newEvent)`: update manifold flags as new events join the match.
+- `setIsIntervened(...)`, `setIsInterManifold(...)`, `setIsInduced(...)`: explicit flag setters used by DramaManager / Pool.
+- `getJson()`: completed-event serialization; sets output `Note` to `"inter"`, `"intra"`, or `"inter_intra"` from manifold flags.
+
 Purpose: finite-state-like matcher for one high-level event candidate.
 
 ### `StorySifter/Pool.js`
@@ -528,10 +561,21 @@ Purpose: finite-state-like matcher for one high-level event candidate.
 - `getMiniStoryNumByType(type)`
 - `updateMiniStoryNumByType(type)`
 - `getTotalStoryNum()`
-- `newAddedPartialMatchCount` (per-beat counter; incremented in `matchNew`, reset in `cleanUpPool`)
+- `getNewAddedPartialMatchCount()`
+- `getNewAddedPartialStoryCount()`
+- `getNewCreatedPartialStoryFromSuccessfulIntervention()`
+- `getIntervenedPartialStoryNum()`: unique intervened story `matchId`s observed in the pool.
 
 Shared state:
 - `partialMatchPool` and counters for total partial matches/stories/abandoned events.
+- `newCreatedPartialStoryFromSuccessfulIntervention`: incremented in `matchNew` when a new partial story is spawned from an event whose `Note` is `"inter"`, `"intra"`, or `"inter_intra"`, or when any seed actor is a newly added agent.
+- `intervenedPartialStory`: unique intervened story match IDs; maintained by `updateIntervenedPartialStory()`.
+
+Behavioral notes:
+- On story completion, if `obj.isIntervened`, `updatePool` calls `DramaManagerData.updateIntervenedCompleteStoryType(...)` and records completed inter/intra interventions from `obj.isInterManifold` / `obj.isIntraManifold`.
+- Completed events are serialized via `HighLevelEvent.getJson()`, which emits manifold `Note` tags (`"inter"` / `"intra"` / `"inter_intra"`) rather than a generic `"intervened"` label.
+- `updateIntervenedPartialStory()` (called from `matchNew`, `updatePool`, and `cleanUpPool`) records active intervened stories into DramaManager intra/inter intervention lists.
+- `getResultsJson()` includes intervention metrics: `newCreatedPartialStoryFromSuccessfulIntervention`, `intervenedPartialStoryNum`, `interManifoldInterventionNum`, `intraManifoldInterventionNum`, `interManifoldCompletedInterventionNum`, `intraManifoldCompletedInterventionNum`.
 
 ### `StorySifter/HighLevelEvents.json`
 
@@ -571,21 +615,34 @@ Also exports:
 
 ### `DramaManager/DramaManagerData.js`
 
+Order records:
 - `SingleRecord(agentName, order, time)`
 - `recordIssuedOrder(agentName, order, time)`
 - `recordExecutedOrders(agentName, order, time)`
 - `getTargetFromLastOrder(agent, order, time)`
-- `updateIntervenedStoryType(storyType)`
-- `getIntervenedStoryCountByType(storyType)`
-- `getIntervenedStoryDetails()`
-- `getTotalIntervenedStoryCount()`
-- `checkIsIntervened(partialMatch)`
-- `getExecutedOrders()`
-- `getIssuedOrderNumber()`
-- `getExecutedOrderNumber()`
-- `getIssuedOrders()`
+- `getExecutedOrders()`, `getIssuedOrders()`
+- `getIssuedOrderNumber()`, `getExecutedOrderNumber()`
 
-Purpose: in-memory order/intervention records and statistics.
+Completed intervened-story aggregates:
+- `updateIntervenedCompleteStoryType(storyType)`
+- `getIntervenedCompleteStoryCountByType(storyType)`
+- `getIntervenedCompletedStoryDetails()`
+- `getTotalIntervenedStoryCount()`
+
+Intra-manifold intervention records:
+- `recordIntraManifoldIntervention(object)` / `getIntraManifoldInterventionRecords()` / `getIntraManifoldInterventionCount()`
+- `recordIntraManifoldCompletedIntervention(object)` / `getIntraManifoldCompletedInterventionRecords()` / `getIntraManifoldCompletedInterventionCount()`
+
+Inter-manifold intervention records:
+- `recordInterManifoldIntervention(object)`: record a unique intervened partial match (deduped by `partialMatchId` + `partialMatchType`).
+- `getInterManifoldInterventionRecords()`
+- `checkIsObjectCreatedBefore(object)`: true when an inter-manifold spawn was already recorded for the same partial match.
+- `getInterManifoldInterventionCountByType(objType)`
+- `recordInterManifoldCompletedIntervention(object)` / `getInterManifoldCompletedInterventionRecords()` / `getInterManifoldCompletedInterventionCount()`
+- `recordInterNewObject(object)` / `getInterNewObjectNumberByType(objType)`: count of agents/gear actually materialized on the map.
+- `checkIsInterManifoldIntervenedByNewAgent(actors)`: true if any actor name is in the newly added character list.
+
+Purpose: in-memory order/intervention records and statistics for both intra-manifold orders and inter-manifold object placement.
 
 ### `DramaManager/Priority.js`
 
@@ -595,27 +652,38 @@ Purpose: in-memory order/intervention records and statistics.
 
 Purpose: score order priority using recency continuity and rarity weighting.
 
-### `DramaManager/Intervention.js`
+### `DramaManager/IntraManifoldABIntervention.js`
 
 - `intervene(event, partialMatchId, partialMatchType, time)`
-- `orderChase(agent, target, partialMatchId, partialMatchType, time)`
-- `orderCriticalHit(agent, target, partialMatchId, partialMatchType, time)`
-- `orderAttack(agent, target, partialMatchId, partialMatchType, time)`
-- `orderHeal(agent, target, partialMatchId, partialMatchType, time)`
-- `orderRunAway(agent, target, partialMatchId, partialMatchType, time)`
+- `orderChase(...)`, `orderAttack(...)`, `orderHeal(...)`, `orderRunAway(...)`
 
-Purpose: map predicted low-level event needs to concrete agent orders.
+Purpose: weak action-based intra-manifold intervention — maps predicted low-level event needs to concrete agent orders issued via `CharacterBase.addOrder(...)`.
+
+### `DramaManager/InterManifoldIntervention.js`
+
+- `SingleObject(objectType, objectSubType, objectName, targetPosition, partialMatchId, partialMatchType, time)`
+- `intervene(event, partialMatchId, partialMatchType, time)`: queue new agents or medikits when required actors/items are missing (covers `"attacks"` / `"shoots"` / `"is chasing"`, `"is healing"`, `"is killed by"`).
+- `generateNewAgentInfo(...)`, `generateNewMedikitInfo(...)`: build placement candidates; guided positions via `getObjectPosition` (agents → nearest map edge; gear → nearest inside-building cell).
+- `addObjectOnMap()`: each beat, sort pending objects then materialize up to `InterventionNumEachBeat` (currently 3):
+  - ranking (`interventionRank`): stronger story occurrence-weight wins unless weights are within `InterventionOccurrenceWeightMargin`, in which case nearer-to-target placement wins;
+  - when `IS_GUIDED_INTER_MANIFOLD` is false, overwrite placement with dumped/random positions (`generateRandomPos` / `generateRandomPosInBuilding`);
+  - skip duplicates via `checkIsObjectCreatedBefore`;
+  - agents respect per-type population caps (`Utils.*_NUM`); successful spawns call `DramaManagerData.recordInterNewObject`.
+
+Purpose: inter-manifold intervention — spawns new agents or gear on the map to satisfy story preconditions that cannot be met by ordering existing agents alone.
 
 ### `DramaManager/DramaManager.js`
 
-- `checkPartialMatchPool(pool, time)`
-- `intervene(nextEvents, partialMatchId, partialMatchType, time)`
+- `checkPartialMatchPool(pool, time)`: for each active story partial match, find next lowest events; when both manifolds are enabled, draw **one shared** random `nextEvent` and dispatch it to both handlers.
+- `interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, time, pool)`: queue inter-manifold spawn candidates and mark matching pool entries (`setIsIntervened`, `setIsInterManifold`, `recordInterManifoldIntervention`).
+- `intraABIntervene(nextEvent, partialMatchId, partialMatchType, time)`
+- `addObjectOnMap()`: delegate to `InterManifoldIntervention.addObjectOnMap()`.
 - `findLowerLevelEventJson(nextEvents)`
 - `findLowestLevelJson(nextEvents)`
 - `findNextLowestEvents(partialMatch, pool)`
 - `findLowestPartialMatch(currentPartialMatch, pool)`
 
-Purpose: traverse active partial matches, infer next desired events, and trigger interventions.
+Purpose: traverse active partial matches, infer next desired events, and trigger the appropriate intervention manifold(s).
 
 ## Aggregation Module
 
@@ -678,7 +746,13 @@ Purpose: pair-correlation `g(r)` spatial structure estimation.
 
 - **Low-level event log record**
   - Produced by `Logger.info(...)`, typical fields:
-    - `N1`, `L`, `N2`, `T`, `id`, optional notes.
+    - `N1`, `L`, `N2`, `T`, `id`, optional `Note`.
+  - `Note` semantics:
+    - `"intra"` — low-level event emitted because an intra-manifold order was executed (`CharacterBase` order paths).
+    - On completed high-level/story events (`HighLevelEvent.getJson()`):
+      - `"inter"` — steered only by inter-manifold intervention (including newly spawned actors),
+      - `"intra"` — steered only by intra-manifold orders,
+      - `"inter_intra"` — steered by both manifolds.
 
 - **Population snapshot record**
   - Produced by `Logger.recordPopulationInfo(...)` each beat, then flushed by `Logger.writePopulationInfoToFile()` to `PopulationInfo.txt`.
@@ -715,8 +789,11 @@ Purpose: pair-correlation `g(r)` spatial structure estimation.
     - spawn new matches (`matchNew`),
     - apply `unless`, `unless_forever`, timeout, and rollback cleanup rules.
 
-- **Drama intervention**
-  - Derive likely next low-level events from partial matches, map them to orders, compute priority via recency+rarity, then enqueue into target agents.
+- **Drama intervention (dual-manifold)**
+  - **Intra-manifold (AB):** derive likely next low-level events from partial matches, map them to agent orders, compute priority via recency+rarity, enqueue into target agents; order execution logs events with `Note: "intra"`.
+  - **Inter-manifold:** when required actors or gear are absent, queue new `AGENT` or `GEAR` objects for map placement; `addObjectOnMap()` materializes up to a fixed number per beat, ranked by occurrence weight / proximity (or dumped/random when not guided).
+  - **Shared next-event selection:** when both manifolds are enabled, DramaManager picks one shared next event so both manifolds act on the same predicted step.
+  - **Intervention tracking:** partial matches carry `isIntervened` / `isIntraManifold` / `isInterManifold` / `isInduced`; completed intervened stories and manifold-specific counters are recorded in `DramaManagerData`; induced stories spawned from intervention-tagged seeds are counted separately.
 
 - **Spatial metrics**
   - NND and PCF are `O(N^2)` over alive agents each sample.
@@ -730,7 +807,7 @@ Purpose:
 - batch-run `main.js` repeatedly (looping run index and chosen parameter sets).
 
 Behavior:
-- currently runs 100 iterations with fixed:
+- currently runs 10 iterations with fixed:
   - `totalTimeSteps=2000`
   - `characterNum=100`
   - ratio `[1,1,1]`
@@ -764,9 +841,10 @@ Behavior:
 - Runtime dependency: `js-simulator` (plus `toad-scheduler` in `package.json`).
 - Typical invocation pattern:
   - `node main.js <timeSteps> <totalCharacters> <ratioJson> <mapSizeJson> <runIndex>`
-- Output path layout depends on drama toggle:
-  - `DM_Test/DramaManagerOn/<runIndex>/...` or
-  - `DM_Test/DramaManagerOff/<runIndex>/...`.
+- Output path layout depends on manifold toggles:
+  - `DM_Test/<IntraABOn|IntraABOff>_<InterOn|InterOff>[/<Guided|Dumped>]/<runIndex>/...`
+  - Example with both manifolds enabled and guided inter-manifold: `DM_Test/IntraABOn_InterOn/Guided/<runIndex>/`.
+- Stable-test aggregate JSON (written to `<mapSize>C<charCount>.txt`) includes `addedMedikitsNumber`, `addedAgentsNumber`, `partialStoryCreatedEachBeat`, and story-sifter results including `newCreatedPartialStoryFromSuccessfulIntervention`, `intervenedPartialStoryNum`, and per-manifold intervention / completed-intervention counts.
 
 ## 9) Limitations and Implementation Notes
 
