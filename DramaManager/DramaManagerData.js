@@ -132,6 +132,7 @@ function getIssuedOrders(){
 
 //------ Intra-manifold intervention records ------
 // record a new intra-manifold intervention, not a completed one
+// object is a partial match object
 function recordIntraManifoldIntervention(object){
     if (IntraManifoldInterventionRecords.indexOf(object) == -1) {
         IntraManifoldInterventionRecords.push(object)
@@ -166,7 +167,18 @@ function getIntraManifoldCompletedInterventionCount(){
 //     this.time = time
 // } 
 
+// objectType: agent or gear
+// objectSubType: agent type or gear type
+function SingleInterObject(objectType, objectSubType, objectName, partialMatchId, partialMatchType){
+    this.objectType = objectType
+    this.objectSubType = objectSubType
+    this.objectName = objectName
+    this.partialMatchId = partialMatchId
+    this.partialMatchType = partialMatchType
+}
+
 // record a new inter-manifold intervention, not a completed one
+// object is SingleInter  object
 function recordInterManifoldIntervention(object){
     for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
         var record = InterManifoldInterventionRecords[i]
@@ -195,7 +207,6 @@ function getInterManifoldInterventionCountByType(objType){
     var count = 0
     for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
         var record = InterManifoldInterventionRecords[i]
-        console.log("haha objType " + objType + " " + count)
         if (objType == null || record.objectType == objType) {
             count++
         }
@@ -272,5 +283,6 @@ module.exports = {
     getInterManifoldCompletedInterventionRecords,
     getInterManifoldCompletedInterventionCount,
     recordInterNewObject,
-    getInterNewObjectNumberByType
+    getInterNewObjectNumberByType,
+    SingleInterObject
 }

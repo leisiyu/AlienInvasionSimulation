@@ -5,6 +5,7 @@ const HighLevelEvents = require("./HighLevelEvents.json")
 const HighLevelEventModel = require("./HighLevelEventModel").HighLevelEvent
 const SifterUtil = require("./SifterUtil")
 const DramaManagerData = require("../DramaManager/DramaManagerData.js")
+const Utils = require("../Utils")
 
 var partialMatchPool = []
 const poolSize = 5000
@@ -336,7 +337,7 @@ function updateIntervenedPartialStory() {
                 intervenedPartialStory.push(obj.matchId)
             }
             if (obj.isInterManifold) {
-                DramaManagerData.recordInterManifoldIntervention(obj)
+                DramaManagerData.recordInterManifoldIntervention(new DramaManagerData.SingleInterObject(Utils.OBJECT_TYPE.AGENT, obj.type, obj.eventName, obj.matchId, obj.type))
             }
             if (obj.isIntraManifold) {
                 DramaManagerData.recordIntraManifoldIntervention(obj)

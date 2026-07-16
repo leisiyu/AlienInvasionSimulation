@@ -39,14 +39,7 @@ function interManifoldIntervene(nextEvent, partialMatchId, partialMatchType, tim
     if (nextEvent) {
         // var nextEvent = nextEvents[Math.floor(Math.random() * nextEvents.length)]
         InterManifoldIntervention.intervene(nextEvent, partialMatchId, partialMatchType, time)
-        for (let i = 0; i < pool.length; i++){
-            var obj = pool[i]
-            if (obj.matchId == partialMatchId){
-                obj.setIsIntervened(true)
-                obj.setIsInterManifold(true)
-                DramaManagerData.recordInterManifoldIntervention(obj)
-            }
-        }
+        
     } else {
         console.log("No next lowest event found for intervention. (inter)")
     }
