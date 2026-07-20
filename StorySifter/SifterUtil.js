@@ -6,12 +6,15 @@ function checkCharacterType(characterName, characterType) {
     var currentType = ""
     switch (characterName.charAt(0)){
         case "ns":
+        case "s"
             currentType = "SOLDIER"
             break
         case "na":
+        case "a":
             currentType = "ALIEN"
             break
         case "nt":
+        case "t":
             currentType = "TOWNSFOLK"
             break
         case "M":
