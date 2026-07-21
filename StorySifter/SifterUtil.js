@@ -6,7 +6,7 @@ function checkCharacterType(characterName, characterType) {
     var currentType = ""
     switch (characterName.charAt(0)){
         case "ns":
-        case "s"
+        case "s":
             currentType = "SOLDIER"
             break
         case "na":
