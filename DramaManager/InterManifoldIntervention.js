@@ -311,7 +311,7 @@ function addObjectOnMap(){
             if (partialMatch.matchId == object.partialMatchId && partialMatch.eventName == object.partialMatchType){
                 partialMatch.setIsIntervened(true)
                 partialMatch.setIsInterManifold(true)
-                DramaManagerData.recordInterManifoldIntervention(new DramaManagerData.SingleInterObject(object.objectType, object.objectSubType, object.objectName, object.partialMatchId, object.partialMatchType))
+                DramaManagerData.recordInterManifoldIntervention(new DramaManagerData.SingleInterObject(object.objectType, object.objectSubType, object.objectName, object.partialMatchId, partialMatch.eventName))
             }
         }        
     } 

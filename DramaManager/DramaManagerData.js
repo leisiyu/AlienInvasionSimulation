@@ -169,22 +169,28 @@ function getIntraManifoldCompletedInterventionCount(){
 
 // objectType: agent or gear
 // objectSubType: agent type or gear type
-function SingleInterObject(objectType, objectSubType, objectName, partialMatchId, partialMatchType){
+// objectName: agent name or gear name
+// partialMatchId: partial match id
+// partialMatchType: partial match event name
+function SingleInterObject(objectType, objectSubType, objectName, partialMatchId, partialMatchEventName){
     this.objectType = objectType
     this.objectSubType = objectSubType
     this.objectName = objectName
     this.partialMatchId = partialMatchId
-    this.partialMatchType = partialMatchType
+    this.partialMatchEventName = partialMatchEventName
 }
 
 // record a new inter-manifold intervention, not a completed one
 // object is SingleInter  object
 function recordInterManifoldIntervention(object){
-    for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
-        var record = InterManifoldInterventionRecords[i]
-        if (record.partialMatchId == object.partialMatchId && record.partialMatchType == object.partialMatchType) {
-            return 
-        }
+    // for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
+    //     var record = InterManifoldInterventionRecords[i]
+    //     if (record.partialMatchId == object.partialMatchId && record.partialMatchEventName == object.partialMatchEventName) {
+    //         return 
+    //     }
+    // }
+    if (checkIsObjectCreatedBefore(object)) {
+        return
     }
     InterManifoldInterventionRecords.push(object)
 }
@@ -196,7 +202,7 @@ function getInterManifoldInterventionRecords(){
 function checkIsObjectCreatedBefore(object){
     for (let i = 0; i < InterManifoldInterventionRecords.length; i++) {
         var record = InterManifoldInterventionRecords[i]
-        if (record.partialMatchId == object.partialMatchId && record.partialMatchType == object.partialMatchType) {
+        if (record.partialMatchId == object.partialMatchId && record.partialMatchEventName == object.partialMatchEventName) {
             return true
         }
     }
@@ -226,6 +232,7 @@ function getInterManifoldCompletedInterventionCount(){
     return InterManifoldCompletedInterventionRecords.length
 }
 
+// agent or gear
 function recordInterNewObject(object){
     InterNewObjects.push(object)
 }
