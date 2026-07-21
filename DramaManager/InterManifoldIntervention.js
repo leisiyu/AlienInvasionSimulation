@@ -308,7 +308,7 @@ function addObjectOnMap(){
         const Pool = require("../StorySifter/Pool.js")
         for (let i = 0; i < Pool.partialMatchPool.length; i++){
             var partialMatch = Pool.partialMatchPool[i]
-            if (partialMatch.matchId == object.partialMatchId && partialMatch.matchType == object.partialMatchType){
+            if (partialMatch.matchId == object.partialMatchId && partialMatch.eventName == object.partialMatchType){
                 partialMatch.setIsIntervened(true)
                 partialMatch.setIsInterManifold(true)
                 DramaManagerData.recordInterManifoldIntervention(new DramaManagerData.SingleInterObject(object.objectType, object.objectSubType, object.objectName, object.partialMatchId, object.partialMatchType))
