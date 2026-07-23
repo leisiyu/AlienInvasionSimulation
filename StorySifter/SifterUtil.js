@@ -5,15 +5,12 @@ function checkCharacterType(characterName, characterType) {
     if (characterName === "" || characterName == undefined) {return true}
     var currentType = ""
     switch (characterName.charAt(0)){
-        case "ns":
         case "s":
             currentType = "SOLDIER"
             break
-        case "na":
         case "a":
             currentType = "ALIEN"
             break
-        case "nt":
         case "t":
             currentType = "TOWNSFOLK"
             break
@@ -25,6 +22,17 @@ function checkCharacterType(characterName, characterType) {
             break
         case "G":
             currentType = "WEAPON"
+            break
+        case "n":
+            if (characterName.charAt(1) == "s") {
+                currentType = "SOLDIER"
+            } else if (characterName.charAt(1) == "a") {
+                currentType = "ALIEN"
+            } else if (characterName.charAt(1) == "t") {
+                currentType = "TOWNSFOLK"
+            } else if (characterName.charAt(1) == "m") {
+                currentType = "MEDIKIT"
+            }
             break
     }
 
