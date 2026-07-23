@@ -234,15 +234,17 @@ function getTheNearestInsideBuildingPos(pos){
     var buildingIdx = distances.indexOf(minDistance)
     if (buildingIdx != -1) {
         var building = map.buildings[buildingIdx]
-        return [building.position[0] + Math.floor(Math.random * building.size[0]), building.position[1] + Math.floor(Math.random * building.size[1])]
+        return [building.position[0] + Math.floor(Math.random() * building.size[0]), building.position[1] + Math.floor(Math.random() * building.size[1])]
     }
     return [0, 0]
 }
 
 // used for inter-manifold intervention
 // generate a new gear on the map
-function addGearObjectOnMap(gearObject){
-    var position = getTheNearestInsideBuildingPos(gearObject.targetPosition)
+function addGearObjectOnMap(gearObject, position){
+    if (position == null){
+        position = getTheNearestInsideBuildingPos(gearObject.targetPosition)
+    }
     var valueMin = Utils.HEALS[gearObject.objectSubType].value[0]
     var valueMax = Utils.HEALS[gearObject.objectSubType].value[1]
     var randomValue = Math.floor(Math.random() * (valueMax - valueMin + 1)) + valueMin
@@ -251,6 +253,14 @@ function addGearObjectOnMap(gearObject){
     gear.updateMapPosition(position)
 
     gearsOnMap.push(gear)
+}
+
+function generateRandomPos(){
+    return map.generateRandomPos()
+}
+
+function generateRandomPosInBuilding(){
+    return map.generateRandomPosInBuilding()
 }
 
 module.exports = {
@@ -271,4 +281,6 @@ module.exports = {
     getTheNearestPosOnEdge,
     getTheNearestInsideBuildingPos,
     addGearObjectOnMap,
+    generateRandomPos,
+    generateRandomPosInBuilding,
 }
